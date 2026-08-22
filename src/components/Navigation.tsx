@@ -4,14 +4,15 @@ import { useAppStore, type Page } from '@/store/useAppStore';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  GraduationCap, Menu, X, Home, BookOpen, ClipboardList,
-  User, LogIn, Calendar, Phone, Shield, ChevronDown, Laptop
+   GraduationCap, Menu, X, Home, BookOpen, ClipboardList,
+  User, LogIn, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon
 } from 'lucide-react';
 
 const NAV_ITEMS: { label: string; page: Page; icon?: React.ReactNode }[] = [
   { label: 'Home', page: 'home', icon: <Home size={16} /> },
   { label: 'Programs', page: 'programs', icon: <BookOpen size={16} /> },
   { label: 'Admissions', page: 'admissions', icon: <ClipboardList size={16} /> },
+  { label: 'Gallery', page: 'gallery', icon: <ImageIcon size={16} /> },
   { label: 'Events', page: 'events', icon: <Calendar size={16} /> },
   { label: 'Contact', page: 'contact', icon: <Phone size={16} /> },
 ];

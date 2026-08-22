@@ -1,0 +1,1810 @@
+   395→  useEffect(() => {
+   396→    let cancelled = false;
+   397→    Promise.all([
+   398→      fetch('/api/admin').then((r) => r.json()),
+   399→      fetch('/api/admissions').then((r) => r.json()),
+   400→      fetch('/api/payments').then((r) => r.json()),
+   401→      fetch('/api/admissions?status=enrolled').then((r) => r.json()),
+   402→      fetch('/api/events').then((r) => r.json()),
+   403→      fetch('/api/contact').then((r) => r.json()),
+   404→    ]).then(([adminJson, admissionsJson, paymentsJson, enrolledJson, eventsJson, contactJson]) => {
+   405→      if (cancelled) return;
+   406→      if (adminJson.success) {
+   407→        setStats(adminJson.data.stats);
+   408→        setRecentApps(adminJson.data.recentApplications);
+   409→        setRecentPayments(adminJson.data.recentPayments);
+   410→        setPaymentsByStatus(adminJson.data.paymentsByMonth || []);
+   411→        setAppsByStatus(adminJson.data.appsByStatus || []);
+   412→      }
+   413→      if (admissionsJson.success) {
+   414→        setApplications(admissionsJson.data);
+   415→        setAppCounts(admissionsJson.counts || {});
+   416→      }
+   417→      if (paymentsJson.success) {
+   418→        setAllPayments(paymentsJson.data);
+   419→        setPaymentSummary(paymentsJson.summary);
+   420→      }
+   421→      if (enrolledJson.success) {
+   422→        const enrolled = enrolledJson.data || [];
+   423→        setStudents(
+   424→          enrolled.map((app: Application) => ({
+   425→            id: app.id,
+   426→            studentNumber: `SKT/${app.intakeYear || new Date().getFullYear()}/${app.referenceNumber.slice(-5)}`,
+   427→            applicationId: app.id,
+   428→            fullName: app.fullName,
+   429→            phone: app.phone,
+   430→            email: app.email,
+   431→            programme: app.programme || 'N/A',
+   432→            intakeYear: app.intakeYear || 'N/A',
+   433→            status: 'active',
+   434→            createdAt: app.createdAt,
+   435→            updatedAt: app.updatedAt,
+   436→          }))
+   437→        );
+   438→      }
+   439→      if (eventsJson.success) {
+   440→        setEvents(eventsJson.data);
+   441→      }
+   442→      if (contactJson.success) {
+   443→        setMessages(contactJson.data);
+   444→        setUnreadCount(contactJson.unread || 0);
+   445→      }
+   446→      setLoading(false);
+   447→    }).catch(() => {
+   448→      if (!cancelled) {
+   449→        addToast('Failed to load some data', 'error');
+   450→        setLoading(false);
+   451→      }
+   452→    });
+   453→    return () => { cancelled = true; };
+   454→  }, []);
+   455→
+   456→  // ---- Actions ----
+   457→  const updateApplicationStatus = async (id: string, status: string) => {
+   458→    setActionLoading(id);
+   459→    try {
+   460→      const res = await fetch('/api/admissions', {
+   461→        method: 'PATCH',
+   462→        headers: { 'Content-Type': 'application/json' },
+   463→        body: JSON.stringify({ id, status }),
+   464→      });
+   465→      const json = await res.json();
+   466→      if (json.success) {
+   467→        addToast(`Application ${status} successfully`, 'success');
+   468→        fetchApplications();
+   469→        fetchDashboard();
+   470→        if (status === 'enrolled') fetchStudents();
+   471→      } else {
+   472→        addToast(json.message || 'Action failed', 'error');
+   473→      }
+   474→    } catch {
+   475→      addToast('Failed to update application', 'error');
+   476→    }
+   477→    setActionLoading(null);
+   478→  };
+   479→
+   480→  const deleteEvent = async (id: string) => {
+   481→    try {
+   482→      const res = await fetch(`/api/events?id=${id}`, { method: 'DELETE' });
+   483→      const json = await res.json();
+   484→      if (json.success) {
+   485→        addToast('Event deleted', 'success');
+   486→        fetchEvents();
+   487→      } else {
+   488→        addToast('Failed to delete event', 'error');
+   489→      }
+   490→    } catch {
+   491→      addToast('Failed to delete event', 'error');
+   492→    }
+   493→  };
+   494→
+   495→  const fetchGallery = async () => {
+   496→    try {
+   497→      const res = await fetch('/api/gallery?admin=true');
+   498→      if (res.ok) {
+   499→        const data = await res.json();
+   500→        setGalleryItems(data);
+   501→      }
+   502→    } catch {
+   503→      // silent
+   504→    }
+   505→  };
+   506→
+   507→  const deleteGalleryItem = async (id: string) => {
+   508→    try {
+   509→      const res = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
+   510→      const json = await res.json();
+   511→      if (json.success) {
+   512→        addToast('Gallery item deleted', 'success');
+   513→        fetchGallery();
+   514→      } else {
+   515→        addToast('Failed to delete gallery item', 'error');
+   516→      }
+   517→    } catch {
+   518→      addToast('Failed to delete gallery item', 'error');
+   519→    }
+   520→  };
+   521→
+   522→  const createGalleryItem = async () => {
+   523→    if (!galleryForm.title.trim() || !galleryForm.imageUrl.trim()) {
+   524→      addToast('Title and image URL are required', 'error');
+   525→      return;
+   526→    }
+   527→    try {
+   528→      const res = await fetch('/api/gallery', {
+   529→        method: 'POST',
+   530→        headers: { 'Content-Type': 'application/json' },
+   531→        body: JSON.stringify(galleryForm),
+   532→      });
+   533→      if (res.ok) {
+   534→        addToast('Gallery item added successfully', 'success');
+   535→        setGalleryForm({ title: '', description: '', imageUrl: '', category: 'general', eventDate: '' });
+   536→        setGalleryDialogOpen(false);
+   537→        fetchGallery();
+   538→      } else {
+   539→        addToast('Failed to add gallery item', 'error');
+   540→      }
+   541→    } catch {
+   542→      addToast('Failed to add gallery item', 'error');
+   543→    }
+   544→  };
+   545→
+   546→  const toggleGalleryPublish = async (item: GalleryItem) => {
+   547→    try {
+   548→      await fetch('/api/gallery', {
+   549→        method: 'PATCH',
+   550→        headers: { 'Content-Type': 'application/json' },
+   551→        body: JSON.stringify({ id: item.id, isPublished: !item.isPublished }),
+   552→      });
+   553→      fetchGallery();
+   554→    } catch {
+   555→      addToast('Failed to update gallery item', 'error');
+   556→    }
+   557→  };
+   558→
+   559→  const createEvent = async () => {
+   560→    if (!eventForm.title.trim()) {
+   561→      addToast('Event title is required', 'error');
+   562→      return;
+   563→    }
+   564→    try {
+   565→      const res = await fetch('/api/events', {
+   566→        method: 'POST',
+   567→        headers: { 'Content-Type': 'application/json' },
+   568→        body: JSON.stringify(eventForm),
+   569→      });
+   570→      const json = await res.json();
+   571→      if (json.success) {
+   572→        addToast('Event created successfully', 'success');
+   573→        setEventForm({ title: '', description: '', category: 'general', eventDate: '', eventTime: '', location: '' });
+   574→        setEventDialogOpen(false);
+   575→        fetchEvents();
+   576→      } else {
+   577→        addToast(json.message || 'Failed to create event', 'error');
+   578→      }
+   579→    } catch {
+   580→      addToast('Failed to create event', 'error');
+   581→    }
+   582→  };
+   583→
+   584→  const handleLogout = () => {
+   585→    setAdminUser(null);
+   586→    setCurrentPage('home');
+   587→    addToast('Logged out successfully', 'info');
+   588→  };
+   589→
+   590→  const navigateTo = (section: Section) => {
+   591→    setActiveSection(section);
+   592→    setSidebarOpen(false);
+   593→  };
+   594→
+   595→  // ---- Helpers ----
+   596→  const formatDate = (dateStr: string) => {
+   597→    if (!dateStr) return 'N/A';
+   598→    try {
+   599→      return new Date(dateStr).toLocaleDateString('en-GB', {
+   600→        day: '2-digit',
+   601→        month: 'short',
+   602→        year: 'numeric',
+   603→      });
+   604→    } catch {
+   605→      return dateStr;
+   606→    }
+   607→  };
+   608→
+   609→  const getStatusBadge = (status: string) => {
+   610→    const config = STATUS_BADGE[status] || { variant: 'outline' as const, className: '' };
+   611→    return (
+   612→      <Badge variant={config.variant} className={config.className}>
+   613→        {status.charAt(0).toUpperCase() + status.slice(1)}
+   614→      </Badge>
+   615→    );
+   616→  };
+   617→
+   618→  const getPaymentStatusBadge = (status: string) => {
+   619→    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string }> = {
+   620→      successful: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   621→      pending: { variant: 'outline', className: 'border-amber-400 text-amber-700 bg-amber-50' },
+   622→      failed: { variant: 'destructive', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
+   623→      initiated: { variant: 'outline', className: 'border-blue-400 text-blue-700 bg-blue-50' },
+   624→    };
+   625→    const config = map[status] || map.pending;
+   626→    return (
+   627→      <Badge variant={config.variant} className={config.className}>
+   628→        {status.charAt(0).toUpperCase() + status.slice(1)}
+   629→      </Badge>
+   630→    );
+   631→  };
+   632→
+   633→  // Revenue chart max for scaling
+   634→  const maxRevenueBar = Math.max(
+   635→    ...(paymentsByStatus.map((p) => p._sum.amount || 0)),
+   636→    1
+   637→  );
+   638→
+   639→  const unreadMessages = messages.filter((m) => !m.isRead);
+   640→
+   641→  // ===================== RENDER =====================
+   642→
+   643→  return (
+   644→    <div className="min-h-screen bg-slate-50 flex">
+   645→      {/* ===== MOBILE SIDEBAR OVERLAY ===== */}
+   646→      <AnimatePresence>
+   647→        {sidebarOpen && (
+   648→          <motion.div
+   649→            initial={{ opacity: 0 }}
+   650→            animate={{ opacity: 1 }}
+   651→            exit={{ opacity: 0 }}
+   652→            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+   653→            onClick={() => setSidebarOpen(false)}
+   654→          />
+   655→        )}
+   656→      </AnimatePresence>
+   657→
+   658→      {/* ===== SIDEBAR ===== */}
+   659→      <aside
+   660→        className={`
+   661→          fixed top-0 left-0 z-50 h-full w-64 flex-shrink-0
+   662→          bg-gradient-to-b from-[#0f2347] to-[#1a3a6b]
+   663→          transform transition-transform duration-300 ease-in-out
+   664→          lg:translate-x-0 lg:static lg:z-auto
+   665→          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+   666→        `}
+   667→      >
+   668→        <div className="flex flex-col h-full">
+   669→          {/* Logo / Brand */}
+   670→          <div className="flex items-center justify-between p-5 border-b border-white/10">
+   671→            <div className="flex items-center gap-3">
+   672→              <div className="w-10 h-10 rounded-lg bg-[#f5c518] flex items-center justify-center font-bold text-[#0f2347] text-lg">
+   673→                SK
+   674→              </div>
+   675→              <div>
+   676→                <h1 className="text-white font-bold text-sm leading-tight">SKTIM</h1>
+   677→                <p className="text-white/50 text-xs">Madera Admin</p>
+   678→              </div>
+   679→            </div>
+   680→            <button
+   681→              onClick={() => setSidebarOpen(false)}
+   682→              className="lg:hidden text-white/60 hover:text-white transition-colors"
+   683→            >
+   684→              <X className="w-5 h-5" />
+   685→            </button>
+   686→          </div>
+   687→
+   688→          {/* Navigation */}
+   689→          <nav className="flex-1 py-4 px-3 overflow-y-auto">
+   690→            <p className="text-white/30 text-xs uppercase tracking-wider px-3 mb-2 font-semibold">
+   691→              Main Menu
+   692→            </p>
+   693→            {NAV_ITEMS.map((item) => {
+   694→              const isActive = activeSection === item.section;
+   695→              const Icon = item.icon;
+   696→              return (
+   697→                <button
+   698→                  key={item.section}
+   699→                  onClick={() => navigateTo(item.section)}
+   700→                  className={`
+   701→                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 mb-0.5
+   702→                    ${
+   703→                      isActive
+   704→                        ? 'bg-white/10 text-[#f5c518] border-l-[3px] border-[#f5c518]'
+   705→                        : 'text-white/60 hover:text-white hover:bg-white/5 border-l-[3px] border-transparent'
+   706→                    }
+   707→                  `}
+   708→                >
+   709→                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+   710→                  <span>{item.label}</span>
+   711→                  {item.section === 'messages' && unreadCount > 0 && (
+   712→                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+   713→                      {unreadCount > 9 ? '9+' : unreadCount}
+   714→                    </span>
+   715→                  )}
+   716→                </button>
+   717→              );
+   718→            })}
+   719→          </nav>
+   720→
+   721→          {/* Admin User Info */}
+   722→          <div className="p-4 border-t border-white/10">
+   723→            <div className="flex items-center gap-3 mb-3">
+   724→              <div className="w-9 h-9 rounded-full bg-[#f5c518] flex items-center justify-center text-[#0f2347] font-bold text-sm">
+   725→                {adminUser?.name
+   726→                  ?.split(' ')
+   727→                  .map((n) => n[0])
+   728→                  .join('')
+   729→                  .slice(0, 2)
+   730→                  .toUpperCase() || 'AD'}
+   731→              </div>
+   732→              <div className="flex-1 min-w-0">
+   733→                <p className="text-white text-sm font-medium truncate">
+   734→                  {adminUser?.name || 'Administrator'}
+   735→                </p>
+   736→                <p className="text-white/40 text-xs truncate">{adminUser?.email || 'admin@stkizitos.edu'}</p>
+   737→              </div>
+   738→            </div>
+   739→            <Button
+   740→              variant="ghost"
+   741→              onClick={handleLogout}
+   742→              className="w-full justify-start text-red-300 hover:text-red-100 hover:bg-red-500/10 text-sm gap-2"
+   743→            >
+   744→              <LogOut className="w-4 h-4" />
+   745→              Sign Out
+   746→            </Button>
+   747→          </div>
+   748→        </div>
+   749→      </aside>
+   750→
+   751→      {/* ===== MAIN CONTENT ===== */}
+   752→      <div className="flex-1 min-h-screen flex flex-col lg:ml-0">
+   753→        {/* Top Bar */}
+   754→        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+   755→          <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+   756→            <div className="flex items-center gap-3">
+   757→              <button
+   758→                onClick={() => setSidebarOpen(true)}
+   759→                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+   760→              >
+   761→                <Menu className="w-5 h-5 text-slate-600" />
+   762→              </button>
+   763→              <div>
+   764→                <h2 className="text-lg font-bold text-slate-800">
+   765→                  {NAV_ITEMS.find((n) => n.section === activeSection)?.label || 'Dashboard'}
+   766→                </h2>
+   767→                <p className="text-xs text-slate-400 hidden sm:block">
+   768→                  St. Kizito&apos;s Technical Institute — Madera
+   769→                </p>
+   770→              </div>
+   771→            </div>
+   772→            <div className="flex items-center gap-3">
+   773→              <div className="relative hidden md:block">
+   774→                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   775→                <Input
+   776→                  placeholder="Search anything..."
+   777→                  value={globalSearch}
+   778→                  onChange={(e) => setGlobalSearch(e.target.value)}
+   779→                  className="pl-9 w-64 h-9 bg-slate-50 border-slate-200 text-sm"
+   780→                />
+   781→              </div>
+   782→              <div className="w-9 h-9 rounded-full bg-[#1a3a6b] flex items-center justify-center text-white font-bold text-xs">
+   783→                {adminUser?.name
+   784→                  ?.split(' ')
+   785→                  .map((n) => n[0])
+   786→                  .join('')
+   787→                  .slice(0, 2)
+   788→                  .toUpperCase() || 'AD'}
+   789→              </div>
+   790→            </div>
+   791→          </div>
+   792→        </header>
+   793→
+   794→        {/* Page Content */}
+   795→        <main className="flex-1 p-4 sm:p-6">
+   796→          <AnimatePresence mode="wait">
+   797→            <motion.div
+   798→              key={activeSection}
+   799→              variants={pageVariants}
+   800→              initial="initial"
+   801→              animate="animate"
+   802→              exit="exit"
+   803→              transition={{ duration: 0.25, ease: 'easeInOut' }}
+   804→            >
+   805→              {loading ? (
+   806→                <DashboardSkeleton />
+   807→              ) : activeSection === 'dashboard' ? (
+   808→                <DashboardSection
+   809→                  stats={stats}
+   810→                  recentApps={recentApps}
+   811→                  recentPayments={recentPayments}
+   812→                  paymentsByStatus={paymentsByStatus}
+   813→                  appsByStatus={appsByStatus}
+   814→                  maxRevenueBar={maxRevenueBar}
+   815→                  formatDate={formatDate}
+   816→                  getStatusBadge={getStatusBadge}
+   817→                  getPaymentStatusBadge={getPaymentStatusBadge}
+   818→                  formatCurrency={formatCurrency}
+   819→                  onViewApplicant={setViewApplicant}
+   820→                  onApprove={updateApplicationStatus}
+   821→                  onReject={updateApplicationStatus}
+   822→                  actionLoading={actionLoading}
+   823→                />
+   824→              ) : activeSection === 'applications' ? (
+   825→                <ApplicationsSection
+   826→                  applications={applications}
+   827→                  appCounts={appCounts}
+   828→                  appSearch={appSearch}
+   829→                  appStatusFilter={appStatusFilter}
+   830→                  setAppSearch={setAppSearch}
+   831→                  setAppStatusFilter={setAppStatusFilter}
+   832→                  formatDate={formatDate}
+   833→                  getStatusBadge={getStatusBadge}
+   834→                  onViewApplicant={setViewApplicant}
+   835→                  onApprove={updateApplicationStatus}
+   836→                  onReject={updateApplicationStatus}
+   837→                  onEnroll={updateApplicationStatus}
+   838→                  actionLoading={actionLoading}
+   839→                />
+   840→              ) : activeSection === 'payments' ? (
+   841→                <PaymentsSection
+   842→                  payments={allPayments}
+   843→                  summary={paymentSummary}
+   844→                  formatDate={formatDate}
+   845→                  getPaymentStatusBadge={getPaymentStatusBadge}
+   846→                  formatCurrency={formatCurrency}
+   847→                />
+   848→              ) : activeSection === 'students' ? (
+   849→                <StudentsSection students={students} formatDate={formatDate} getStatusBadge={getStatusBadge} />
+   850→              ) : activeSection === 'events' ? (
+   851→                <EventsSection
+   852→                  events={events}
+   853→                  onCreateNew={() => setEventDialogOpen(true)}
+   854→                  onDelete={deleteEvent}
+   855→                  formatDate={formatDate}
+   856→                />
+   857→              ) : activeSection === 'messages' ? (
+   858→                <MessagesSection
+   859→                  messages={messages}
+   860→                  unreadCount={unreadCount}
+   861→                  onExpand={setExpandedMessage}
+   862→                  formatDate={formatDate}
+   863→                />
+   864→              ) : activeSection === 'settings' ? (
+   865→                <SettingsSection />
+   866→              ) : null}
+   867→            </motion.div>
+   868→          </AnimatePresence>
+   869→        </main>
+   870→      </div>
+   871→
+   872→      {/* ===== APPLICANT VIEW DIALOG ===== */}
+   873→      <Dialog open={!!viewApplicant} onOpenChange={() => setViewApplicant(null)}>
+   874→        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+   875→          <DialogHeader>
+   876→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+   877→              Applicant Details
+   878→            </DialogTitle>
+   879→            <DialogDescription>
+   880→              Full information for application {viewApplicant?.referenceNumber}
+   881→            </DialogDescription>
+   882→          </DialogHeader>
+   883→          {viewApplicant && (
+   884→            <div className="space-y-6">
+   885→              {/* Header */}
+   886→              <div className="flex items-start justify-between">
+   887→                <div>
+   888→                  <h3 className="text-xl font-bold text-slate-800">{viewApplicant.fullName}</h3>
+   889→                  <p className="text-sm text-slate-500 mt-1">{viewApplicant.referenceNumber}</p>
+   890→                </div>
+   891→                {getStatusBadge(viewApplicant.status)}
+   892→              </div>
+   893→
+   894→              {/* Quick Info */}
+   895→              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+   896→                <QuickInfo icon={Phone} label="Phone" value={viewApplicant.phone} />
+   897→                <QuickInfo icon={Mail} label="Email" value={viewApplicant.email} />
+   898→                <QuickInfo icon={GraduationCap} label="Programme" value={viewApplicant.programme || 'N/A'} />
+   899→                <QuickInfo icon={Calendar} label="Intake" value={viewApplicant.intakeYear || 'N/A'} />
+   900→              </div>
+   901→
+   902→              {/* Personal Details */}
+   903→              <DetailCard title="Personal Information">
+   904→                <div className="grid grid-cols-2 gap-4">
+   905→                  <DetailRow label="Date of Birth" value={viewApplicant.dob} />
+   906→                  <DetailRow label="Gender" value={viewApplicant.gender} />
+   907→                  <DetailRow label="Nationality" value={viewApplicant.nationality} />
+   908→                  <DetailRow label="Religion" value={viewApplicant.religion} />
+   909→                  <DetailRow label="NIN" value={viewApplicant.nin} />
+   910→                </div>
+   911→              </DetailCard>
+   912→
+   913→              {/* Contact Details */}
+   914→              <DetailCard title="Contact & Address">
+   915→                <div className="grid grid-cols-2 gap-4">
+   916→                  <DetailRow label="District" value={viewApplicant.district} />
+   917→                  <DetailRow label="Address" value={viewApplicant.address} />
+   918→                  <DetailRow label="Next of Kin" value={viewApplicant.nextOfKin} />
+   919→                  <DetailRow label="Kin Phone" value={viewApplicant.nextOfKinPhone} />
+   920→                </div>
+   921→              </DetailCard>
+   922→
+   923→              {/* Academic Details */}
+   924→              <DetailCard title="Academic Background">
+   925→                <div className="grid grid-cols-2 gap-4">
+   926→                  <DetailRow label="Last School" value={viewApplicant.lastSchool} />
+   927→                  <DetailRow label="Year Completed" value={viewApplicant.yearCompleted} />
+   928→                  <DetailRow label="Qualification" value={viewApplicant.qualification} />
+   929→                </div>
+   930→              </DetailCard>
+   931→
+   932→              {/* Payment Info */}
+   933→              <DetailCard title="Payment Information">
+   934→                <div className="grid grid-cols-2 gap-4">
+   935→                  <DetailRow label="Payment Status" value={viewApplicant.paymentStatus} />
+   936→                  <DetailRow
+   937→                    label="Amount"
+   938→                    value={viewApplicant.paymentAmount ? formatCurrency(viewApplicant.paymentAmount) : 'N/A'}
+   939→                  />
+   940→                  <DetailRow label="Payment Ref" value={viewApplicant.paymentRef} />
+   941→                  <DetailRow label="Payment Method" value={viewApplicant.paymentMethod} />
+   942→                  <DetailRow label="Paid At" value={viewApplicant.paidAt ? formatDate(viewApplicant.paidAt) : 'N/A'} />
+   943→                </div>
+   944→              </DetailCard>
+   945→
+   946→              {/* Action Buttons */}
+   947→              <div className="flex flex-wrap gap-2 pt-2">
+   948→                {viewApplicant.status === 'pending' && (
+   949→                  <>
+   950→                    <Button
+   951→                      onClick={() => {
+   952→                        updateApplicationStatus(viewApplicant.id, 'approved');
+   953→                        setViewApplicant(null);
+   954→                      }}
+   955→                      disabled={!!actionLoading}
+   956→                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+   957→                    >
+   958→                      <CheckCircle className="w-4 h-4 mr-1" />
+   959→                      Approve
+   960→                    </Button>
+   961→                    <Button
+   962→                      variant="destructive"
+   963→                      onClick={() => {
+   964→                        updateApplicationStatus(viewApplicant.id, 'rejected');
+   965→                        setViewApplicant(null);
+   966→                      }}
+   967→                      disabled={!!actionLoading}
+   968→                    >
+   969→                      <XCircle className="w-4 h-4 mr-1" />
+   970→                      Reject
+   971→                    </Button>
+   972→                  </>
+   973→                )}
+   974→                {viewApplicant.status === 'approved' && (
+   975→                  <Button
+   976→                    onClick={() => {
+   977→                      updateApplicationStatus(viewApplicant.id, 'enrolled');
+   978→                      setViewApplicant(null);
+   979→                    }}
+   980→                    disabled={!!actionLoading}
+   981→                    className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+   982→                  >
+   983→                    <UserPlus className="w-4 h-4 mr-1" />
+   984→                    Enroll Student
+   985→                  </Button>
+   986→                )}
+   987→                <Button
+   988→                  variant="outline"
+   989→                  onClick={() => setViewApplicant(null)}
+   990→                >
+   991→                  Close
+   992→                </Button>
+   993→              </div>
+   994→            </div>
+   995→          )}
+   996→        </DialogContent>
+   997→      </Dialog>
+   998→
+   999→      {/* ===== EXPANDED MESSAGE DIALOG ===== */}
+  1000→      <Dialog open={!!expandedMessage} onOpenChange={() => setExpandedMessage(null)}>
+  1001→        <DialogContent className="sm:max-w-lg">
+  1002→          <DialogHeader>
+  1003→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+  1004→              {expandedMessage?.subject || 'Message'}
+  1005→            </DialogTitle>
+  1006→            <DialogDescription>
+  1007→              From {expandedMessage?.name} on {expandedMessage ? formatDate(expandedMessage.createdAt) : ''}
+  1008→            </DialogDescription>
+  1009→          </DialogHeader>
+  1010→          {expandedMessage && (
+  1011→            <div className="space-y-4">
+  1012→              <div className="flex items-center gap-4 text-sm text-slate-600">
+  1013→                <span className="flex items-center gap-1">
+  1014→                  <Mail className="w-4 h-4" /> {expandedMessage.email}
+  1015→                </span>
+  1016→                {expandedMessage.phone && (
+  1017→                  <span className="flex items-center gap-1">
+  1018→                    <Phone className="w-4 h-4" /> {expandedMessage.phone}
+  1019→                  </span>
+  1020→                )}
+  1021→              </div>
+  1022→              <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+  1023→                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{expandedMessage.message}</p>
+  1024→              </div>
+  1025→              <Button variant="outline" onClick={() => setExpandedMessage(null)} className="w-full">
+  1026→                Close
+  1027→              </Button>
+  1028→            </div>
+  1029→          )}
+  1030→        </DialogContent>
+  1031→      </Dialog>
+  1032→
+  1033→      {/* ===== CREATE EVENT DIALOG ===== */}
+  1034→      <Dialog open={eventDialogOpen} onOpenChange={setEventDialogOpen}>
+  1035→        <DialogContent className="sm:max-w-lg">
+  1036→          <DialogHeader>
+  1037→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Create New Event</DialogTitle>
+  1038→            <DialogDescription>Add a new event to the school calendar.</DialogDescription>
+  1039→          </DialogHeader>
+  1040→          <div className="space-y-4">
+  1041→            <div>
+  1042→              <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+  1043→              <Input
+  1044→                placeholder="Event title"
+  1045→                value={eventForm.title}
+  1046→                onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+  1047→              />
+  1048→            </div>
+  1049→            <div>
+  1050→              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+  1051→              <Input
+  1052→                placeholder="Brief description"
+  1053→                value={eventForm.description}
+  1054→                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+  1055→              />
+  1056→            </div>
+  1057→            <div className="grid grid-cols-2 gap-4">
+  1058→              <div>
+  1059→                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+  1060→                <Select
+  1061→                  value={eventForm.category}
+  1062→                  onValueChange={(v) => setEventForm({ ...eventForm, category: v })}
+  1063→                >
+  1064→                  <SelectTrigger>
+  1065→                    <SelectValue />
+  1066→                  </SelectTrigger>
+  1067→                  <SelectContent>
+  1068→                    {EVENT_CATEGORIES.map((cat) => (
+  1069→                      <SelectItem key={cat.value} value={cat.value}>
+  1070→                        {cat.label}
+  1071→                      </SelectItem>
+  1072→                    ))}
+  1073→                  </SelectContent>
+  1074→                </Select>
+  1075→              </div>
+  1076→              <div>
+  1077→                <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+  1078→                <Input
+  1079→                  type="date"
+  1080→                  value={eventForm.eventDate}
+  1081→                  onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
+  1082→                />
+  1083→              </div>
+  1084→            </div>
+  1085→            <div className="grid grid-cols-2 gap-4">
+  1086→              <div>
+  1087→                <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
+  1088→                <Input
+  1089→                  type="time"
+  1090→                  value={eventForm.eventTime}
+  1091→                  onChange={(e) => setEventForm({ ...eventForm, eventTime: e.target.value })}
+  1092→                />
+  1093→              </div>
+  1094→              <div>
+  1095→                <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+  1096→                <Input
+  1097→                  placeholder="Event location"
+  1098→                  value={eventForm.location}
+  1099→                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+  1100→                />
+  1101→              </div>
+  1102→            </div>
+  1103→            <div className="flex gap-2 pt-2">
+  1104→              <Button
+  1105→                onClick={createEvent}
+  1106→                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+  1107→              >
+  1108→                Create Event
+  1109→              </Button>
+  1110→              <Button variant="outline" onClick={() => setEventDialogOpen(false)}>
+  1111→                Cancel
+  1112→              </Button>
+  1113→            </div>
+  1114→          </div>
+  1115→        </DialogContent>
+  1116→      </Dialog>
+  1117→    </div>
+  1118→  );
+  1119→}
+  1120→
+  1121→// ===================== SUB-COMPONENTS =====================
+  1122→
+  1123→// ---- Skeleton Loader ----
+  1124→function DashboardSkeleton() {
+  1125→  return (
+  1126→    <motion.div
+  1127→      variants={staggerContainer}
+  1128→      animate="animate"
+  1129→      className="space-y-6"
+  1130→    >
+  1131→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  1132→        {Array.from({ length: 5 }).map((_, i) => (
+  1133→          <motion.div key={i} variants={staggerItem}>
+  1134→            <Card className="p-4">
+  1135→              <Skeleton className="h-4 w-24 mb-3" />
+  1136→              <Skeleton className="h-8 w-16 mb-2" />
+  1137→              <Skeleton className="h-3 w-20" />
+  1138→            </Card>
+  1139→          </motion.div>
+  1140→        ))}
+  1141→      </div>
+  1142→      <motion.div variants={staggerItem}>
+  1143→        <Card>
+  1144→          <CardHeader>
+  1145→            <Skeleton className="h-5 w-40" />
+  1146→          </CardHeader>
+  1147→          <CardContent>
+  1148→            <div className="space-y-3">
+  1149→              {Array.from({ length: 5 }).map((_, i) => (
+  1150→                <Skeleton key={i} className="h-10 w-full" />
+  1151→              ))}
+  1152→            </div>
+  1153→          </CardContent>
+  1154→        </Card>
+  1155→      </motion.div>
+  1156→    </motion.div>
+  1157→  );
+  1158→}
+  1159→
+  1160→// ---- Dashboard Overview Section ----
+  1161→interface DashboardProps {
+  1162→  stats: DashboardStats | null;
+  1163→  recentApps: Application[];
+  1164→  recentPayments: Payment[];
+  1165→  paymentsByStatus: { status: string; _sum: { amount: number | null }; _count: number }[];
+  1166→  appsByStatus: { status: string; _count: number }[];
+  1167→  maxRevenueBar: number;
+  1168→  formatDate: (s: string) => string;
+  1169→  getStatusBadge: (s: string) => React.ReactNode;
+  1170→  getPaymentStatusBadge: (s: string) => React.ReactNode;
+  1171→  formatCurrency: (n: number) => string;
+  1172→  onViewApplicant: (app: Application) => void;
+  1173→  onApprove: (id: string, status: string) => Promise<void>;
+  1174→  onReject: (id: string, status: string) => Promise<void>;
+  1175→  actionLoading: string | null;
+  1176→}
+  1177→
+  1178→function DashboardSection({
+  1179→  stats,
+  1180→  recentApps,
+  1181→  recentPayments,
+  1182→  paymentsByStatus,
+  1183→  appsByStatus,
+  1184→  maxRevenueBar,
+  1185→  formatDate,
+  1186→  getStatusBadge,
+  1187→  getPaymentStatusBadge,
+  1188→  formatCurrency,
+  1189→  onViewApplicant,
+  1190→  onApprove,
+  1191→  onReject,
+  1192→  actionLoading,
+  1193→}: DashboardProps) {
+  1194→  const statCards = [
+  1195→    {
+  1196→      label: 'Total Applications',
+  1197→      value: stats?.totalApplications ?? 0,
+  1198→      icon: FileText,
+  1199→      color: 'bg-blue-50 text-blue-600',
+  1200→      iconBg: 'bg-blue-100',
+  1201→      trend: '+12%',
+  1202→    },
+  1203→    {
+  1204→      label: 'Pending Review',
+  1205→      value: stats?.pendingApplications ?? 0,
+  1206→      icon: Clock,
+  1207→      color: 'bg-amber-50 text-amber-600',
+  1208→      iconBg: 'bg-amber-100',
+  1209→      trend: 'Needs attention',
+  1210→    },
+  1211→    {
+  1212→      label: 'Total Students',
+  1213→      value: stats?.totalStudents ?? 0,
+  1214→      icon: GraduationCap,
+  1215→      color: 'bg-green-50 text-green-600',
+  1216→      iconBg: 'bg-green-100',
+  1217→      trend: '+5%',
+  1218→    },
+  1219→    {
+  1220→      label: 'Revenue Collected',
+  1221→      value: formatCurrency(stats?.totalRevenue ?? 0),
+  1222→      icon: Banknote,
+  1223→      color: 'bg-emerald-50 text-emerald-600',
+  1224→      iconBg: 'bg-emerald-100',
+  1225→      trend: '+18%',
+  1226→    },
+  1227→    {
+  1228→      label: 'Upcoming Events',
+  1229→      value: appsByStatus.find((a) => a.status === 'approved')?._count ?? 0,
+  1230→      icon: Calendar,
+  1231→      color: 'bg-purple-50 text-purple-600',
+  1232→      iconBg: 'bg-purple-100',
+  1233→      trend: 'This term',
+  1234→    },
+  1235→  ];
+  1236→
+  1237→  return (
+  1238→    <motion.div variants={staggerContainer} animate="animate" className="space-y-6">
+  1239→      {/* Stat Cards */}
+  1240→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  1241→        {statCards.map((card, i) => {
+  1242→          const Icon = card.icon;
+  1243→          return (
+  1244→            <motion.div key={i} variants={staggerItem}>
+  1245→              <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
+  1246→                <CardContent className="p-4">
+  1247→                  <div className="flex items-start justify-between">
+  1248→                    <div className={`${card.iconBg} p-2 rounded-lg`}>
+  1249→                      <Icon className={`w-5 h-5 ${card.color.split(' ')[1]}`} />
+  1250→                    </div>
+  1251→                    <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+  1252→                      <ArrowUpRight className="w-3 h-3" />
+  1253→                      {card.trend}
+  1254→                    </span>
+  1255→                  </div>
+  1256→                  <p className="mt-3 text-2xl font-bold text-slate-800">{card.value}</p>
+  1257→                  <p className="text-xs text-slate-500 mt-1">{card.label}</p>
+  1258→                </CardContent>
+  1259→              </Card>
+  1260→            </motion.div>
+  1261→          );
+  1262→        })}
+  1263→      </div>
+  1264→
+  1265→      {/* Revenue Bar Chart */}
+  1266→      {paymentsByStatus.length > 0 && (
+  1267→        <motion.div variants={staggerItem}>
+  1268→          <Card className="border-0 shadow-sm">
+  1269→            <CardHeader className="pb-2">
+  1270→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1271→                <TrendingUp className="w-4 h-4 text-[#1a3a6b]" />
+  1272→                Revenue by Payment Status
+  1273→              </CardTitle>
+  1274→            </CardHeader>
+  1275→            <CardContent>
+  1276→              <div className="space-y-3">
+  1277→                {paymentsByStatus.map((p) => {
+  1278→                  const barWidth = maxRevenueBar > 0 ? ((p._sum.amount || 0) / maxRevenueBar) * 100 : 0;
+  1279→                  const colorMap: Record<string, string> = {
+  1280→                    successful: 'bg-emerald-500',
+  1281→                    pending: 'bg-amber-400',
+  1282→                    failed: 'bg-red-400',
+  1283→                  };
+  1284→                  const barColor = colorMap[p.status] || 'bg-slate-400';
+  1285→                  return (
+  1286→                    <div key={p.status}>
+  1287→                      <div className="flex items-center justify-between text-sm mb-1">
+  1288→                        <span className="text-slate-600 font-medium capitalize">{p.status}</span>
+  1289→                        <span className="text-slate-500">
+  1290→                          {formatCurrency(p._sum.amount || 0)} ({p._count} txns)
+  1291→                        </span>
+  1292→                      </div>
+  1293→                      <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+  1294→                        <motion.div
+  1295→                          className={`h-full rounded-full ${barColor}`}
+  1296→                          initial={{ width: 0 }}
+  1297→                          animate={{ width: `${Math.max(barWidth, 2)}%` }}
+  1298→                          transition={{ duration: 0.8, ease: 'easeOut' }}
+  1299→                        />
+  1300→                      </div>
+  1301→                    </div>
+  1302→                  );
+  1303→                })}
+  1304→              </div>
+  1305→            </CardContent>
+  1306→          </Card>
+  1307→        </motion.div>
+  1308→      )}
+  1309→
+  1310→      {/* Two-column tables */}
+  1311→      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  1312→        {/* Recent Applications */}
+  1313→        <motion.div variants={staggerItem}>
+  1314→          <Card className="border-0 shadow-sm">
+  1315→            <CardHeader className="pb-3">
+  1316→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1317→                <FileText className="w-4 h-4 text-[#1a3a6b]" />
+  1318→                Recent Applications
+  1319→              </CardTitle>
+  1320→            </CardHeader>
+  1321→            <CardContent className="p-0">
+  1322→              {recentApps.length === 0 ? (
+  1323→                <div className="py-8 text-center text-slate-400 text-sm">No applications yet</div>
+  1324→              ) : (
+  1325→                <div className="overflow-x-auto">
+  1326→                  <Table>
+  1327→                    <TableHeader>
+  1328→                      <TableRow className="border-slate-100 hover:bg-transparent">
+  1329→                        <TableHead className="text-xs text-slate-500">Ref#</TableHead>
+  1330→                        <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1331→                        <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Programme</TableHead>
+  1332→                        <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1333→                        <TableHead className="text-xs text-slate-500 text-right">Actions</TableHead>
+  1334→                      </TableRow>
+  1335→                    </TableHeader>
+  1336→                    <TableBody>
+  1337→                      {recentApps.map((app) => (
+  1338→                        <TableRow key={app.id} className="border-slate-50">
+  1339→                          <TableCell className="text-xs font-mono text-slate-600">
+  1340→                            {app.referenceNumber.slice(-8)}
+  1341→                          </TableCell>
+  1342→                          <TableCell className="text-sm font-medium text-slate-800">
+  1343→                            {app.fullName}
+  1344→                          </TableCell>
+  1345→                          <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1346→                            {app.programme || 'N/A'}
+  1347→                          </TableCell>
+  1348→                          <TableCell>{getStatusBadge(app.status)}</TableCell>
+  1349→                          <TableCell className="text-right">
+  1350→                            <div className="flex items-center justify-end gap-1">
+  1351→                              <Button
+  1352→                                variant="ghost"
+  1353→                                size="sm"
+  1354→                                className="h-7 w-7 p-0 text-slate-400 hover:text-[#1a3a6b]"
+  1355→                                onClick={() => onViewApplicant(app)}
+  1356→                              >
+  1357→                                <Eye className="w-3.5 h-3.5" />
+  1358→                              </Button>
+  1359→                              {app.status === 'pending' && (
+  1360→                                <>
+  1361→                                  <Button
+  1362→                                    variant="ghost"
+  1363→                                    size="sm"
+  1364→                                    className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600"
+  1365→                                    disabled={!!actionLoading}
+  1366→                                    onClick={() => onApprove(app.id, 'approved')}
+  1367→                                  >
+  1368→                                    <CheckCircle className="w-3.5 h-3.5" />
+  1369→                                  </Button>
+  1370→                                  <Button
+  1371→                                    variant="ghost"
+  1372→                                    size="sm"
+  1373→                                    className="h-7 w-7 p-0 text-slate-400 hover:text-red-600"
+  1374→                                    disabled={!!actionLoading}
+  1375→                                    onClick={() => onReject(app.id, 'rejected')}
+  1376→                                  >
+  1377→                                    <XCircle className="w-3.5 h-3.5" />
+  1378→                                  </Button>
+  1379→                                </>
+  1380→                              )}
+  1381→                            </div>
+  1382→                          </TableCell>
+  1383→                        </TableRow>
+  1384→                      ))}
+  1385→                    </TableBody>
+  1386→                  </Table>
+  1387→                </div>
+  1388→              )}
+  1389→            </CardContent>
+  1390→          </Card>
+  1391→        </motion.div>
+  1392→
+  1393→        {/* Recent Payments */}
+  1394→        <motion.div variants={staggerItem}>
+  1395→          <Card className="border-0 shadow-sm">
+  1396→            <CardHeader className="pb-3">
+  1397→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1398→                <CreditCard className="w-4 h-4 text-[#1a3a6b]" />
+  1399→                Recent Payments
+  1400→              </CardTitle>
+  1401→            </CardHeader>
+  1402→            <CardContent className="p-0">
+  1403→              {recentPayments.length === 0 ? (
+  1404→                <div className="py-8 text-center text-slate-400 text-sm">No payments yet</div>
+  1405→              ) : (
+  1406→                <div className="overflow-x-auto">
+  1407→                  <Table>
+  1408→                    <TableHeader>
+  1409→                      <TableRow className="border-slate-100 hover:bg-transparent">
+  1410→                        <TableHead className="text-xs text-slate-500">Txn Ref</TableHead>
+  1411→                        <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1412→                        <TableHead className="text-xs text-slate-500">Amount</TableHead>
+  1413→                        <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1414→                        <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Date</TableHead>
+  1415→                      </TableRow>
+  1416→                    </TableHeader>
+  1417→                    <TableBody>
+  1418→                      {recentPayments.map((pay) => (
+  1419→                        <TableRow key={pay.id} className="border-slate-50">
+  1420→                          <TableCell className="text-xs font-mono text-slate-600">
+  1421→                            {pay.transactionRef.slice(-10)}
+  1422→                          </TableCell>
+  1423→                          <TableCell className="text-sm font-medium text-slate-800">
+  1424→                            {pay.fullName}
+  1425→                          </TableCell>
+  1426→                          <TableCell className="text-sm font-semibold text-slate-700">
+  1427→                            {formatCurrency(pay.amount)}
+  1428→                          </TableCell>
+  1429→                          <TableCell>{getPaymentStatusBadge(pay.status)}</TableCell>
+  1430→                          <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1431→                            {formatDate(pay.createdAt)}
+  1432→                          </TableCell>
+  1433→                        </TableRow>
+  1434→                      ))}
+  1435→                    </TableBody>
+  1436→                  </Table>
+  1437→                </div>
+  1438→              )}
+  1439→            </CardContent>
+  1440→          </Card>
+  1441→        </motion.div>
+  1442→      </div>
+  1443→    </motion.div>
+  1444→  );
+  1445→}
+  1446→
+  1447→// ---- Applications Section ----
+  1448→interface ApplicationsProps {
+  1449→  applications: Application[];
+  1450→  appCounts: Record<string, number>;
+  1451→  appSearch: string;
+  1452→  appStatusFilter: string;
+  1453→  setAppSearch: (s: string) => void;
+  1454→  setAppStatusFilter: (s: string) => void;
+  1455→  formatDate: (s: string) => string;
+  1456→  getStatusBadge: (s: string) => React.ReactNode;
+  1457→  onViewApplicant: (app: Application) => void;
+  1458→  onApprove: (id: string, status: string) => Promise<void>;
+  1459→  onReject: (id: string, status: string) => Promise<void>;
+  1460→  onEnroll: (id: string, status: string) => Promise<void>;
+  1461→  actionLoading: string | null;
+  1462→}
+  1463→
+  1464→function ApplicationsSection({
+  1465→  applications,
+  1466→  appCounts,
+  1467→  appSearch,
+  1468→  appStatusFilter,
+  1469→  setAppSearch,
+  1470→  setAppStatusFilter,
+  1471→  formatDate,
+  1472→  getStatusBadge,
+  1473→  onViewApplicant,
+  1474→  onApprove,
+  1475→  onReject,
+  1476→  onEnroll,
+  1477→  actionLoading,
+  1478→}: ApplicationsProps) {
+  1479→  return (
+  1480→    <div className="space-y-4">
+  1481→      {/* Summary Badges */}
+  1482→      <div className="flex flex-wrap gap-2">
+  1483→        <Badge variant="outline" className="text-slate-600 border-slate-300 px-3 py-1">
+  1484→          All: {appCounts.total ?? 0}
+  1485→        </Badge>
+  1486→        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 px-3 py-1">
+  1487→          Pending: {appCounts.pending ?? 0}
+  1488→        </Badge>
+  1489→        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 px-3 py-1">
+  1490→          Approved: {appCounts.approved ?? 0}
+  1491→        </Badge>
+  1492→        <Badge className="bg-red-100 text-red-700 hover:bg-red-100 px-3 py-1">
+  1493→          Rejected: {appCounts.rejected ?? 0}
+  1494→        </Badge>
+  1495→        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 px-3 py-1">
+  1496→          Enrolled: {appCounts.enrolled ?? 0}
+  1497→        </Badge>
+  1498→      </div>
+  1499→
+  1500→      {/* Filters */}
+  1501→      <div className="flex flex-col sm:flex-row gap-3">
+  1502→        <div className="relative flex-1">
+  1503→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+  1504→          <Input
+  1505→            placeholder="Search by name, ref#, email or phone..."
+  1506→            value={appSearch}
+  1507→            onChange={(e) => setAppSearch(e.target.value)}
+  1508→            className="pl-9 bg-white"
+  1509→          />
+  1510→        </div>
+  1511→        <Select value={appStatusFilter} onValueChange={setAppStatusFilter}>
+  1512→          <SelectTrigger className="w-full sm:w-44 bg-white">
+  1513→            <Filter className="w-4 h-4 mr-2 text-slate-400" />
+  1514→            <SelectValue placeholder="Filter status" />
+  1515→          </SelectTrigger>
+  1516→          <SelectContent>
+  1517→            <SelectItem value="all">All Statuses</SelectItem>
+  1518→            <SelectItem value="pending">Pending</SelectItem>
+  1519→            <SelectItem value="approved">Approved</SelectItem>
+  1520→            <SelectItem value="rejected">Rejected</SelectItem>
+  1521→            <SelectItem value="enrolled">Enrolled</SelectItem>
+  1522→          </SelectContent>
+  1523→        </Select>
+  1524→      </div>
+  1525→
+  1526→      {/* Table */}
+  1527→      <Card className="border-0 shadow-sm">
+  1528→        <CardContent className="p-0">
+  1529→          {applications.length === 0 ? (
+  1530→            <div className="py-16 text-center">
+  1531→              <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1532→              <p className="text-slate-400 font-medium">No applications found</p>
+  1533→              <p className="text-slate-300 text-sm mt-1">
+  1534→                {appSearch || appStatusFilter !== 'all'
+  1535→                  ? 'Try adjusting your search or filter'
+  1536→                  : 'Applications will appear here once submitted'}
+  1537→              </p>
+  1538→            </div>
+  1539→          ) : (
+  1540→            <div className="overflow-x-auto max-h-[520px] overflow-y-auto">
+  1541→              <Table>
+  1542→                <TableHeader>
+  1543→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1544→                    <TableHead className="text-xs text-slate-500">Ref#</TableHead>
+  1545→                    <TableHead className="text-xs text-slate-500">Full Name</TableHead>
+  1546→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Phone</TableHead>
+  1547→                    <TableHead className="text-xs text-slate-500 hidden lg:table-cell">Programme</TableHead>
+  1548→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Payment</TableHead>
+  1549→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1550→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Date</TableHead>
+  1551→                    <TableHead className="text-xs text-slate-500 text-right">Actions</TableHead>
+  1552→                  </TableRow>
+  1553→                </TableHeader>
+  1554→                <TableBody>
+  1555→                  {applications.map((app) => (
+  1556→                    <TableRow key={app.id} className="border-slate-50">
+  1557→                      <TableCell className="text-xs font-mono text-slate-600">
+  1558→                        {app.referenceNumber.slice(-8)}
+  1559→                      </TableCell>
+  1560→                      <TableCell className="text-sm font-medium text-slate-800">
+  1561→                        {app.fullName}
+  1562→                      </TableCell>
+  1563→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1564→                        {app.phone}
+  1565→                      </TableCell>
+  1566→                      <TableCell className="text-xs text-slate-500 hidden lg:table-cell">
+  1567→                        {app.programme || 'N/A'}
+  1568→                      </TableCell>
+  1569→                      <TableCell className="hidden sm:table-cell">
+  1570→                        {getStatusBadge(app.paymentStatus)}
+  1571→                      </TableCell>
+  1572→                      <TableCell>{getStatusBadge(app.status)}</TableCell>
+  1573→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1574→                        {formatDate(app.createdAt)}
+  1575→                      </TableCell>
+  1576→                      <TableCell className="text-right">
+  1577→                        <div className="flex items-center justify-end gap-1">
+  1578→                          <Button
+  1579→                            variant="ghost"
+  1580→                            size="sm"
+  1581→                            className="h-7 w-7 p-0 text-slate-400 hover:text-[#1a3a6b]"
+  1582→                            onClick={() => onViewApplicant(app)}
+  1583→                          >
+  1584→                            <Eye className="w-3.5 h-3.5" />
+  1585→                          </Button>
+  1586→                          {app.status === 'pending' && (
+  1587→                            <>
+  1588→                              <Button
+  1589→                                variant="ghost"
+  1590→                                size="sm"
+  1591→                                className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600"
+  1592→                                disabled={!!actionLoading}
+  1593→                                onClick={() => onApprove(app.id, 'approved')}
+  1594→                              >
+  1595→                                <CheckCircle className="w-3.5 h-3.5" />
+  1596→                              </Button>
+  1597→                              <Button
+  1598→                                variant="ghost"
+  1599→                                size="sm"
+  1600→                                className="h-7 w-7 p-0 text-slate-400 hover:text-red-600"
+  1601→                                disabled={!!actionLoading}
+  1602→                                onClick={() => onReject(app.id, 'rejected')}
+  1603→                              >
+  1604→                                <XCircle className="w-3.5 h-3.5" />
+  1605→                              </Button>
+  1606→                            </>
+  1607→                          )}
+  1608→                          {app.status === 'approved' && (
+  1609→                            <Button
+  1610→                              variant="ghost"
+  1611→                              size="sm"
+  1612→                              className="h-7 px-2 text-xs text-slate-400 hover:text-[#1a3a6b]"
+  1613→                              disabled={!!actionLoading}
+  1614→                              onClick={() => onEnroll(app.id, 'enrolled')}
+  1615→                            >
+  1616→                              <UserPlus className="w-3.5 h-3.5 mr-1" />
+  1617→                              Enroll
+  1618→                            </Button>
+  1619→                          )}
+  1620→                        </div>
+  1621→                      </TableCell>
+  1622→                    </TableRow>
+  1623→                  ))}
+  1624→                </TableBody>
+  1625→              </Table>
+  1626→            </div>
+  1627→          )}
+  1628→        </CardContent>
+  1629→      </Card>
+  1630→    </div>
+  1631→  );
+  1632→}
+  1633→
+  1634→// ---- Payments Section ----
+  1635→interface PaymentsProps {
+  1636→  payments: Payment[];
+  1637→  summary: Record<string, number>;
+  1638→  formatDate: (s: string) => string;
+  1639→  getPaymentStatusBadge: (s: string) => React.ReactNode;
+  1640→  formatCurrency: (n: number) => string;
+  1641→}
+  1642→
+  1643→function PaymentsSection({
+  1644→  payments,
+  1645→  summary,
+  1646→  formatDate,
+  1647→  getPaymentStatusBadge,
+  1648→  formatCurrency,
+  1649→}: PaymentsProps) {
+  1650→  const summaryCards = [
+  1651→    {
+  1652→      label: 'Total Revenue',
+  1653→      value: formatCurrency(summary.totalRevenue || 0),
+  1654→      icon: Banknote,
+  1655→      color: 'text-emerald-600',
+  1656→      bg: 'bg-emerald-50',
+  1657→      iconBg: 'bg-emerald-100',
+  1658→    },
+  1659→    {
+  1660→      label: 'Successful',
+  1661→      value: summary.successful ?? 0,
+  1662→      icon: CheckCircle,
+  1663→      color: 'text-green-600',
+  1664→      bg: 'bg-green-50',
+  1665→      iconBg: 'bg-green-100',
+  1666→    },
+  1667→    {
+  1668→      label: 'Pending',
+  1669→      value: summary.pending ?? 0,
+  1670→      icon: Clock,
+  1671→      color: 'text-amber-600',
+  1672→      bg: 'bg-amber-50',
+  1673→      iconBg: 'bg-amber-100',
+  1674→    },
+  1675→    {
+  1676→      label: 'Failed',
+  1677→      value: summary.failed ?? 0,
+  1678→      icon: XCircle,
+  1679→      color: 'text-red-600',
+  1680→      bg: 'bg-red-50',
+  1681→      iconBg: 'bg-red-100',
+  1682→    },
+  1683→  ];
+  1684→
+  1685→  return (
+  1686→    <div className="space-y-6">
+  1687→      {/* Summary Cards */}
+  1688→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+  1689→        {summaryCards.map((card, i) => {
+  1690→          const Icon = card.icon;
+  1691→          return (
+  1692→            <Card key={i} className="border-0 shadow-sm">
+  1693→              <CardContent className="p-4">
+  1694→                <div className="flex items-center gap-3">
+  1695→                  <div className={`${card.iconBg} p-2 rounded-lg`}>
+  1696→                    <Icon className={`w-5 h-5 ${card.color}`} />
+  1697→                  </div>
+  1698→                  <div>
+  1699→                    <p className="text-xl font-bold text-slate-800">{card.value}</p>
+  1700→                    <p className="text-xs text-slate-500">{card.label}</p>
+  1701→                  </div>
+  1702→                </div>
+  1703→              </CardContent>
+  1704→            </Card>
+  1705→          );
+  1706→        })}
+  1707→      </div>
+  1708→
+  1709→      {/* Payments Table */}
+  1710→      <Card className="border-0 shadow-sm">
+  1711→        <CardHeader className="pb-3">
+  1712→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1713→            <CreditCard className="w-4 h-4 text-[#1a3a6b]" />
+  1714→            All Payments
+  1715→          </CardTitle>
+  1716→        </CardHeader>
+  1717→        <CardContent className="p-0">
+  1718→          {payments.length === 0 ? (
+  1719→            <div className="py-16 text-center">
+  1720→              <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1721→              <p className="text-slate-400 font-medium">No payments yet</p>
+  1722→              <p className="text-slate-300 text-sm mt-1">Payments will appear here once processed</p>
+  1723→            </div>
+  1724→          ) : (
+  1725→            <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
+  1726→              <Table>
+  1727→                <TableHeader>
+  1728→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1729→                    <TableHead className="text-xs text-slate-500">Transaction Ref</TableHead>
+  1730→                    <TableHead className="text-xs text-slate-500">Applicant</TableHead>
+  1731→                    <TableHead className="text-xs text-slate-500">Amount</TableHead>
+  1732→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Method</TableHead>
+  1733→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1734→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Date</TableHead>
+  1735→                  </TableRow>
+  1736→                </TableHeader>
+  1737→                <TableBody>
+  1738→                  {payments.map((pay) => (
+  1739→                    <TableRow key={pay.id} className="border-slate-50">
+  1740→                      <TableCell className="text-xs font-mono text-slate-600">
+  1741→                        {pay.transactionRef.slice(-12)}
+  1742→                      </TableCell>
+  1743→                      <TableCell className="text-sm font-medium text-slate-800">
+  1744→                        {pay.fullName}
+  1745→                      </TableCell>
+  1746→                      <TableCell className="text-sm font-semibold text-slate-700">
+  1747→                        {formatCurrency(pay.amount)}
+  1748→                      </TableCell>
+  1749→                      <TableCell className="text-xs text-slate-500 hidden sm:table-cell capitalize">
+  1750→                        {pay.paymentMethod}
+  1751→                      </TableCell>
+  1752→                      <TableCell>{getPaymentStatusBadge(pay.status)}</TableCell>
+  1753→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1754→                        {formatDate(pay.createdAt)}
+  1755→                      </TableCell>
+  1756→                    </TableRow>
+  1757→                  ))}
+  1758→                </TableBody>
+  1759→              </Table>
+  1760→            </div>
+  1761→          )}
+  1762→        </CardContent>
+  1763→      </Card>
+  1764→    </div>
+  1765→  );
+  1766→}
+  1767→
+  1768→// ---- Students Section ----
+  1769→interface StudentsProps {
+  1770→  students: Student[];
+  1771→  formatDate: (s: string) => string;
+  1772→  getStatusBadge: (s: string) => React.ReactNode;
+  1773→}
+  1774→
+  1775→function StudentsSection({ students, formatDate, getStatusBadge }: StudentsProps) {
+  1776→  return (
+  1777→    <div className="space-y-4">
+  1778→      {/* Count Card */}
+  1779→      <Card className="border-0 shadow-sm bg-gradient-to-r from-[#1a3a6b] to-[#2756a0]">
+  1780→        <CardContent className="p-6 flex items-center gap-4">
+  1781→          <div className="bg-white/20 p-3 rounded-xl">
+  1782→            <GraduationCap className="w-8 h-8 text-white" />
+  1783→          </div>
+  1784→          <div>
+  1785→            <p className="text-3xl font-bold text-white">{students.length}</p>
+  1786→            <p className="text-white/70 text-sm">Total Enrolled Students</p>
+  1787→          </div>
+  1788→        </CardContent>
+  1789→      </Card>
+  1790→
+  1791→      {/* Students Table */}
+  1792→      <Card className="border-0 shadow-sm">
+  1793→        <CardHeader className="pb-3">
+  1794→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1795→            <Users className="w-4 h-4 text-[#1a3a6b]" />
+  1796→            Enrolled Students
+  1797→          </CardTitle>
+  1798→        </CardHeader>
+  1799→        <CardContent className="p-0">
+  1800→          {students.length === 0 ? (
+  1801→            <div className="py-16 text-center">
+  1802→              <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1803→              <p className="text-slate-400 font-medium">No enrolled students yet</p>
+  1804→              <p className="text-slate-300 text-sm mt-1">
+  1805→                Students will appear here once applications are enrolled
+  1806→              </p>
+  1807→            </div>
+  1808→          ) : (
+  1809→            <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
+  1810→              <Table>
+  1811→                <TableHeader>
+  1812→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1813→                    <TableHead className="text-xs text-slate-500">Student No.</TableHead>
+  1814→                    <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1815→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Programme</TableHead>
+  1816→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Intake</TableHead>
+  1817→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1818→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Enrolled</TableHead>
+  1819→                  </TableRow>
+  1820→                </TableHeader>
+  1821→                <TableBody>
+  1822→                  {students.map((student) => (
+  1823→                    <TableRow key={student.id} className="border-slate-50">
+  1824→                      <TableCell className="text-xs font-mono text-slate-600">
+  1825→                        {student.studentNumber}
+  1826→                      </TableCell>
+  1827→                      <TableCell className="text-sm font-medium text-slate-800">
+  1828→                        {student.fullName}
+  1829→                      </TableCell>
+  1830→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1831→                        {student.programme}
+  1832→                      </TableCell>
+  1833→                      <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1834→                        {student.intakeYear}
+  1835→                      </TableCell>
+  1836→                      <TableCell>{getStatusBadge(student.status)}</TableCell>
+  1837→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1838→                        {formatDate(student.createdAt)}
+  1839→                      </TableCell>
+  1840→                    </TableRow>
+  1841→                  ))}
+  1842→                </TableBody>
+  1843→              </Table>
+  1844→            </div>
+  1845→          )}
+  1846→        </CardContent>
+  1847→      </Card>
+  1848→    </div>
+  1849→  );
+  1850→}
+  1851→
+  1852→// ---- Events Section ----
+  1853→interface EventsProps {
+  1854→  events: EventItem[];
+  1855→  onCreateNew: () => void;
+  1856→  onDelete: (id: string) => void;
+  1857→  formatDate: (s: string) => string;
+  1858→}
+  1859→
+  1860→function EventsSection({ events, onCreateNew, onDelete, formatDate }: EventsProps) {
+  1861→  const categoryColors: Record<string, string> = {
+  1862→    general: 'bg-slate-100 text-slate-600',
+  1863→    academic: 'bg-blue-100 text-blue-600',
+  1864→    showcase: 'bg-purple-100 text-purple-600',
+  1865→    assessment: 'bg-amber-100 text-amber-600',
+  1866→    campus: 'bg-green-100 text-green-600',
+  1867→  };
+  1868→
+  1869→  const upcoming = events
+  1870→    .filter((e) => e.eventDate && new Date(e.eventDate) >= new Date())
+  1871→    .sort((a, b) => new Date(a.eventDate!).getTime() - new Date(b.eventDate!).getTime());
+  1872→
+  1873→  const past = events
+  1874→    .filter((e) => e.eventDate && new Date(e.eventDate) < new Date())
+  1875→    .sort((a, b) => new Date(b.eventDate!).getTime() - new Date(a.eventDate!).getTime());
+  1876→
+  1877→  return (
+  1878→    <div className="space-y-6">
+  1879→      {/* Header with Add Button */}
+  1880→      <div className="flex items-center justify-between">
+  1881→        <div>
+  1882→          <p className="text-sm text-slate-500">Manage school events and calendar</p>
+  1883→        </div>
+  1884→        <Button
+  1885→          onClick={onCreateNew}
+  1886→          className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white gap-2"
+  1887→        >
+  1888→          <Plus className="w-4 h-4" />
+  1889→          Add Event
+  1890→        </Button>
+  1891→      </div>
+  1892→
+  1893→      {events.length === 0 ? (
+  1894→        <div className="py-16 text-center">
+  1895→          <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1896→          <p className="text-slate-400 font-medium">No events yet</p>
+  1897→          <p className="text-slate-300 text-sm mt-1">Create your first event to get started</p>
+  1898→        </div>
+  1899→      ) : (
+  1900→        <>
+  1901→          {/* Upcoming Events */}
+  1902→          {upcoming.length > 0 && (
+  1903→            <div>
+  1904→              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+  1905→                Upcoming Events
+  1906→              </h3>
+  1907→              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  1908→                {upcoming.map((event) => (
+  1909→                  <motion.div
+  1910→                    key={event.id}
+  1911→                    initial={{ opacity: 0, scale: 0.95 }}
+  1912→                    animate={{ opacity: 1, scale: 1 }}
+  1913→                    transition={{ duration: 0.2 }}
+  1914→                  >
+  1915→                    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group">
+  1916→                      <CardContent className="p-4">
+  1917→                        <div className="flex items-start justify-between mb-3">
+  1918→                          <Badge
+  1919→                            variant="secondary"
+  1920→                            className={categoryColors[event.category] || categoryColors.general}
+  1921→                          >
+  1922→                            {event.category}
+  1923→                          </Badge>
+  1924→                          <Button
+  1925→                            variant="ghost"
+  1926→                            size="sm"
+  1927→                            className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+  1928→                            onClick={() => onDelete(event.id)}
+  1929→                          >
+  1930→                            <Trash2 className="w-3.5 h-3.5" />
+  1931→                          </Button>
+  1932→                        </div>
+  1933→                        <h4 className="font-semibold text-slate-800 mb-1 line-clamp-2">{event.title}</h4>
+  1934→                        {event.description && (
+  1935→                          <p className="text-sm text-slate-500 line-clamp-2 mb-3">{event.description}</p>
+  1936→                        )}
+  1937→                        <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+  1938→                          {event.eventDate && (
+  1939→                            <span className="flex items-center gap-1">
+  1940→                              <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+  1941→                            </span>
+  1942→                          )}
+  1943→                          {event.eventTime && (
+  1944→                            <span className="flex items-center gap-1">
+  1945→                              <Clock className="w-3 h-3" /> {event.eventTime}
+  1946→                            </span>
+  1947→                          )}
+  1948→                          {event.location && (
+  1949→                            <span className="flex items-center gap-1">
+  1950→                              <MapPin className="w-3 h-3" /> {event.location}
+  1951→                            </span>
+  1952→                          )}
+  1953→                        </div>
+  1954→                      </CardContent>
+  1955→                    </Card>
+  1956→                  </motion.div>
+  1957→                ))}
+  1958→              </div>
+  1959→            </div>
+  1960→          )}
+  1961→
+  1962→          {/* Past Events */}
+  1963→          {past.length > 0 && (
+  1964→            <div>
+  1965→              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+  1966→                Past Events
+  1967→              </h3>
+  1968→              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  1969→                {past.map((event) => (
+  1970→                  <Card key={event.id} className="border-0 shadow-sm opacity-60">
+  1971→                    <CardContent className="p-4">
+  1972→                      <div className="flex items-start justify-between mb-3">
+  1973→                        <Badge
+  1974→                          variant="secondary"
+  1975→                          className={categoryColors[event.category] || categoryColors.general}
+  1976→                        >
+  1977→                          {event.category}
+  1978→                        </Badge>
+  1979→                        <Button
+  1980→                          variant="ghost"
+  1981→                          size="sm"
+  1982→                          className="h-7 w-7 p-0 text-slate-300 hover:text-red-500"
+  1983→                          onClick={() => onDelete(event.id)}
+  1984→                        >
+  1985→                          <Trash2 className="w-3.5 h-3.5" />
+  1986→                        </Button>
+  1987→                      </div>
+  1988→                      <h4 className="font-semibold text-slate-600 mb-1 line-clamp-2">{event.title}</h4>
+  1989→                      {event.eventDate && (
+  1990→                        <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
+  1991→                          <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+  1992→                        </p>
+  1993→                      )}
+  1994→                    </CardContent>
+  1995→                  </Card>
+  1996→                ))}
+  1997→              </div>
+  1998→            </div>
+  1999→          )}
+  2000→        </>
+  2001→      )}
+  2002→    </div>
+  2003→  );
+  2004→}
+  2005→
+  2006→// ---- Messages Section ----
+  2007→interface MessagesProps {
+  2008→  messages: ContactMsg[];
+  2009→  unreadCount: number;
+  2010→  onExpand: (msg: ContactMsg | null) => void;
+  2011→  formatDate: (s: string) => string;
+  2012→}
+  2013→
+  2014→function MessagesSection({ messages, unreadCount, onExpand, formatDate }: MessagesProps) {
+  2015→  return (
+  2016→    <div className="space-y-4">
+  2017→      {/* Unread count banner */}
+  2018→      {unreadCount > 0 && (
+  2019→        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  2020→          <div className="bg-amber-100 p-2 rounded-lg">
+  2021→            <Mail className="w-5 h-5 text-amber-600" />
+  2022→          </div>
+  2023→          <div>
+  2024→            <p className="font-semibold text-amber-800">{unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}</p>
+  2025→            <p className="text-sm text-amber-600">Click on a message to read it</p>
+  2026→          </div>
+  2027→        </div>
+  2028→      )}
+  2029→
+  2030→      {/* Messages List */}
+  2031→      <Card className="border-0 shadow-sm">
+  2032→        <CardHeader className="pb-3">
+  2033→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  2034→            <MessageSquare className="w-4 h-4 text-[#1a3a6b]" />
+  2035→            Contact Messages
+  2036→            <Badge variant="secondary" className="ml-2 bg-slate-100 text-slate-600">
+  2037→              {messages.length} total
+  2038→            </Badge>
+  2039→          </CardTitle>
+  2040→        </CardHeader>
+  2041→        <CardContent className="p-0">
+  2042→          {messages.length === 0 ? (
+  2043→            <div className="py-16 text-center">
+  2044→              <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  2045→              <p className="text-slate-400 font-medium">No messages yet</p>
+  2046→              <p className="text-slate-300 text-sm mt-1">
+  2047→                Contact messages will appear here
+  2048→              </p>
+  2049→            </div>
+  2050→          ) : (
+  2051→            <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+  2052→              {messages.map((msg) => (
+  2053→                <button
+  2054→                  key={msg.id}
+  2055→                  onClick={() => onExpand(msg)}
+  2056→                  className={`
+  2057→                    w-full text-left p-4 hover:bg-slate-50 transition-colors
+  2058→                    ${!msg.isRead ? 'bg-blue-50/40' : ''}
+  2059→                  `}
+  2060→                >
+  2061→                  <div className="flex items-start gap-3">
+  2062→                    <div
+  2063→                      className={`
+  2064→                        w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold
+  2065→                        ${!msg.isRead ? 'bg-[#1a3a6b] text-white' : 'bg-slate-200 text-slate-500'}
+  2066→                      `}
+  2067→                    >
+  2068→                      {msg.name.charAt(0).toUpperCase()}
+  2069→                    </div>
+  2070→                    <div className="flex-1 min-w-0">
+  2071→                      <div className="flex items-center justify-between gap-2">
+  2072→                        <p
+  2073→                          className={`text-sm truncate ${!msg.isRead ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}
+  2074→                        >
+  2075→                          {msg.name}
+  2076→                          {!msg.isRead && (
+  2077→                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2" />
+  2078→                          )}
+  2079→                        </p>
+  2080→                        <span className="text-xs text-slate-400 flex-shrink-0">
+  2081→                          {formatDate(msg.createdAt)}
+  2082→                        </span>
+  2083→                      </div>
+  2084→                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+  2085→                        {msg.subject || 'No subject'}
+  2086→                      </p>
+  2087→                      <p className="text-xs text-slate-400 truncate mt-1">{msg.message}</p>
+  2088→                    </div>
+  2089→                  </div>
+  2090→                </button>
+  2091→              ))}
+  2092→            </div>
+  2093→          )}
+  2094→        </CardContent>
+  2095→      </Card>
+  2096→    </div>
+  2097→  );
+  2098→}
+  2099→
+  2100→// ---- Settings Section ----
+  2101→function SettingsSection() {
+  2102→  return (
+  2103→    <div className="space-y-6">
+  2104→      <Card className="border-0 shadow-sm">
+  2105→        <CardHeader>
+  2106→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  2107→            <Settings className="w-4 h-4 text-[#1a3a6b]" />
+  2108→            Institution Settings
+  2109→          </CardTitle>
+  2110→        </CardHeader>
+  2111→        <CardContent className="space-y-6">
+  2112→          {/* School Info */}
+  2113→          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  2114→            <div className="space-y-2">
+  2115→              <label className="block text-sm font-medium text-slate-700">Institution Name</label>
+  2116→              <Input
+  2117→                defaultValue="St. Kizito's Technical Institute - Madera"
+  2118→                disabled
+  2119→                className="bg-slate-50"
+  2120→              />
+  2121→            </div>
+  2122→            <div className="space-y-2">
+  2123→              <label className="block text-sm font-medium text-slate-700">Short Code</label>
+  2124→              <Input defaultValue="SKTIM" disabled className="bg-slate-50" />
+  2125→            </div>
+  2126→            <div className="space-y-2">
+  2127→              <label className="block text-sm font-medium text-slate-700">Location</label>
+  2128→              <Input defaultValue="Madera, Uganda" disabled className="bg-slate-50" />
+  2129→            </div>
+  2130→            <div className="space-y-2">
+  2131→              <label className="block text-sm font-medium text-slate-700">Academic Year</label>
+  2132→              <Input defaultValue={new Date().getFullYear().toString()} disabled className="bg-slate-50" />
+  2133→            </div>
+  2134→          </div>
+  2135→
+  2136→          <div className="border-t border-slate-100 pt-6">
+  2137→            <h4 className="text-sm font-semibold text-slate-700 mb-3">System Information</h4>
+  2138→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+  2139→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2140→                <span className="text-slate-500">Version</span>
+  2141→                <span className="text-slate-700 font-medium">1.0.0</span>
+  2142→              </div>
+  2143→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2144→                <span className="text-slate-500">Payment Gateway</span>
+  2145→                <span className="text-slate-700 font-medium">SchoolPay (Demo)</span>
+  2146→              </div>
+  2147→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2148→                <span className="text-slate-500">Database</span>
+  2149→                <span className="text-slate-700 font-medium">SQLite</span>
+  2150→              </div>
+  2151→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2152→                <span className="text-slate-500">Framework</span>
+  2153→                <span className="text-slate-700 font-medium">Next.js 16</span>
+  2154→              </div>
+  2155→            </div>
+  2156→          </div>
+  2157→        </CardContent>
+  2158→      </Card>
+  2159→    </div>
+  2160→  );
+  2161→}
+  2162→
+  2163→// ---- Helper Sub-Components ----
+  2164→
+  2165→function QuickInfo({
+  2166→  icon: Icon,
+  2167→  label,
+  2168→  value,
+  2169→}: {
+  2170→  icon: React.ElementType;
+  2171→  label: string;
+  2172→  value: string | null | undefined;
+  2173→}) {
+  2174→  return (
+  2175→    <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+  2176→      <Icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+  2177→      <div className="min-w-0">
+  2178→        <p className="text-xs text-slate-400">{label}</p>
+  2179→        <p className="text-sm text-slate-700 font-medium truncate">{value || 'N/A'}</p>
+  2180→      </div>
+  2181→    </div>
+  2182→  );
+  2183→}
+  2184→
+  2185→function DetailCard({ title, children }: { title: string; children: React.ReactNode }) {
+  2186→  return (
+  2187→    <div className="border border-slate-100 rounded-xl overflow-hidden">
+  2188→      <div className="bg-slate-50 px-4 py-2 border-b border-slate-100">
+  2189→        <h4 className="text-sm font-semibold text-slate-700">{title}</h4>
+  2190→      </div>
+  2191→      <div className="p-4">{children}</div>
+  2192→    </div>
+  2193→  );
+  2194→}
+  2195→
+  2196→function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+  2197→  return (
+  2198→    <div>
+  2199→      <p className="text-xs text-slate-400 mb-0.5">{label}</p>
+  2200→      <p className="text-sm text-slate-700">{value || 'Not provided'}</p>
+  2201→    </div>
+  2202→  );
+  2203→}
+  2204→

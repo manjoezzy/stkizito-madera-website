@@ -23,7 +23,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/store/useAppStore';
-import { PROGRAMME_FEES, formatCurrency } from '@/lib/schoolpay';
 
 const PRIMARY = '#1a3a6b';
 const PRIMARY_LIGHT = '#2756a0';
@@ -34,7 +33,6 @@ interface Programme {
   icon: React.ElementType;
   duration: string;
   examiningBody: string;
-  feeKey: string;
   skills: string[];
 }
 
@@ -44,7 +42,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Building2,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Building Construction',
     skills: [
       'Masonry & Bricklaying',
       'Concrete Technology',
@@ -59,7 +56,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Wrench,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Automotive Mechanics',
     skills: [
       'Engine Diagnostics & Repair',
       'Transmission Systems',
@@ -74,7 +70,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Zap,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Electrical Installation',
     skills: [
       'Domestic & Industrial Wiring',
       'Circuit Design & Protection',
@@ -89,7 +84,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Droplets,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Plumbing',
     skills: [
       'Pipe Fitting & Jointing',
       'Water Supply Systems',
@@ -104,7 +98,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Flame,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Welding',
     skills: [
       'Arc Welding (SMAW)',
       'Gas Welding & Cutting',
@@ -119,7 +112,6 @@ const MAIN_PROGRAMMES: Programme[] = [
     icon: Scissors,
     duration: '2 Years',
     examiningBody: 'UVTAB/UBTEB',
-    feeKey: 'Fashion and Design',
     skills: [
       'Pattern Making & Drafting',
       'Garment Construction',
@@ -135,7 +127,6 @@ interface ShortCourse {
   name: string;
   icon: React.ElementType;
   duration: string;
-  feeKey: string;
   skills: string[];
 }
 
@@ -144,28 +135,24 @@ const SHORT_COURSES: ShortCourse[] = [
     name: 'Basic Electrical Skills',
     icon: Zap,
     duration: '3 Months',
-    feeKey: 'Short Course - Electrical',
     skills: ['Domestic Wiring', 'Circuit Testing', 'Safety Procedures', 'Basic Repairs'],
   },
   {
     name: 'Tailoring & Garment Construction',
     icon: Scissors,
     duration: '6 Months',
-    feeKey: 'Short Course - Tailoring',
     skills: ['Machine Operation', 'Pattern Drafting', 'Garment Assembly', 'Measurements & Fitting'],
   },
   {
     name: 'Motor Vehicle Repair',
     icon: Car,
     duration: '3 Months',
-    feeKey: 'Short Course - Motor Vehicle',
     skills: ['Engine Servicing', 'Brake Repair', 'Electrical Systems', 'General Maintenance'],
   },
   {
     name: 'Catering & Hotel Management',
     icon: UtensilsCrossed,
     duration: '6 Months',
-    feeKey: 'Short Course - Catering',
     skills: ['Food Preparation', 'Baking & Pastry', 'Hygiene & Safety', 'Customer Service'],
   },
 ];
@@ -270,7 +257,6 @@ export default function ProgramsPage() {
           >
             {MAIN_PROGRAMMES.map((prog) => {
               const Icon = prog.icon;
-              const fee = PROGRAMME_FEES[prog.feeKey] ?? 0;
               return (
                 <motion.div key={prog.name} variants={itemVariants}>
                   <Card className="h-full border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group">
@@ -310,10 +296,9 @@ export default function ProgramsPage() {
                       {/* Fee */}
                       <div className="mb-4 px-3 py-2 rounded-lg" style={{ backgroundColor: '#f8fafc' }}>
                         <span className="text-xs text-gray-500 uppercase tracking-wide">Tuition Fee</span>
-                        <p className="text-lg font-bold" style={{ color: PRIMARY }}>
-                          {formatCurrency(fee)}
+                        <p className="text-base font-semibold" style={{ color: PRIMARY }}>
+                          Contact Administration for Fees
                         </p>
-                        <span className="text-xs text-gray-400">per academic year</span>
                       </div>
 
                       {/* Skills */}
@@ -381,7 +366,6 @@ export default function ProgramsPage() {
           >
             {SHORT_COURSES.map((course) => {
               const Icon = course.icon;
-              const fee = PROGRAMME_FEES[course.feeKey] ?? 0;
               return (
                 <motion.div key={course.name} variants={itemVariants}>
                   <Card className="h-full border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group">
@@ -400,9 +384,9 @@ export default function ProgramsPage() {
                         </Badge>
                       </div>
                       <p className="text-sm font-semibold mb-1" style={{ color: PRIMARY }}>
-                        {formatCurrency(fee)}
+                        Contact Administration
                       </p>
-                      <span className="text-xs text-gray-400 mb-4">per course</span>
+                      <span className="text-xs text-gray-400 mb-4">for course fees</span>
 
                       <ul className="flex-1 space-y-1.5 mb-5">
                         {course.skills.map((skill) => (

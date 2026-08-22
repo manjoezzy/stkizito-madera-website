@@ -34,6 +34,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,6 +73,7 @@ type Section =
   | 'students'
   | 'payments'
   | 'events'
+  | 'gallery'
   | 'messages'
   | 'settings';
 
@@ -167,6 +169,17 @@ interface ContactMsg {
   createdAt: string;
 }
 
+interface GalleryItem {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string;
+  category: string;
+  eventDate: string | null;
+  isPublished: boolean;
+  createdAt: string;
+}
+
 // ===================== CONSTANTS =====================
 
 const NAV_ITEMS: { section: Section; label: string; icon: React.ElementType }[] = [
@@ -175,6 +188,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: React.ElementType }[] 
   { section: 'students', label: 'Students', icon: Users },
   { section: 'payments', label: 'Payments', icon: CreditCard },
   { section: 'events', label: 'Events', icon: Calendar },
+  { section: 'gallery', label: 'Gallery', icon: ImageIcon },
   { section: 'messages', label: 'Messages', icon: MessageSquare },
   { section: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -196,6 +210,15 @@ const EVENT_CATEGORIES = [
   { value: 'showcase', label: 'Showcase' },
   { value: 'assessment', label: 'Assessment' },
   { value: 'campus', label: 'Campus' },
+];
+
+const GALLERY_CATEGORIES = [
+  { value: 'general', label: 'General' },
+  { value: 'outreach', label: 'Outreach' },
+  { value: 'sports', label: 'Sports' },
+  { value: 'graduation', label: 'Graduation' },
+  { value: 'campus', label: 'Campus Life' },
+  { value: 'openday', label: 'Open Day' },
 ];
 
 // ===================== ANIMATION VARIANTS =====================
@@ -243,6 +266,7 @@ export default function AdminDashboard() {
   const [paymentSummary, setPaymentSummary] = useState<Record<string, number>>({});
   const [students, setStudents] = useState<Student[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [messages, setMessages] = useState<ContactMsg[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -254,6 +278,16 @@ export default function AdminDashboard() {
   const [viewApplicant, setViewApplicant] = useState<Application | null>(null);
   const [expandedMessage, setExpandedMessage] = useState<ContactMsg | null>(null);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
+  const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
+
+  // Gallery form
+  const [galleryForm, setGalleryForm] = useState({
+    title: '',
+    description: '',
+    imageUrl: '',
+    category: 'general',
+    eventDate: '',
+  });
 
   // Event form
   const [eventForm, setEventForm] = useState({
@@ -376,7 +410,8 @@ export default function AdminDashboard() {
       fetch('/api/admissions?status=enrolled').then((r) => r.json()),
       fetch('/api/events').then((r) => r.json()),
       fetch('/api/contact').then((r) => r.json()),
-    ]).then(([adminJson, admissionsJson, paymentsJson, enrolledJson, eventsJson, contactJson]) => {
+      fetch('/api/gallery?admin=true').then((r) => r.json()),
+    ]).then(([adminJson, admissionsJson, paymentsJson, enrolledJson, eventsJson, contactJson, galleryJson]) => {
       if (cancelled) return;
       if (adminJson.success) {
         setStats(adminJson.data.stats);
@@ -413,6 +448,9 @@ export default function AdminDashboard() {
       }
       if (eventsJson.success) {
         setEvents(eventsJson.data);
+      }
+      if (Array.isArray(galleryJson)) {
+        setGalleryItems(galleryJson);
       }
       if (contactJson.success) {
         setMessages(contactJson.data);
@@ -464,6 +502,70 @@ export default function AdminDashboard() {
       }
     } catch {
       addToast('Failed to delete event', 'error');
+    }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const res = await fetch('/api/gallery?admin=true');
+      if (res.ok) {
+        const data = await res.json();
+        setGalleryItems(data);
+      }
+    } catch {
+      // silent
+    }
+  };
+
+  const deleteGalleryItem = async (id: string) => {
+    try {
+      const res = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        addToast('Gallery item deleted', 'success');
+        fetchGallery();
+      } else {
+        addToast('Failed to delete gallery item', 'error');
+      }
+    } catch {
+      addToast('Failed to delete gallery item', 'error');
+    }
+  };
+
+  const createGalleryItem = async () => {
+    if (!galleryForm.title.trim() || !galleryForm.imageUrl.trim()) {
+      addToast('Title and image URL are required', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/gallery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(galleryForm),
+      });
+      if (res.ok) {
+        addToast('Gallery item added successfully', 'success');
+        setGalleryForm({ title: '', description: '', imageUrl: '', category: 'general', eventDate: '' });
+        setGalleryDialogOpen(false);
+        fetchGallery();
+      } else {
+        addToast('Failed to add gallery item', 'error');
+      }
+    } catch {
+      addToast('Failed to add gallery item', 'error');
+    }
+  };
+
+  const toggleGalleryPublish = async (item: GalleryItem) => {
+    try {
+      await fetch('/api/gallery', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id, isPublished: !item.isPublished }),
+      });
+      fetchGallery();
+    } catch {
+      addToast('Failed to update gallery item', 'error');
     }
   };
 
@@ -765,6 +867,14 @@ export default function AdminDashboard() {
                   onDelete={deleteEvent}
                   formatDate={formatDate}
                 />
+              ) : activeSection === 'gallery' ? (
+                <GallerySection
+                  items={galleryItems}
+                  onCreateNew={() => setGalleryDialogOpen(true)}
+                  onDelete={deleteGalleryItem}
+                  onTogglePublish={toggleGalleryPublish}
+                  formatDate={formatDate}
+                />
               ) : activeSection === 'messages' ? (
                 <MessagesSection
                   messages={messages}
@@ -1019,6 +1129,82 @@ export default function AdminDashboard() {
                 Create Event
               </Button>
               <Button variant="outline" onClick={() => setEventDialogOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== GALLERY DIALOG ===== */}
+      <Dialog open={galleryDialogOpen} onOpenChange={setGalleryDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Add Gallery Photo</DialogTitle>
+            <DialogDescription>Upload a photo to the public gallery with event details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
+              <Input
+                placeholder="Photo title"
+                value={galleryForm.title}
+                onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <Input
+                placeholder="Short note about this photo"
+                value={galleryForm.description}
+                onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Image URL *</label>
+              <Input
+                placeholder="/images/photo.jpg or https://..."
+                value={galleryForm.imageUrl}
+                onChange={(e) => setGalleryForm({ ...galleryForm, imageUrl: e.target.value })}
+              />
+              <p className="text-xs text-slate-400 mt-1">Use a path like /images/photo.jpg for uploaded images, or a full URL.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <Select
+                  value={galleryForm.category}
+                  onValueChange={(v) => setGalleryForm({ ...galleryForm, category: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GALLERY_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Event Date</label>
+                <Input
+                  type="date"
+                  value={galleryForm.eventDate}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, eventDate: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={createGalleryItem}
+                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+              >
+                Add Photo
+              </Button>
+              <Button variant="outline" onClick={() => setGalleryDialogOpen(false)}>
                 Cancel
               </Button>
             </div>
@@ -2109,6 +2295,90 @@ function DetailRow({ label, value }: { label: string; value: string | null | und
     <div>
       <p className="text-xs text-slate-400 mb-0.5">{label}</p>
       <p className="text-sm text-slate-700">{value || 'Not provided'}</p>
+    </div>
+  );
+}
+
+// ---- Gallery Section ----
+function GallerySection({
+  items,
+  onCreateNew,
+  onDelete,
+  onTogglePublish,
+  formatDate,
+}: {
+  items: GalleryItem[];
+  onCreateNew: () => void;
+  onDelete: (id: string) => void;
+  onTogglePublish: (item: GalleryItem) => void;
+  formatDate: (d: string) => string;
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-slate-800">Photo Gallery</h2>
+          <p className="text-sm text-slate-500">Manage photos displayed on the public gallery page.</p>
+        </div>
+        <Button onClick={onCreateNew} className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white">
+          <Plus className="h-4 w-4 mr-1" /> Add Photo
+        </Button>
+      </div>
+
+      {items.length === 0 ? (
+        <Card className="p-12 text-center">
+          <ImageIcon className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+          <p className="text-slate-500">No gallery items yet. Add your first photo.</p>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {items.map((item) => (
+            <Card key={item.id} className="overflow-hidden group">
+              <div className="relative aspect-[4/3] bg-slate-100">
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <button
+                    onClick={() => onTogglePublish(item)}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      item.isPublished
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-400 text-white'
+                    }`}
+                    title={item.isPublished ? 'Published' : 'Draft'}
+                  >
+                    {item.isPublished ? '✓' : '✕'}
+                  </button>
+                </div>
+              </div>
+              <CardContent className="p-3">
+                <h4 className="font-semibold text-sm text-slate-800 line-clamp-1">{item.title}</h4>
+                {item.description && (
+                  <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{item.description}</p>
+                )}
+                <div className="flex items-center justify-between mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    {item.category}
+                  </Badge>
+                  <button
+                    onClick={() => onDelete(item.id)}
+                    className="text-slate-400 hover:text-red-500 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                {item.eventDate && (
+                  <p className="text-xs text-slate-400 mt-1.5">{item.eventDate}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

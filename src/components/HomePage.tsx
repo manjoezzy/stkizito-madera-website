@@ -38,7 +38,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useAppStore, type Page } from '@/store/useAppStore';
-import { PROGRAMME_FEES, formatCurrency } from '@/lib/schoolpay';
+import Image from 'next/image';
 
 /* ──────────────────── programme data ──────────────────── */
 const PROGRAMS = [
@@ -64,6 +64,7 @@ const TESTIMONIALS = [
     name: 'James Otim',
     program: 'Building Construction',
     year: 'Class of 2022',
+    photo: '/images/testimonial-male1.png',
     quote:
       'St. Kizito\'s gave me the practical skills I needed to start my own construction business. Today I employ 12 people and have worked on major projects across Eastern Uganda.',
   },
@@ -71,6 +72,7 @@ const TESTIMONIALS = [
     name: 'Grace Akello',
     program: 'Fashion and Design',
     year: 'Class of 2023',
+    photo: '/images/testimonial-female1.png',
     quote:
       'The hands-on training in fashion design transformed my passion into a profession. I now run a successful tailoring workshop in Soroti town, serving clients across the region.',
   },
@@ -78,6 +80,7 @@ const TESTIMONIALS = [
     name: 'Simon Peter Elobu',
     program: 'Automotive Mechanics',
     year: 'Class of 2021',
+    photo: '/images/testimonial-male2.png',
     quote:
       'The quality of instruction at St. Kizito\'s is unmatched. Within three months of graduating, I was employed at a leading garage in Kampala. The foundation I received here is invaluable.',
   },
@@ -204,7 +207,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────
           1. HERO SECTION
           ───────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         {/* dark gradient background */}
         <div
           className="absolute inset-0"
@@ -250,6 +253,18 @@ export default function HomePage() {
           }}
         />
 
+        {/* Hero background image overlay */}
+        <div className="absolute inset-0 z-[1]">
+          <Image
+            src="/images/hero-bg.png"
+            alt="St. Kizito's Technical Institute Madera Campus"
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/80 via-[#1a3a6b]/60 to-[#0d1b2a]/90" />
+        </div>
+
         {/* content */}
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           {/* badge */}
@@ -276,7 +291,7 @@ export default function HomePage() {
             <span className="text-[#f5c518]">Transforming Lives</span>
             <br />
             <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
-              Since 1947
+              St. Kizito's Technical Institute - Madera
             </span>
           </motion.h1>
 
@@ -379,35 +394,30 @@ export default function HomePage() {
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* left - decorative visual */}
+          {/* left - campus photo */}
           <div className="relative">
-            <div className="relative w-full aspect-square max-w-md mx-auto">
-              {/* concentric decorative rings */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-0 rounded-full border-2 border-dashed border-[#1a3a6b]/15"
-              />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-6 rounded-full border border-[#f5c518]/20"
-              />
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-12 rounded-full border-2 border-dashed border-[#2756a0]/20"
-              />
-              {/* centre icon cluster */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center shadow-2xl shadow-[#1a3a6b]/30">
-                  <GraduationCap className="h-20 w-20 text-[#f5c518]" />
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-[#1a3a6b]/20">
+              <div className="absolute -inset-1 bg-gradient-to-br from-[#1a3a6b] to-[#f5c518] rounded-3xl opacity-20 blur-sm" />
+              <div className="relative aspect-[4/3] max-w-md mx-auto">
+                <Image
+                  src="/images/about-workshop.png"
+                  alt="Students in the workshop at St. Kizito's Technical Institute - Madera"
+                  fill
+                  className="object-cover rounded-2xl"
+                />
+              </div>
+            </div>
+            {/* floating accent card */}
+            <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-2xl shadow-xl p-4 border border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-[#f5c518]/20 flex items-center justify-center">
+                  <Award className="h-6 w-6 text-[#f5c518]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-[#1a3a6b]">77+</p>
+                  <p className="text-xs text-muted-foreground">Years of Excellence</p>
                 </div>
               </div>
-              {/* corner accent dots */}
-              <div className="absolute top-4 right-8 w-3 h-3 rounded-full bg-[#f5c518]" />
-              <div className="absolute bottom-8 left-4 w-2 h-2 rounded-full bg-[#2756a0]" />
-              <div className="absolute top-1/4 left-0 w-2.5 h-2.5 rounded-full bg-[#1a3a6b]/40" />
             </div>
           </div>
 
@@ -428,7 +438,7 @@ export default function HomePage() {
               equips learners with practical, market-relevant skills.
             </p>
             <p className="mt-4 text-muted-foreground leading-relaxed text-base">
-              Located in Madera, Soroti District, Eastern Uganda, we have produced
+              Located in Soroti City, Eastern Uganda, we have produced
               thousands of skilled professionals who are driving development across
               Uganda and beyond. Our programs are designed to meet the demands of
               today&apos;s labour market while nurturing ethical, responsible citizens.
@@ -480,7 +490,6 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {PROGRAMS.map((prog, i) => {
               const Icon = prog.icon;
-              const fee = PROGRAMME_FEES[prog.name];
               return (
                 <motion.div
                   key={prog.name}
@@ -505,11 +514,11 @@ export default function HomePage() {
                       </p>
                       <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
                         <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                            Tuition Fee
+                          <p className="text-xs text-[#f5c518] font-semibold uppercase tracking-wider">
+                            Fees
                           </p>
-                          <p className="text-xl font-bold text-[#1a3a6b]">
-                            {fee ? formatCurrency(fee) : 'Contact Us'}
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Contact Administration
                           </p>
                         </div>
                         <Button
@@ -542,7 +551,65 @@ export default function HomePage() {
       </Section>
 
       {/* ─────────────────────────────────────────────────
-          5. ADMISSIONS CTA BANNER
+          5. CAMPUS PHOTO STRIP
+          ───────────────────────────────────────────────── */}
+      <Section className="py-12 md:py-16 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+              <Heart className="h-4 w-4" />
+              Life at SKTM
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+              Our Campus in Pictures
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { src: '/images/campus.png', alt: 'Campus grounds' },
+              { src: '/images/graduation.png', alt: 'Graduation ceremony' },
+              { src: '/images/gallery-openday.png', alt: 'Open day celebrations' },
+              { src: '/images/gallery-outreach.png', alt: 'Community outreach' },
+            ].map((img, i) => (
+              <motion.div
+                key={img.alt}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className={`relative rounded-2xl overflow-hidden shadow-lg group cursor-pointer ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
+                onClick={() => setCurrentPage('gallery')}
+              >
+                <div className={`relative ${i === 0 ? 'aspect-square' : 'aspect-[4/3]'}`}>
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-sm font-medium">{img.alt}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage('gallery')}
+              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+            >
+              View Full Gallery
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          6. ADMISSIONS CTA BANNER
           ───────────────────────────────────────────────── */}
       <Section className="px-4 py-20 md:py-28">
         <div className="max-w-6xl mx-auto">
@@ -627,11 +694,14 @@ export default function HomePage() {
                       &ldquo;{t.quote}&rdquo;
                     </p>
                     <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center text-white font-bold text-sm">
-                        {t.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
+                      <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={t.photo}
+                          alt={t.name}
+                          width={44}
+                          height={44}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div>
                         <p className="font-semibold text-[#1a3a6b] text-sm">
@@ -676,17 +746,17 @@ export default function HomePage() {
                 {
                   icon: MapPin,
                   label: 'Address',
-                  value: 'Madera, Soroti District,\nEastern Uganda',
+                  value: 'P.O. Box 320, Soroti City,\nUganda',
                 },
                 {
                   icon: Phone,
                   label: 'Phone',
-                  value: '+256 7XX XXX XXX',
+                  value: '+256 752 309 660\n+256 772 309 660',
                 },
                 {
                   icon: Mail,
                   label: 'Email',
-                  value: 'info@stkizitos.edu.ug',
+                  value: 'stkizitmad@gmail.com',
                 },
                 {
                   icon: Clock,
@@ -851,7 +921,7 @@ export default function HomePage() {
               </div>
               <p className="text-sm text-blue-200/70 leading-relaxed mb-6">
                 Building skills and transforming lives since 1947. A government-aided
-                TVET institution anchored on Christian principles in Soroti District,
+                TVET institution anchored on Christian principles in Soroti City,
                 Eastern Uganda.
               </p>
               {/* social links */}

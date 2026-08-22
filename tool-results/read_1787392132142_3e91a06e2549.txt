@@ -1,0 +1,1116 @@
+  1110→                  type="time"
+  1111→                  value={eventForm.eventTime}
+  1112→                  onChange={(e) => setEventForm({ ...eventForm, eventTime: e.target.value })}
+  1113→                />
+  1114→              </div>
+  1115→              <div>
+  1116→                <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+  1117→                <Input
+  1118→                  placeholder="Event location"
+  1119→                  value={eventForm.location}
+  1120→                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+  1121→                />
+  1122→              </div>
+  1123→            </div>
+  1124→            <div className="flex gap-2 pt-2">
+  1125→              <Button
+  1126→                onClick={createEvent}
+  1127→                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+  1128→              >
+  1129→                Create Event
+  1130→              </Button>
+  1131→              <Button variant="outline" onClick={() => setEventDialogOpen(false)}>
+  1132→                Cancel
+  1133→              </Button>
+  1134→            </div>
+  1135→          </div>
+  1136→        </DialogContent>
+  1137→      </Dialog>
+  1138→    </div>
+  1139→  );
+  1140→}
+  1141→
+  1142→// ===================== SUB-COMPONENTS =====================
+  1143→
+  1144→// ---- Skeleton Loader ----
+  1145→function DashboardSkeleton() {
+  1146→  return (
+  1147→    <motion.div
+  1148→      variants={staggerContainer}
+  1149→      animate="animate"
+  1150→      className="space-y-6"
+  1151→    >
+  1152→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  1153→        {Array.from({ length: 5 }).map((_, i) => (
+  1154→          <motion.div key={i} variants={staggerItem}>
+  1155→            <Card className="p-4">
+  1156→              <Skeleton className="h-4 w-24 mb-3" />
+  1157→              <Skeleton className="h-8 w-16 mb-2" />
+  1158→              <Skeleton className="h-3 w-20" />
+  1159→            </Card>
+  1160→          </motion.div>
+  1161→        ))}
+  1162→      </div>
+  1163→      <motion.div variants={staggerItem}>
+  1164→        <Card>
+  1165→          <CardHeader>
+  1166→            <Skeleton className="h-5 w-40" />
+  1167→          </CardHeader>
+  1168→          <CardContent>
+  1169→            <div className="space-y-3">
+  1170→              {Array.from({ length: 5 }).map((_, i) => (
+  1171→                <Skeleton key={i} className="h-10 w-full" />
+  1172→              ))}
+  1173→            </div>
+  1174→          </CardContent>
+  1175→        </Card>
+  1176→      </motion.div>
+  1177→    </motion.div>
+  1178→  );
+  1179→}
+  1180→
+  1181→// ---- Dashboard Overview Section ----
+  1182→interface DashboardProps {
+  1183→  stats: DashboardStats | null;
+  1184→  recentApps: Application[];
+  1185→  recentPayments: Payment[];
+  1186→  paymentsByStatus: { status: string; _sum: { amount: number | null }; _count: number }[];
+  1187→  appsByStatus: { status: string; _count: number }[];
+  1188→  maxRevenueBar: number;
+  1189→  formatDate: (s: string) => string;
+  1190→  getStatusBadge: (s: string) => React.ReactNode;
+  1191→  getPaymentStatusBadge: (s: string) => React.ReactNode;
+  1192→  formatCurrency: (n: number) => string;
+  1193→  onViewApplicant: (app: Application) => void;
+  1194→  onApprove: (id: string, status: string) => Promise<void>;
+  1195→  onReject: (id: string, status: string) => Promise<void>;
+  1196→  actionLoading: string | null;
+  1197→}
+  1198→
+  1199→function DashboardSection({
+  1200→  stats,
+  1201→  recentApps,
+  1202→  recentPayments,
+  1203→  paymentsByStatus,
+  1204→  appsByStatus,
+  1205→  maxRevenueBar,
+  1206→  formatDate,
+  1207→  getStatusBadge,
+  1208→  getPaymentStatusBadge,
+  1209→  formatCurrency,
+  1210→  onViewApplicant,
+  1211→  onApprove,
+  1212→  onReject,
+  1213→  actionLoading,
+  1214→}: DashboardProps) {
+  1215→  const statCards = [
+  1216→    {
+  1217→      label: 'Total Applications',
+  1218→      value: stats?.totalApplications ?? 0,
+  1219→      icon: FileText,
+  1220→      color: 'bg-blue-50 text-blue-600',
+  1221→      iconBg: 'bg-blue-100',
+  1222→      trend: '+12%',
+  1223→    },
+  1224→    {
+  1225→      label: 'Pending Review',
+  1226→      value: stats?.pendingApplications ?? 0,
+  1227→      icon: Clock,
+  1228→      color: 'bg-amber-50 text-amber-600',
+  1229→      iconBg: 'bg-amber-100',
+  1230→      trend: 'Needs attention',
+  1231→    },
+  1232→    {
+  1233→      label: 'Total Students',
+  1234→      value: stats?.totalStudents ?? 0,
+  1235→      icon: GraduationCap,
+  1236→      color: 'bg-green-50 text-green-600',
+  1237→      iconBg: 'bg-green-100',
+  1238→      trend: '+5%',
+  1239→    },
+  1240→    {
+  1241→      label: 'Revenue Collected',
+  1242→      value: formatCurrency(stats?.totalRevenue ?? 0),
+  1243→      icon: Banknote,
+  1244→      color: 'bg-emerald-50 text-emerald-600',
+  1245→      iconBg: 'bg-emerald-100',
+  1246→      trend: '+18%',
+  1247→    },
+  1248→    {
+  1249→      label: 'Upcoming Events',
+  1250→      value: appsByStatus.find((a) => a.status === 'approved')?._count ?? 0,
+  1251→      icon: Calendar,
+  1252→      color: 'bg-purple-50 text-purple-600',
+  1253→      iconBg: 'bg-purple-100',
+  1254→      trend: 'This term',
+  1255→    },
+  1256→  ];
+  1257→
+  1258→  return (
+  1259→    <motion.div variants={staggerContainer} animate="animate" className="space-y-6">
+  1260→      {/* Stat Cards */}
+  1261→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  1262→        {statCards.map((card, i) => {
+  1263→          const Icon = card.icon;
+  1264→          return (
+  1265→            <motion.div key={i} variants={staggerItem}>
+  1266→              <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
+  1267→                <CardContent className="p-4">
+  1268→                  <div className="flex items-start justify-between">
+  1269→                    <div className={`${card.iconBg} p-2 rounded-lg`}>
+  1270→                      <Icon className={`w-5 h-5 ${card.color.split(' ')[1]}`} />
+  1271→                    </div>
+  1272→                    <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+  1273→                      <ArrowUpRight className="w-3 h-3" />
+  1274→                      {card.trend}
+  1275→                    </span>
+  1276→                  </div>
+  1277→                  <p className="mt-3 text-2xl font-bold text-slate-800">{card.value}</p>
+  1278→                  <p className="text-xs text-slate-500 mt-1">{card.label}</p>
+  1279→                </CardContent>
+  1280→              </Card>
+  1281→            </motion.div>
+  1282→          );
+  1283→        })}
+  1284→      </div>
+  1285→
+  1286→      {/* Revenue Bar Chart */}
+  1287→      {paymentsByStatus.length > 0 && (
+  1288→        <motion.div variants={staggerItem}>
+  1289→          <Card className="border-0 shadow-sm">
+  1290→            <CardHeader className="pb-2">
+  1291→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1292→                <TrendingUp className="w-4 h-4 text-[#1a3a6b]" />
+  1293→                Revenue by Payment Status
+  1294→              </CardTitle>
+  1295→            </CardHeader>
+  1296→            <CardContent>
+  1297→              <div className="space-y-3">
+  1298→                {paymentsByStatus.map((p) => {
+  1299→                  const barWidth = maxRevenueBar > 0 ? ((p._sum.amount || 0) / maxRevenueBar) * 100 : 0;
+  1300→                  const colorMap: Record<string, string> = {
+  1301→                    successful: 'bg-emerald-500',
+  1302→                    pending: 'bg-amber-400',
+  1303→                    failed: 'bg-red-400',
+  1304→                  };
+  1305→                  const barColor = colorMap[p.status] || 'bg-slate-400';
+  1306→                  return (
+  1307→                    <div key={p.status}>
+  1308→                      <div className="flex items-center justify-between text-sm mb-1">
+  1309→                        <span className="text-slate-600 font-medium capitalize">{p.status}</span>
+  1310→                        <span className="text-slate-500">
+  1311→                          {formatCurrency(p._sum.amount || 0)} ({p._count} txns)
+  1312→                        </span>
+  1313→                      </div>
+  1314→                      <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+  1315→                        <motion.div
+  1316→                          className={`h-full rounded-full ${barColor}`}
+  1317→                          initial={{ width: 0 }}
+  1318→                          animate={{ width: `${Math.max(barWidth, 2)}%` }}
+  1319→                          transition={{ duration: 0.8, ease: 'easeOut' }}
+  1320→                        />
+  1321→                      </div>
+  1322→                    </div>
+  1323→                  );
+  1324→                })}
+  1325→              </div>
+  1326→            </CardContent>
+  1327→          </Card>
+  1328→        </motion.div>
+  1329→      )}
+  1330→
+  1331→      {/* Two-column tables */}
+  1332→      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  1333→        {/* Recent Applications */}
+  1334→        <motion.div variants={staggerItem}>
+  1335→          <Card className="border-0 shadow-sm">
+  1336→            <CardHeader className="pb-3">
+  1337→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1338→                <FileText className="w-4 h-4 text-[#1a3a6b]" />
+  1339→                Recent Applications
+  1340→              </CardTitle>
+  1341→            </CardHeader>
+  1342→            <CardContent className="p-0">
+  1343→              {recentApps.length === 0 ? (
+  1344→                <div className="py-8 text-center text-slate-400 text-sm">No applications yet</div>
+  1345→              ) : (
+  1346→                <div className="overflow-x-auto">
+  1347→                  <Table>
+  1348→                    <TableHeader>
+  1349→                      <TableRow className="border-slate-100 hover:bg-transparent">
+  1350→                        <TableHead className="text-xs text-slate-500">Ref#</TableHead>
+  1351→                        <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1352→                        <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Programme</TableHead>
+  1353→                        <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1354→                        <TableHead className="text-xs text-slate-500 text-right">Actions</TableHead>
+  1355→                      </TableRow>
+  1356→                    </TableHeader>
+  1357→                    <TableBody>
+  1358→                      {recentApps.map((app) => (
+  1359→                        <TableRow key={app.id} className="border-slate-50">
+  1360→                          <TableCell className="text-xs font-mono text-slate-600">
+  1361→                            {app.referenceNumber.slice(-8)}
+  1362→                          </TableCell>
+  1363→                          <TableCell className="text-sm font-medium text-slate-800">
+  1364→                            {app.fullName}
+  1365→                          </TableCell>
+  1366→                          <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1367→                            {app.programme || 'N/A'}
+  1368→                          </TableCell>
+  1369→                          <TableCell>{getStatusBadge(app.status)}</TableCell>
+  1370→                          <TableCell className="text-right">
+  1371→                            <div className="flex items-center justify-end gap-1">
+  1372→                              <Button
+  1373→                                variant="ghost"
+  1374→                                size="sm"
+  1375→                                className="h-7 w-7 p-0 text-slate-400 hover:text-[#1a3a6b]"
+  1376→                                onClick={() => onViewApplicant(app)}
+  1377→                              >
+  1378→                                <Eye className="w-3.5 h-3.5" />
+  1379→                              </Button>
+  1380→                              {app.status === 'pending' && (
+  1381→                                <>
+  1382→                                  <Button
+  1383→                                    variant="ghost"
+  1384→                                    size="sm"
+  1385→                                    className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600"
+  1386→                                    disabled={!!actionLoading}
+  1387→                                    onClick={() => onApprove(app.id, 'approved')}
+  1388→                                  >
+  1389→                                    <CheckCircle className="w-3.5 h-3.5" />
+  1390→                                  </Button>
+  1391→                                  <Button
+  1392→                                    variant="ghost"
+  1393→                                    size="sm"
+  1394→                                    className="h-7 w-7 p-0 text-slate-400 hover:text-red-600"
+  1395→                                    disabled={!!actionLoading}
+  1396→                                    onClick={() => onReject(app.id, 'rejected')}
+  1397→                                  >
+  1398→                                    <XCircle className="w-3.5 h-3.5" />
+  1399→                                  </Button>
+  1400→                                </>
+  1401→                              )}
+  1402→                            </div>
+  1403→                          </TableCell>
+  1404→                        </TableRow>
+  1405→                      ))}
+  1406→                    </TableBody>
+  1407→                  </Table>
+  1408→                </div>
+  1409→              )}
+  1410→            </CardContent>
+  1411→          </Card>
+  1412→        </motion.div>
+  1413→
+  1414→        {/* Recent Payments */}
+  1415→        <motion.div variants={staggerItem}>
+  1416→          <Card className="border-0 shadow-sm">
+  1417→            <CardHeader className="pb-3">
+  1418→              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1419→                <CreditCard className="w-4 h-4 text-[#1a3a6b]" />
+  1420→                Recent Payments
+  1421→              </CardTitle>
+  1422→            </CardHeader>
+  1423→            <CardContent className="p-0">
+  1424→              {recentPayments.length === 0 ? (
+  1425→                <div className="py-8 text-center text-slate-400 text-sm">No payments yet</div>
+  1426→              ) : (
+  1427→                <div className="overflow-x-auto">
+  1428→                  <Table>
+  1429→                    <TableHeader>
+  1430→                      <TableRow className="border-slate-100 hover:bg-transparent">
+  1431→                        <TableHead className="text-xs text-slate-500">Txn Ref</TableHead>
+  1432→                        <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1433→                        <TableHead className="text-xs text-slate-500">Amount</TableHead>
+  1434→                        <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1435→                        <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Date</TableHead>
+  1436→                      </TableRow>
+  1437→                    </TableHeader>
+  1438→                    <TableBody>
+  1439→                      {recentPayments.map((pay) => (
+  1440→                        <TableRow key={pay.id} className="border-slate-50">
+  1441→                          <TableCell className="text-xs font-mono text-slate-600">
+  1442→                            {pay.transactionRef.slice(-10)}
+  1443→                          </TableCell>
+  1444→                          <TableCell className="text-sm font-medium text-slate-800">
+  1445→                            {pay.fullName}
+  1446→                          </TableCell>
+  1447→                          <TableCell className="text-sm font-semibold text-slate-700">
+  1448→                            {formatCurrency(pay.amount)}
+  1449→                          </TableCell>
+  1450→                          <TableCell>{getPaymentStatusBadge(pay.status)}</TableCell>
+  1451→                          <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1452→                            {formatDate(pay.createdAt)}
+  1453→                          </TableCell>
+  1454→                        </TableRow>
+  1455→                      ))}
+  1456→                    </TableBody>
+  1457→                  </Table>
+  1458→                </div>
+  1459→              )}
+  1460→            </CardContent>
+  1461→          </Card>
+  1462→        </motion.div>
+  1463→      </div>
+  1464→    </motion.div>
+  1465→  );
+  1466→}
+  1467→
+  1468→// ---- Applications Section ----
+  1469→interface ApplicationsProps {
+  1470→  applications: Application[];
+  1471→  appCounts: Record<string, number>;
+  1472→  appSearch: string;
+  1473→  appStatusFilter: string;
+  1474→  setAppSearch: (s: string) => void;
+  1475→  setAppStatusFilter: (s: string) => void;
+  1476→  formatDate: (s: string) => string;
+  1477→  getStatusBadge: (s: string) => React.ReactNode;
+  1478→  onViewApplicant: (app: Application) => void;
+  1479→  onApprove: (id: string, status: string) => Promise<void>;
+  1480→  onReject: (id: string, status: string) => Promise<void>;
+  1481→  onEnroll: (id: string, status: string) => Promise<void>;
+  1482→  actionLoading: string | null;
+  1483→}
+  1484→
+  1485→function ApplicationsSection({
+  1486→  applications,
+  1487→  appCounts,
+  1488→  appSearch,
+  1489→  appStatusFilter,
+  1490→  setAppSearch,
+  1491→  setAppStatusFilter,
+  1492→  formatDate,
+  1493→  getStatusBadge,
+  1494→  onViewApplicant,
+  1495→  onApprove,
+  1496→  onReject,
+  1497→  onEnroll,
+  1498→  actionLoading,
+  1499→}: ApplicationsProps) {
+  1500→  return (
+  1501→    <div className="space-y-4">
+  1502→      {/* Summary Badges */}
+  1503→      <div className="flex flex-wrap gap-2">
+  1504→        <Badge variant="outline" className="text-slate-600 border-slate-300 px-3 py-1">
+  1505→          All: {appCounts.total ?? 0}
+  1506→        </Badge>
+  1507→        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 px-3 py-1">
+  1508→          Pending: {appCounts.pending ?? 0}
+  1509→        </Badge>
+  1510→        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 px-3 py-1">
+  1511→          Approved: {appCounts.approved ?? 0}
+  1512→        </Badge>
+  1513→        <Badge className="bg-red-100 text-red-700 hover:bg-red-100 px-3 py-1">
+  1514→          Rejected: {appCounts.rejected ?? 0}
+  1515→        </Badge>
+  1516→        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 px-3 py-1">
+  1517→          Enrolled: {appCounts.enrolled ?? 0}
+  1518→        </Badge>
+  1519→      </div>
+  1520→
+  1521→      {/* Filters */}
+  1522→      <div className="flex flex-col sm:flex-row gap-3">
+  1523→        <div className="relative flex-1">
+  1524→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+  1525→          <Input
+  1526→            placeholder="Search by name, ref#, email or phone..."
+  1527→            value={appSearch}
+  1528→            onChange={(e) => setAppSearch(e.target.value)}
+  1529→            className="pl-9 bg-white"
+  1530→          />
+  1531→        </div>
+  1532→        <Select value={appStatusFilter} onValueChange={setAppStatusFilter}>
+  1533→          <SelectTrigger className="w-full sm:w-44 bg-white">
+  1534→            <Filter className="w-4 h-4 mr-2 text-slate-400" />
+  1535→            <SelectValue placeholder="Filter status" />
+  1536→          </SelectTrigger>
+  1537→          <SelectContent>
+  1538→            <SelectItem value="all">All Statuses</SelectItem>
+  1539→            <SelectItem value="pending">Pending</SelectItem>
+  1540→            <SelectItem value="approved">Approved</SelectItem>
+  1541→            <SelectItem value="rejected">Rejected</SelectItem>
+  1542→            <SelectItem value="enrolled">Enrolled</SelectItem>
+  1543→          </SelectContent>
+  1544→        </Select>
+  1545→      </div>
+  1546→
+  1547→      {/* Table */}
+  1548→      <Card className="border-0 shadow-sm">
+  1549→        <CardContent className="p-0">
+  1550→          {applications.length === 0 ? (
+  1551→            <div className="py-16 text-center">
+  1552→              <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1553→              <p className="text-slate-400 font-medium">No applications found</p>
+  1554→              <p className="text-slate-300 text-sm mt-1">
+  1555→                {appSearch || appStatusFilter !== 'all'
+  1556→                  ? 'Try adjusting your search or filter'
+  1557→                  : 'Applications will appear here once submitted'}
+  1558→              </p>
+  1559→            </div>
+  1560→          ) : (
+  1561→            <div className="overflow-x-auto max-h-[520px] overflow-y-auto">
+  1562→              <Table>
+  1563→                <TableHeader>
+  1564→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1565→                    <TableHead className="text-xs text-slate-500">Ref#</TableHead>
+  1566→                    <TableHead className="text-xs text-slate-500">Full Name</TableHead>
+  1567→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Phone</TableHead>
+  1568→                    <TableHead className="text-xs text-slate-500 hidden lg:table-cell">Programme</TableHead>
+  1569→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Payment</TableHead>
+  1570→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1571→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Date</TableHead>
+  1572→                    <TableHead className="text-xs text-slate-500 text-right">Actions</TableHead>
+  1573→                  </TableRow>
+  1574→                </TableHeader>
+  1575→                <TableBody>
+  1576→                  {applications.map((app) => (
+  1577→                    <TableRow key={app.id} className="border-slate-50">
+  1578→                      <TableCell className="text-xs font-mono text-slate-600">
+  1579→                        {app.referenceNumber.slice(-8)}
+  1580→                      </TableCell>
+  1581→                      <TableCell className="text-sm font-medium text-slate-800">
+  1582→                        {app.fullName}
+  1583→                      </TableCell>
+  1584→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1585→                        {app.phone}
+  1586→                      </TableCell>
+  1587→                      <TableCell className="text-xs text-slate-500 hidden lg:table-cell">
+  1588→                        {app.programme || 'N/A'}
+  1589→                      </TableCell>
+  1590→                      <TableCell className="hidden sm:table-cell">
+  1591→                        {getStatusBadge(app.paymentStatus)}
+  1592→                      </TableCell>
+  1593→                      <TableCell>{getStatusBadge(app.status)}</TableCell>
+  1594→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1595→                        {formatDate(app.createdAt)}
+  1596→                      </TableCell>
+  1597→                      <TableCell className="text-right">
+  1598→                        <div className="flex items-center justify-end gap-1">
+  1599→                          <Button
+  1600→                            variant="ghost"
+  1601→                            size="sm"
+  1602→                            className="h-7 w-7 p-0 text-slate-400 hover:text-[#1a3a6b]"
+  1603→                            onClick={() => onViewApplicant(app)}
+  1604→                          >
+  1605→                            <Eye className="w-3.5 h-3.5" />
+  1606→                          </Button>
+  1607→                          {app.status === 'pending' && (
+  1608→                            <>
+  1609→                              <Button
+  1610→                                variant="ghost"
+  1611→                                size="sm"
+  1612→                                className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600"
+  1613→                                disabled={!!actionLoading}
+  1614→                                onClick={() => onApprove(app.id, 'approved')}
+  1615→                              >
+  1616→                                <CheckCircle className="w-3.5 h-3.5" />
+  1617→                              </Button>
+  1618→                              <Button
+  1619→                                variant="ghost"
+  1620→                                size="sm"
+  1621→                                className="h-7 w-7 p-0 text-slate-400 hover:text-red-600"
+  1622→                                disabled={!!actionLoading}
+  1623→                                onClick={() => onReject(app.id, 'rejected')}
+  1624→                              >
+  1625→                                <XCircle className="w-3.5 h-3.5" />
+  1626→                              </Button>
+  1627→                            </>
+  1628→                          )}
+  1629→                          {app.status === 'approved' && (
+  1630→                            <Button
+  1631→                              variant="ghost"
+  1632→                              size="sm"
+  1633→                              className="h-7 px-2 text-xs text-slate-400 hover:text-[#1a3a6b]"
+  1634→                              disabled={!!actionLoading}
+  1635→                              onClick={() => onEnroll(app.id, 'enrolled')}
+  1636→                            >
+  1637→                              <UserPlus className="w-3.5 h-3.5 mr-1" />
+  1638→                              Enroll
+  1639→                            </Button>
+  1640→                          )}
+  1641→                        </div>
+  1642→                      </TableCell>
+  1643→                    </TableRow>
+  1644→                  ))}
+  1645→                </TableBody>
+  1646→              </Table>
+  1647→            </div>
+  1648→          )}
+  1649→        </CardContent>
+  1650→      </Card>
+  1651→    </div>
+  1652→  );
+  1653→}
+  1654→
+  1655→// ---- Payments Section ----
+  1656→interface PaymentsProps {
+  1657→  payments: Payment[];
+  1658→  summary: Record<string, number>;
+  1659→  formatDate: (s: string) => string;
+  1660→  getPaymentStatusBadge: (s: string) => React.ReactNode;
+  1661→  formatCurrency: (n: number) => string;
+  1662→}
+  1663→
+  1664→function PaymentsSection({
+  1665→  payments,
+  1666→  summary,
+  1667→  formatDate,
+  1668→  getPaymentStatusBadge,
+  1669→  formatCurrency,
+  1670→}: PaymentsProps) {
+  1671→  const summaryCards = [
+  1672→    {
+  1673→      label: 'Total Revenue',
+  1674→      value: formatCurrency(summary.totalRevenue || 0),
+  1675→      icon: Banknote,
+  1676→      color: 'text-emerald-600',
+  1677→      bg: 'bg-emerald-50',
+  1678→      iconBg: 'bg-emerald-100',
+  1679→    },
+  1680→    {
+  1681→      label: 'Successful',
+  1682→      value: summary.successful ?? 0,
+  1683→      icon: CheckCircle,
+  1684→      color: 'text-green-600',
+  1685→      bg: 'bg-green-50',
+  1686→      iconBg: 'bg-green-100',
+  1687→    },
+  1688→    {
+  1689→      label: 'Pending',
+  1690→      value: summary.pending ?? 0,
+  1691→      icon: Clock,
+  1692→      color: 'text-amber-600',
+  1693→      bg: 'bg-amber-50',
+  1694→      iconBg: 'bg-amber-100',
+  1695→    },
+  1696→    {
+  1697→      label: 'Failed',
+  1698→      value: summary.failed ?? 0,
+  1699→      icon: XCircle,
+  1700→      color: 'text-red-600',
+  1701→      bg: 'bg-red-50',
+  1702→      iconBg: 'bg-red-100',
+  1703→    },
+  1704→  ];
+  1705→
+  1706→  return (
+  1707→    <div className="space-y-6">
+  1708→      {/* Summary Cards */}
+  1709→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+  1710→        {summaryCards.map((card, i) => {
+  1711→          const Icon = card.icon;
+  1712→          return (
+  1713→            <Card key={i} className="border-0 shadow-sm">
+  1714→              <CardContent className="p-4">
+  1715→                <div className="flex items-center gap-3">
+  1716→                  <div className={`${card.iconBg} p-2 rounded-lg`}>
+  1717→                    <Icon className={`w-5 h-5 ${card.color}`} />
+  1718→                  </div>
+  1719→                  <div>
+  1720→                    <p className="text-xl font-bold text-slate-800">{card.value}</p>
+  1721→                    <p className="text-xs text-slate-500">{card.label}</p>
+  1722→                  </div>
+  1723→                </div>
+  1724→              </CardContent>
+  1725→            </Card>
+  1726→          );
+  1727→        })}
+  1728→      </div>
+  1729→
+  1730→      {/* Payments Table */}
+  1731→      <Card className="border-0 shadow-sm">
+  1732→        <CardHeader className="pb-3">
+  1733→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1734→            <CreditCard className="w-4 h-4 text-[#1a3a6b]" />
+  1735→            All Payments
+  1736→          </CardTitle>
+  1737→        </CardHeader>
+  1738→        <CardContent className="p-0">
+  1739→          {payments.length === 0 ? (
+  1740→            <div className="py-16 text-center">
+  1741→              <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1742→              <p className="text-slate-400 font-medium">No payments yet</p>
+  1743→              <p className="text-slate-300 text-sm mt-1">Payments will appear here once processed</p>
+  1744→            </div>
+  1745→          ) : (
+  1746→            <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
+  1747→              <Table>
+  1748→                <TableHeader>
+  1749→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1750→                    <TableHead className="text-xs text-slate-500">Transaction Ref</TableHead>
+  1751→                    <TableHead className="text-xs text-slate-500">Applicant</TableHead>
+  1752→                    <TableHead className="text-xs text-slate-500">Amount</TableHead>
+  1753→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Method</TableHead>
+  1754→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1755→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Date</TableHead>
+  1756→                  </TableRow>
+  1757→                </TableHeader>
+  1758→                <TableBody>
+  1759→                  {payments.map((pay) => (
+  1760→                    <TableRow key={pay.id} className="border-slate-50">
+  1761→                      <TableCell className="text-xs font-mono text-slate-600">
+  1762→                        {pay.transactionRef.slice(-12)}
+  1763→                      </TableCell>
+  1764→                      <TableCell className="text-sm font-medium text-slate-800">
+  1765→                        {pay.fullName}
+  1766→                      </TableCell>
+  1767→                      <TableCell className="text-sm font-semibold text-slate-700">
+  1768→                        {formatCurrency(pay.amount)}
+  1769→                      </TableCell>
+  1770→                      <TableCell className="text-xs text-slate-500 hidden sm:table-cell capitalize">
+  1771→                        {pay.paymentMethod}
+  1772→                      </TableCell>
+  1773→                      <TableCell>{getPaymentStatusBadge(pay.status)}</TableCell>
+  1774→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1775→                        {formatDate(pay.createdAt)}
+  1776→                      </TableCell>
+  1777→                    </TableRow>
+  1778→                  ))}
+  1779→                </TableBody>
+  1780→              </Table>
+  1781→            </div>
+  1782→          )}
+  1783→        </CardContent>
+  1784→      </Card>
+  1785→    </div>
+  1786→  );
+  1787→}
+  1788→
+  1789→// ---- Students Section ----
+  1790→interface StudentsProps {
+  1791→  students: Student[];
+  1792→  formatDate: (s: string) => string;
+  1793→  getStatusBadge: (s: string) => React.ReactNode;
+  1794→}
+  1795→
+  1796→function StudentsSection({ students, formatDate, getStatusBadge }: StudentsProps) {
+  1797→  return (
+  1798→    <div className="space-y-4">
+  1799→      {/* Count Card */}
+  1800→      <Card className="border-0 shadow-sm bg-gradient-to-r from-[#1a3a6b] to-[#2756a0]">
+  1801→        <CardContent className="p-6 flex items-center gap-4">
+  1802→          <div className="bg-white/20 p-3 rounded-xl">
+  1803→            <GraduationCap className="w-8 h-8 text-white" />
+  1804→          </div>
+  1805→          <div>
+  1806→            <p className="text-3xl font-bold text-white">{students.length}</p>
+  1807→            <p className="text-white/70 text-sm">Total Enrolled Students</p>
+  1808→          </div>
+  1809→        </CardContent>
+  1810→      </Card>
+  1811→
+  1812→      {/* Students Table */}
+  1813→      <Card className="border-0 shadow-sm">
+  1814→        <CardHeader className="pb-3">
+  1815→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  1816→            <Users className="w-4 h-4 text-[#1a3a6b]" />
+  1817→            Enrolled Students
+  1818→          </CardTitle>
+  1819→        </CardHeader>
+  1820→        <CardContent className="p-0">
+  1821→          {students.length === 0 ? (
+  1822→            <div className="py-16 text-center">
+  1823→              <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1824→              <p className="text-slate-400 font-medium">No enrolled students yet</p>
+  1825→              <p className="text-slate-300 text-sm mt-1">
+  1826→                Students will appear here once applications are enrolled
+  1827→              </p>
+  1828→            </div>
+  1829→          ) : (
+  1830→            <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
+  1831→              <Table>
+  1832→                <TableHeader>
+  1833→                  <TableRow className="border-slate-100 hover:bg-transparent">
+  1834→                    <TableHead className="text-xs text-slate-500">Student No.</TableHead>
+  1835→                    <TableHead className="text-xs text-slate-500">Name</TableHead>
+  1836→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Programme</TableHead>
+  1837→                    <TableHead className="text-xs text-slate-500 hidden sm:table-cell">Intake</TableHead>
+  1838→                    <TableHead className="text-xs text-slate-500">Status</TableHead>
+  1839→                    <TableHead className="text-xs text-slate-500 hidden md:table-cell">Enrolled</TableHead>
+  1840→                  </TableRow>
+  1841→                </TableHeader>
+  1842→                <TableBody>
+  1843→                  {students.map((student) => (
+  1844→                    <TableRow key={student.id} className="border-slate-50">
+  1845→                      <TableCell className="text-xs font-mono text-slate-600">
+  1846→                        {student.studentNumber}
+  1847→                      </TableCell>
+  1848→                      <TableCell className="text-sm font-medium text-slate-800">
+  1849→                        {student.fullName}
+  1850→                      </TableCell>
+  1851→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1852→                        {student.programme}
+  1853→                      </TableCell>
+  1854→                      <TableCell className="text-xs text-slate-500 hidden sm:table-cell">
+  1855→                        {student.intakeYear}
+  1856→                      </TableCell>
+  1857→                      <TableCell>{getStatusBadge(student.status)}</TableCell>
+  1858→                      <TableCell className="text-xs text-slate-500 hidden md:table-cell">
+  1859→                        {formatDate(student.createdAt)}
+  1860→                      </TableCell>
+  1861→                    </TableRow>
+  1862→                  ))}
+  1863→                </TableBody>
+  1864→              </Table>
+  1865→            </div>
+  1866→          )}
+  1867→        </CardContent>
+  1868→      </Card>
+  1869→    </div>
+  1870→  );
+  1871→}
+  1872→
+  1873→// ---- Events Section ----
+  1874→interface EventsProps {
+  1875→  events: EventItem[];
+  1876→  onCreateNew: () => void;
+  1877→  onDelete: (id: string) => void;
+  1878→  formatDate: (s: string) => string;
+  1879→}
+  1880→
+  1881→function EventsSection({ events, onCreateNew, onDelete, formatDate }: EventsProps) {
+  1882→  const categoryColors: Record<string, string> = {
+  1883→    general: 'bg-slate-100 text-slate-600',
+  1884→    academic: 'bg-blue-100 text-blue-600',
+  1885→    showcase: 'bg-purple-100 text-purple-600',
+  1886→    assessment: 'bg-amber-100 text-amber-600',
+  1887→    campus: 'bg-green-100 text-green-600',
+  1888→  };
+  1889→
+  1890→  const upcoming = events
+  1891→    .filter((e) => e.eventDate && new Date(e.eventDate) >= new Date())
+  1892→    .sort((a, b) => new Date(a.eventDate!).getTime() - new Date(b.eventDate!).getTime());
+  1893→
+  1894→  const past = events
+  1895→    .filter((e) => e.eventDate && new Date(e.eventDate) < new Date())
+  1896→    .sort((a, b) => new Date(b.eventDate!).getTime() - new Date(a.eventDate!).getTime());
+  1897→
+  1898→  return (
+  1899→    <div className="space-y-6">
+  1900→      {/* Header with Add Button */}
+  1901→      <div className="flex items-center justify-between">
+  1902→        <div>
+  1903→          <p className="text-sm text-slate-500">Manage school events and calendar</p>
+  1904→        </div>
+  1905→        <Button
+  1906→          onClick={onCreateNew}
+  1907→          className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white gap-2"
+  1908→        >
+  1909→          <Plus className="w-4 h-4" />
+  1910→          Add Event
+  1911→        </Button>
+  1912→      </div>
+  1913→
+  1914→      {events.length === 0 ? (
+  1915→        <div className="py-16 text-center">
+  1916→          <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  1917→          <p className="text-slate-400 font-medium">No events yet</p>
+  1918→          <p className="text-slate-300 text-sm mt-1">Create your first event to get started</p>
+  1919→        </div>
+  1920→      ) : (
+  1921→        <>
+  1922→          {/* Upcoming Events */}
+  1923→          {upcoming.length > 0 && (
+  1924→            <div>
+  1925→              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+  1926→                Upcoming Events
+  1927→              </h3>
+  1928→              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  1929→                {upcoming.map((event) => (
+  1930→                  <motion.div
+  1931→                    key={event.id}
+  1932→                    initial={{ opacity: 0, scale: 0.95 }}
+  1933→                    animate={{ opacity: 1, scale: 1 }}
+  1934→                    transition={{ duration: 0.2 }}
+  1935→                  >
+  1936→                    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group">
+  1937→                      <CardContent className="p-4">
+  1938→                        <div className="flex items-start justify-between mb-3">
+  1939→                          <Badge
+  1940→                            variant="secondary"
+  1941→                            className={categoryColors[event.category] || categoryColors.general}
+  1942→                          >
+  1943→                            {event.category}
+  1944→                          </Badge>
+  1945→                          <Button
+  1946→                            variant="ghost"
+  1947→                            size="sm"
+  1948→                            className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+  1949→                            onClick={() => onDelete(event.id)}
+  1950→                          >
+  1951→                            <Trash2 className="w-3.5 h-3.5" />
+  1952→                          </Button>
+  1953→                        </div>
+  1954→                        <h4 className="font-semibold text-slate-800 mb-1 line-clamp-2">{event.title}</h4>
+  1955→                        {event.description && (
+  1956→                          <p className="text-sm text-slate-500 line-clamp-2 mb-3">{event.description}</p>
+  1957→                        )}
+  1958→                        <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+  1959→                          {event.eventDate && (
+  1960→                            <span className="flex items-center gap-1">
+  1961→                              <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+  1962→                            </span>
+  1963→                          )}
+  1964→                          {event.eventTime && (
+  1965→                            <span className="flex items-center gap-1">
+  1966→                              <Clock className="w-3 h-3" /> {event.eventTime}
+  1967→                            </span>
+  1968→                          )}
+  1969→                          {event.location && (
+  1970→                            <span className="flex items-center gap-1">
+  1971→                              <MapPin className="w-3 h-3" /> {event.location}
+  1972→                            </span>
+  1973→                          )}
+  1974→                        </div>
+  1975→                      </CardContent>
+  1976→                    </Card>
+  1977→                  </motion.div>
+  1978→                ))}
+  1979→              </div>
+  1980→            </div>
+  1981→          )}
+  1982→
+  1983→          {/* Past Events */}
+  1984→          {past.length > 0 && (
+  1985→            <div>
+  1986→              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+  1987→                Past Events
+  1988→              </h3>
+  1989→              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  1990→                {past.map((event) => (
+  1991→                  <Card key={event.id} className="border-0 shadow-sm opacity-60">
+  1992→                    <CardContent className="p-4">
+  1993→                      <div className="flex items-start justify-between mb-3">
+  1994→                        <Badge
+  1995→                          variant="secondary"
+  1996→                          className={categoryColors[event.category] || categoryColors.general}
+  1997→                        >
+  1998→                          {event.category}
+  1999→                        </Badge>
+  2000→                        <Button
+  2001→                          variant="ghost"
+  2002→                          size="sm"
+  2003→                          className="h-7 w-7 p-0 text-slate-300 hover:text-red-500"
+  2004→                          onClick={() => onDelete(event.id)}
+  2005→                        >
+  2006→                          <Trash2 className="w-3.5 h-3.5" />
+  2007→                        </Button>
+  2008→                      </div>
+  2009→                      <h4 className="font-semibold text-slate-600 mb-1 line-clamp-2">{event.title}</h4>
+  2010→                      {event.eventDate && (
+  2011→                        <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
+  2012→                          <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+  2013→                        </p>
+  2014→                      )}
+  2015→                    </CardContent>
+  2016→                  </Card>
+  2017→                ))}
+  2018→              </div>
+  2019→            </div>
+  2020→          )}
+  2021→        </>
+  2022→      )}
+  2023→    </div>
+  2024→  );
+  2025→}
+  2026→
+  2027→// ---- Messages Section ----
+  2028→interface MessagesProps {
+  2029→  messages: ContactMsg[];
+  2030→  unreadCount: number;
+  2031→  onExpand: (msg: ContactMsg | null) => void;
+  2032→  formatDate: (s: string) => string;
+  2033→}
+  2034→
+  2035→function MessagesSection({ messages, unreadCount, onExpand, formatDate }: MessagesProps) {
+  2036→  return (
+  2037→    <div className="space-y-4">
+  2038→      {/* Unread count banner */}
+  2039→      {unreadCount > 0 && (
+  2040→        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+  2041→          <div className="bg-amber-100 p-2 rounded-lg">
+  2042→            <Mail className="w-5 h-5 text-amber-600" />
+  2043→          </div>
+  2044→          <div>
+  2045→            <p className="font-semibold text-amber-800">{unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}</p>
+  2046→            <p className="text-sm text-amber-600">Click on a message to read it</p>
+  2047→          </div>
+  2048→        </div>
+  2049→      )}
+  2050→
+  2051→      {/* Messages List */}
+  2052→      <Card className="border-0 shadow-sm">
+  2053→        <CardHeader className="pb-3">
+  2054→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  2055→            <MessageSquare className="w-4 h-4 text-[#1a3a6b]" />
+  2056→            Contact Messages
+  2057→            <Badge variant="secondary" className="ml-2 bg-slate-100 text-slate-600">
+  2058→              {messages.length} total
+  2059→            </Badge>
+  2060→          </CardTitle>
+  2061→        </CardHeader>
+  2062→        <CardContent className="p-0">
+  2063→          {messages.length === 0 ? (
+  2064→            <div className="py-16 text-center">
+  2065→              <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+  2066→              <p className="text-slate-400 font-medium">No messages yet</p>
+  2067→              <p className="text-slate-300 text-sm mt-1">
+  2068→                Contact messages will appear here
+  2069→              </p>
+  2070→            </div>
+  2071→          ) : (
+  2072→            <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+  2073→              {messages.map((msg) => (
+  2074→                <button
+  2075→                  key={msg.id}
+  2076→                  onClick={() => onExpand(msg)}
+  2077→                  className={`
+  2078→                    w-full text-left p-4 hover:bg-slate-50 transition-colors
+  2079→                    ${!msg.isRead ? 'bg-blue-50/40' : ''}
+  2080→                  `}
+  2081→                >
+  2082→                  <div className="flex items-start gap-3">
+  2083→                    <div
+  2084→                      className={`
+  2085→                        w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold
+  2086→                        ${!msg.isRead ? 'bg-[#1a3a6b] text-white' : 'bg-slate-200 text-slate-500'}
+  2087→                      `}
+  2088→                    >
+  2089→                      {msg.name.charAt(0).toUpperCase()}
+  2090→                    </div>
+  2091→                    <div className="flex-1 min-w-0">
+  2092→                      <div className="flex items-center justify-between gap-2">
+  2093→                        <p
+  2094→                          className={`text-sm truncate ${!msg.isRead ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}
+  2095→                        >
+  2096→                          {msg.name}
+  2097→                          {!msg.isRead && (
+  2098→                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2" />
+  2099→                          )}
+  2100→                        </p>
+  2101→                        <span className="text-xs text-slate-400 flex-shrink-0">
+  2102→                          {formatDate(msg.createdAt)}
+  2103→                        </span>
+  2104→                      </div>
+  2105→                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+  2106→                        {msg.subject || 'No subject'}
+  2107→                      </p>
+  2108→                      <p className="text-xs text-slate-400 truncate mt-1">{msg.message}</p>
+  2109→                    </div>
+  2110→                  </div>
+  2111→                </button>
+  2112→              ))}
+  2113→            </div>
+  2114→          )}
+  2115→        </CardContent>
+  2116→      </Card>
+  2117→    </div>
+  2118→  );
+  2119→}
+  2120→
+  2121→// ---- Settings Section ----
+  2122→function SettingsSection() {
+  2123→  return (
+  2124→    <div className="space-y-6">
+  2125→      <Card className="border-0 shadow-sm">
+  2126→        <CardHeader>
+  2127→          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+  2128→            <Settings className="w-4 h-4 text-[#1a3a6b]" />
+  2129→            Institution Settings
+  2130→          </CardTitle>
+  2131→        </CardHeader>
+  2132→        <CardContent className="space-y-6">
+  2133→          {/* School Info */}
+  2134→          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  2135→            <div className="space-y-2">
+  2136→              <label className="block text-sm font-medium text-slate-700">Institution Name</label>
+  2137→              <Input
+  2138→                defaultValue="St. Kizito's Technical Institute - Madera"
+  2139→                disabled
+  2140→                className="bg-slate-50"
+  2141→              />
+  2142→            </div>
+  2143→            <div className="space-y-2">
+  2144→              <label className="block text-sm font-medium text-slate-700">Short Code</label>
+  2145→              <Input defaultValue="SKTIM" disabled className="bg-slate-50" />
+  2146→            </div>
+  2147→            <div className="space-y-2">
+  2148→              <label className="block text-sm font-medium text-slate-700">Location</label>
+  2149→              <Input defaultValue="Madera, Uganda" disabled className="bg-slate-50" />
+  2150→            </div>
+  2151→            <div className="space-y-2">
+  2152→              <label className="block text-sm font-medium text-slate-700">Academic Year</label>
+  2153→              <Input defaultValue={new Date().getFullYear().toString()} disabled className="bg-slate-50" />
+  2154→            </div>
+  2155→          </div>
+  2156→
+  2157→          <div className="border-t border-slate-100 pt-6">
+  2158→            <h4 className="text-sm font-semibold text-slate-700 mb-3">System Information</h4>
+  2159→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+  2160→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2161→                <span className="text-slate-500">Version</span>
+  2162→                <span className="text-slate-700 font-medium">1.0.0</span>
+  2163→              </div>
+  2164→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2165→                <span className="text-slate-500">Payment Gateway</span>
+  2166→                <span className="text-slate-700 font-medium">SchoolPay (Demo)</span>
+  2167→              </div>
+  2168→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2169→                <span className="text-slate-500">Database</span>
+  2170→                <span className="text-slate-700 font-medium">SQLite</span>
+  2171→              </div>
+  2172→              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+  2173→                <span className="text-slate-500">Framework</span>
+  2174→                <span className="text-slate-700 font-medium">Next.js 16</span>
+  2175→              </div>
+  2176→            </div>
+  2177→          </div>
+  2178→        </CardContent>
+  2179→      </Card>
+  2180→    </div>
+  2181→  );
+  2182→}
+  2183→
+  2184→// ---- Helper Sub-Components ----
+  2185→
+  2186→function QuickInfo({
+  2187→  icon: Icon,
+  2188→  label,
+  2189→  value,
+  2190→}: {
+  2191→  icon: React.ElementType;
+  2192→  label: string;
+  2193→  value: string | null | undefined;
+  2194→}) {
+  2195→  return (
+  2196→    <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+  2197→      <Icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+  2198→      <div className="min-w-0">
+  2199→        <p className="text-xs text-slate-400">{label}</p>
+  2200→        <p className="text-sm text-slate-700 font-medium truncate">{value || 'N/A'}</p>
+  2201→      </div>
+  2202→    </div>
+  2203→  );
+  2204→}
+  2205→
+  2206→function DetailCard({ title, children }: { title: string; children: React.ReactNode }) {
+  2207→  return (
+  2208→    <div className="border border-slate-100 rounded-xl overflow-hidden">
+  2209→      <div className="bg-slate-50 px-4 py-2 border-b border-slate-100">
+  2210→        <h4 className="text-sm font-semibold text-slate-700">{title}</h4>
+  2211→      </div>
+  2212→      <div className="p-4">{children}</div>
+  2213→    </div>
+  2214→  );
+  2215→}
+  2216→
+  2217→function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+  2218→  return (
+  2219→    <div>
+  2220→      <p className="text-xs text-slate-400 mb-0.5">{label}</p>
+  2221→      <p className="text-sm text-slate-700">{value || 'Not provided'}</p>
+  2222→    </div>
+  2223→  );
+  2224→}
+  2225→
