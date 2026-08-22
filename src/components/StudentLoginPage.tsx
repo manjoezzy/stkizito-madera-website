@@ -14,6 +14,7 @@ import {
   MonitorPlay,
   IdCard,
 } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -260,7 +261,7 @@ export default function StudentLoginPage() {
 
       {/* Footer branding */}
       <p className="text-center text-xs text-white/50 mt-6">
-        <GraduationCap className="w-4 h-4 inline-block mr-1 -mt-0.5" />
+        <Image src="/images/institute-logo.jpg" alt="SKTM" width={16} height={16} className="w-4 h-4 inline-block mr-1 -mt-0.5" />
         St. Kizito&apos;s Technical Institute — Madera
       </p>
       </motion.div>

@@ -290,7 +290,7 @@
    290→    description: '',
    291→    imageUrl: '',
    292→    category: 'general',
-   293→    eventDate': '',
+   293→    eventDate: '',
    294→  });
    295→
    296→  // Event form

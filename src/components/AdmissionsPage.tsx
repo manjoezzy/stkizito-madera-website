@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList,
@@ -41,6 +41,7 @@ import {
   UtensilsCrossed,
   UserCheck,
   FileText,
+  Download,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -151,6 +152,18 @@ const INITIAL_FORM: FormData = {
 
 export default function AdmissionsPage() {
   const { addToast, setCurrentPage } = useAppStore();
+
+  const [nonFormalFormUrl, setNonFormalFormUrl] = useState<string | null>(null);
+  const [tvetFormUrl, setTvetFormUrl] = useState<string>('/forms/tvet-admission-form.pdf');
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
+      fetch('/api/settings?key=tvet_form_url').then((r) => r.json()),
+    ]).then(([nf, tf]) => {
+      if (nf.value) setNonFormalFormUrl(nf.value);
+      if (tf.value) setTvetFormUrl(tf.value);
+    }).catch(() => {});
+  }, []);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
@@ -1037,6 +1050,119 @@ export default function AdmissionsPage() {
                 </Card>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* ═══════════ DOWNLOAD APPLICATION FORMS ═══════════ */}
+        <section className="py-16 px-4">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-10"
+            >
+              <h2 className="text-3xl font-bold text-gray-900">Download Application Forms</h2>
+              <p className="text-gray-500 mt-2">
+                Download the appropriate form, fill it in, and submit it to the admissions office.
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Formal (TVET) Form */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div
+                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+                      >
+                        <FileText className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900">Formal Admission Form</h3>
+                        <p className="text-xs text-gray-400 mt-0.5">National Certificate &amp; Diploma Programmes</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+                      This is the official TVET admission form for government-recognised programmes
+                      (2-year certificates and diplomas). Provided by the Ministry of Education &amp; Sports.
+                    </p>
+                    <div className="mt-6">
+                      <a
+                        href={tvetFormUrl}
+                        download
+                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+                      >
+                        <Download className="w-4 h-4" />
+                        Download TVET Form (PDF)
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Non-Formal Form */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div
+                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: '#fef9e7' }}
+                      >
+                        <FileText className="w-6 h-6" style={{ color: '#92640a' }} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900">Non-Formal Admission Form</h3>
+                        <p className="text-xs text-gray-400 mt-0.5">Short Courses &amp; Vocational Skills</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+                      This form is for short courses (3–6 months) and vocational skills programmes.
+                      Provided by St. Kizito&apos;s Technical Institute - Madera.
+                    </p>
+                    <div className="mt-6">
+                      {nonFormalFormUrl ? (
+                        <a
+                          href={nonFormalFormUrl}
+                          download
+                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+                          style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+                        >
+                          <Download className="w-4 h-4" />
+                          Download Non-Formal Form
+                        </a>
+                      ) : (
+                        <div
+                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Form Not Yet Available
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            <p className="text-center text-xs text-gray-400 mt-6">
+              You may also apply online using the form below, or visit the admissions office in person.
+            </p>
           </div>
         </section>
 

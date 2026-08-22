@@ -4,9 +4,10 @@ import { useAppStore, type Page } from '@/store/useAppStore';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-   GraduationCap, Menu, X, Home, BookOpen, ClipboardList,
+   Menu, X, Home, BookOpen, ClipboardList,
   User, LogIn, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon
 } from 'lucide-react';
+import Image from 'next/image';
 
 const NAV_ITEMS: { label: string; page: Page; icon?: React.ReactNode }[] = [
   { label: 'Home', page: 'home', icon: <Home size={16} /> },
@@ -56,8 +57,8 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <button onClick={() => setCurrentPage('home')} className="flex items-center gap-3 group">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${scrolled || currentPage !== 'home' ? 'bg-gradient-to-br from-[#1a3a6b] to-[#f5c518]' : 'bg-white/20 backdrop-blur-sm'} transition-all`}> 
-                <GraduationCap size={22} className={scrolled || currentPage !== 'home' ? 'text-white' : 'text-white'} />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${scrolled || currentPage !== 'home' ? 'bg-white' : 'bg-white/20 backdrop-blur-sm'} transition-all`}>
+                <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
               </div>
               <div className="hidden sm:block">
                 <h1 className={`text-sm lg:text-base font-bold leading-tight ${logoColor} transition-colors`}>

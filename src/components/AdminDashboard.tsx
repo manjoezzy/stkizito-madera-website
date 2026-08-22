@@ -2275,6 +2275,56 @@ function MessagesSection({ messages, unreadCount, onExpand, formatDate }: Messag
 
 // ---- Settings Section ----
 function SettingsSection() {
+  const [formFile, setFormFile] = useState<File | null>(null);
+  const [uploading, setFormUploading] = useState(false);
+  const [currentFormUrl, setCurrentFormUrl] = useState<string | null>(null);
+  const [tvetFormFile, setTvetFormFile] = useState<File | null>(null);
+  const [tvetUploading, setTvetUploading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/settings?key=non_formal_form_url')
+      .then((r) => r.json()).then((d) => { if (d.value) setCurrentFormUrl(d.value); }).catch(() => {});
+  }, []);
+
+  const uploadNonFormalForm = async () => {
+    if (!formFile) return;
+    setFormUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', formFile);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'non_formal_form_url', value: data.url }),
+        });
+        setCurrentFormUrl(data.url);
+        setFormFile(null);
+      }
+    } catch {} finally { setFormUploading(false); }
+  };
+
+  const uploadTvetForm = async () => {
+    if (!tvetFormFile) return;
+    setTvetUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', tvetFormFile);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'tvet_form_url', value: data.url }),
+        });
+        setTvetFormFile(null);
+      }
+    } catch {} finally { setTvetUploading(false); }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-0 shadow-sm">
@@ -2289,11 +2339,7 @@ function SettingsSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">Institution Name</label>
-              <Input
-                defaultValue="St. Kizito's Technical Institute - Madera"
-                disabled
-                className="bg-slate-50"
-              />
+              <Input defaultValue="St. Kizito&apos;s Technical Institute - Madera" disabled className="bg-slate-50" />
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">Short Code</label>
@@ -2301,33 +2347,115 @@ function SettingsSection() {
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">Location</label>
-              <Input defaultValue="Madera, Uganda" disabled className="bg-slate-50" />
+              <Input defaultValue="Madera, Soroti City, Uganda" disabled className="bg-slate-50" />
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">Academic Year</label>
               <Input defaultValue={new Date().getFullYear().toString()} disabled className="bg-slate-50" />
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <div className="border-t border-slate-100 pt-6">
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">System Information</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-slate-500">Version</span>
-                <span className="text-slate-700 font-medium">1.0.0</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-slate-500">Payment Gateway</span>
-                <span className="text-slate-700 font-medium">SchoolPay (Demo)</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-slate-500">Database</span>
-                <span className="text-slate-700 font-medium">SQLite</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
-                <span className="text-slate-500">Framework</span>
-                <span className="text-slate-700 font-medium">Next.js 16</span>
-              </div>
+      {/* ── Application Form Management ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[#1a3a6b]" />
+            Admission Form Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* TVET Form */}
+          <div className="p-4 rounded-xl border border-slate-200">
+            <h4 className="text-sm font-semibold text-slate-700 mb-1">Formal Admission Form (TVET)</h4>
+            <p className="text-xs text-slate-400 mb-4">The official TVET admission form provided by the Ministry of Education &amp; Sports for national certificate and diploma programmes.</p>
+            <div className="flex items-center gap-3">
+              <label className="flex-1 cursor-pointer">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => setTvetFormFile(e.target.files?.[0] || null)}
+                />
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-dashed border-slate-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 transition-colors">
+                  <Upload className="w-5 h-5 text-slate-400" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-600">
+                      {tvetFormFile ? tvetFormFile.name : 'Click to select TVET form (PDF/DOC)'}
+                    </p>
+                    {tvetFormFile && <p className="text-xs text-slate-400">{(tvetFormFile.size / 1024).toFixed(1)} KB</p>}
+                  </div>
+                </div>
+              </label>
+              <Button
+                onClick={uploadTvetForm}
+                disabled={!tvetFormFile || tvetUploading}
+                className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white shrink-0 disabled:opacity-50"
+              >
+                {tvetUploading ? 'Uploading...' : 'Upload'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Non-Formal Form */}
+          <div className="p-4 rounded-xl border border-slate-200">
+            <h4 className="text-sm font-semibold text-slate-700 mb-1">Non-Formal Admission Form (School)</h4>
+            <p className="text-xs text-slate-400 mb-4">The institute&apos;s own application form for short courses and vocational skills programmes.</p>
+            {currentFormUrl && (
+              <p className="text-xs text-emerald-600 mb-3 font-medium">Current file uploaded. Students can now download this form.</p>
+            )}
+            <div className="flex items-center gap-3">
+              <label className="flex-1 cursor-pointer">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => setFormFile(e.target.files?.[0] || null)}
+                />
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-dashed border-slate-200 hover:border-[#f5c518] hover:bg-[#f5c518]/5 transition-colors">
+                  <Upload className="w-5 h-5 text-slate-400" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-600">
+                      {formFile ? formFile.name : 'Click to select non-formal form (PDF/DOC)'}
+                    </p>
+                    {formFile && <p className="text-xs text-slate-400">{(formFile.size / 1024).toFixed(1)} KB</p>}
+                  </div>
+                </div>
+              </label>
+              <Button
+                onClick={uploadNonFormalForm}
+                disabled={!formFile || uploading}
+                style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+                className="shrink-0 disabled:opacity-50 hover:opacity-90"
+              >
+                {uploading ? 'Uploading...' : 'Upload'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* System Info */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="pt-6">
+          <h4 className="text-sm font-semibold text-slate-700 mb-3">System Information</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+              <span className="text-slate-500">Version</span>
+              <span className="text-slate-700 font-medium">1.0.0</span>
+            </div>
+            <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+              <span className="text-slate-500">Payment Gateway</span>
+              <span className="text-slate-700 font-medium">SchoolPay (Demo)</span>
+            </div>
+            <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+              <span className="text-slate-500">Database</span>
+              <span className="text-slate-700 font-medium">SQLite</span>
+            </div>
+            <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+              <span className="text-slate-500">Framework</span>
+              <span className="text-slate-700 font-medium">Next.js 16</span>
             </div>
           </div>
         </CardContent>

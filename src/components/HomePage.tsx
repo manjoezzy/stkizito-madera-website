@@ -628,8 +628,8 @@ export default function HomePage() {
             <div className="absolute top-1/2 right-10 w-20 h-20 rounded-full bg-white/5" />
 
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f5c518]/20 mb-6">
-                <GraduationCap className="h-8 w-8 text-[#f5c518]" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white mb-6 overflow-hidden">
+                <Image src="/images/institute-logo.jpg" alt="SKTM" width={64} height={64} className="object-contain w-full h-full" />
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 Ready to Build Your Future?
@@ -916,8 +916,8 @@ export default function HomePage() {
             {/* brand column */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center">
-                  <GraduationCap className="h-5 w-5 text-[#f5c518]" />
+                <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+                  <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base leading-tight">
