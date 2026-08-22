@@ -425,7 +425,7 @@ export default function HomePage() {
           <div>
             <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-4">
               <Heart className="h-4 w-4" />
-              Welcome to St. Kizito's
+              Welcome to SKTM
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b] leading-tight">
               A Legacy of Excellence in Technical Education
@@ -750,8 +750,13 @@ export default function HomePage() {
                 },
                 {
                   icon: Phone,
-                  label: 'Phone',
+                  label: 'Institute Lines',
                   value: '+256 752 309 660\n+256 772 309 660',
+                },
+                {
+                  icon: Phone,
+                  label: 'Principal',
+                  value: '+256 772 383 391',
                 },
                 {
                   icon: Mail,

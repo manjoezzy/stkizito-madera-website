@@ -61,10 +61,10 @@ export default function Navigation() {
               </div>
               <div className="hidden sm:block">
                 <h1 className={`text-sm lg:text-base font-bold leading-tight ${logoColor} transition-colors`}>
-                  St. Kizito&apos;s Technical Institute
+                  St. Kizito&apos;s Technical Institute - Madera
                 </h1>
                 <p className={`text-[10px] lg:text-xs font-medium ${scrolled || currentPage !== 'home' ? 'text-[#f5c518]' : 'text-amber-300'} transition-colors`}>
-                  Madera — Building Skills, Transforming Lives
+                  Building Skills, Transforming Lives
                 </p>
               </div>
             </button>

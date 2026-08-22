@@ -693,7 +693,7 @@ export default function AdmissionsPage() {
       <div>
         <h3 className="text-2xl font-bold text-gray-900">Payment Successful!</h3>
         <p className="text-gray-500 mt-2">
-          Your admission fee has been received. Welcome to St. Kizito's Technical Institute!
+          Your admission fee has been received. Welcome to St. Kizito's Technical Institute - Madera!
         </p>
       </div>
 
