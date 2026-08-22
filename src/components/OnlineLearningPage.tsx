@@ -184,10 +184,10 @@ export default function OnlineLearningPage() {
                     <Info className="w-6 h-6" style={{ color: '#92640a' }} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">LMS Setup in Progress</h3>
+                    <h3 className="text-lg font-bold text-gray-900">LMS Portal Ready</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      The Learning Management System is being set up on a dedicated domain to provide
-                      students with seamless access to course content and live sessions.
+                      Access course materials, attend live sessions, and track your
+                      academic progress through our dedicated Learning Management System.
                     </p>
                   </div>
                 </div>
@@ -205,12 +205,12 @@ export default function OnlineLearningPage() {
                       <ExternalLink className="w-4 h-4 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Planned Domain</p>
+                      <p className="text-xs text-gray-400 uppercase tracking-wide">LMS Portal</p>
                       <p
                         className="text-sm sm:text-base font-mono font-semibold truncate"
                         style={{ color: PRIMARY }}
                       >
-                        https://learning.stkizitos.ac.ug
+                        https://elearning.stkizitomadera.ac.ug
                       </p>
                     </div>
                   </div>
@@ -219,18 +219,20 @@ export default function OnlineLearningPage() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span>
-                          <button
-                            disabled
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white/60 cursor-not-allowed"
-                            style={{ backgroundColor: `${PRIMARY}60` }}
+                          <a
+                            href="https://elearning.stkizitomadera.ac.ug"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                            style={{ backgroundColor: PRIMARY }}
                           >
                             <Rocket className="w-4 h-4" />
-                            Launch LMS
-                          </button>
+                            Open LMS Portal
+                          </a>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Coming Soon — LMS is under development</p>
+                        <p>Opens the e-learning platform in a new tab</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

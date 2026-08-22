@@ -122,7 +122,7 @@ function useCountUp(target: number, duration = 2000, start = false) {
 }
 
 /* ══════════════════════════════════════════════════════
-   SECTION WRAPPER – shared fade-in animation
+   SECTION WRAPPER - shared fade-in animation
    ══════════════════════════════════════════════════════ */
 function Section({
   children,
@@ -287,7 +287,7 @@ export default function HomePage() {
             className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
           >
             Empowering the next generation with quality Technical and Vocational
-            Education and Training (TVET) — grounded in excellence, faith, and
+            Education and Training (TVET) - grounded in excellence, faith, and
             practical skill development.
           </motion.p>
 
@@ -379,7 +379,7 @@ export default function HomePage() {
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* left – decorative visual */}
+          {/* left - decorative visual */}
           <div className="relative">
             <div className="relative w-full aspect-square max-w-md mx-auto">
               {/* concentric decorative rings */}
@@ -411,7 +411,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* right – text */}
+          {/* right - text */}
           <div>
             <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-4">
               <Heart className="h-4 w-4" />
@@ -422,7 +422,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-6 text-muted-foreground leading-relaxed text-base">
               Established in <strong className="text-[#1a3a6b]">1947</strong>, St. Kizito&apos;s
-              Technical Institute — Madera is a government-aided technical institute
+              Technical Institute - Madera is a government-aided technical institute
               anchored on Christian principles. We are committed to providing
               quality Technical and Vocational Education and Training (TVET) that
               equips learners with practical, market-relevant skills.
@@ -670,7 +670,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
-            {/* contact info – 2 cols */}
+            {/* contact info - 2 cols */}
             <div className="md:col-span-2 space-y-6">
               {[
                 {
@@ -691,7 +691,7 @@ export default function HomePage() {
                 {
                   icon: Clock,
                   label: 'Office Hours',
-                  value: 'Mon – Fri: 8:00 AM – 5:00 PM',
+                  value: 'Mon - Fri: 8:00 AM - 5:00 PM',
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -716,7 +716,7 @@ export default function HomePage() {
               })}
             </div>
 
-            {/* contact form – 3 cols */}
+            {/* contact form - 3 cols */}
             <div className="md:col-span-3">
               <Card className="border border-slate-200/80 rounded-2xl shadow-lg">
                 <CardContent className="p-6 sm:p-8">
@@ -846,7 +846,7 @@ export default function HomePage() {
                   <h3 className="font-bold text-base leading-tight">
                     St. Kizito&apos;s
                   </h3>
-                  <p className="text-xs text-blue-200/60">Technical Institute — Madera</p>
+                  <p className="text-xs text-blue-200/60">Technical Institute - Madera</p>
                 </div>
               </div>
               <p className="text-sm text-blue-200/70 leading-relaxed mb-6">
@@ -915,7 +915,7 @@ export default function HomePage() {
         <div className="border-t border-white/10">
           <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-blue-200/50">
-              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute — Madera.
+              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
               All rights reserved.
             </p>
             <p className="text-xs text-blue-200/40">

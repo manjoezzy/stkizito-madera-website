@@ -189,7 +189,7 @@ const WHY_CHOOSE = [
   {
     icon: Heart,
     title: 'Christian Values',
-    description: 'Education rooted in moral integrity, discipline, and service to community — building responsible citizens.',
+    description: 'Education rooted in moral integrity, discipline, and service to community - building responsible citizens.',
   },
 ];
 
@@ -445,7 +445,7 @@ export default function ProgramsPage() {
               Why Choose SKTIM?
             </h2>
             <p className="mt-2 text-gray-500 max-w-xl mx-auto">
-              Discover what makes St. Kizito&apos;s Technical Institute — Madera the right choice for your education.
+              Discover what makes St. Kizito&apos;s Technical Institute - Madera the right choice for your education.
             </p>
           </motion.div>
 

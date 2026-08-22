@@ -1244,17 +1244,17 @@ export default function AdmissionsPage() {
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
                       <Phone className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
                       <p className="text-white font-semibold text-sm">Call Us</p>
-                      <p className="text-blue-200 text-sm mt-1">+256 414 123 456</p>
+                      <p className="text-blue-200 text-sm mt-1">+256 752 309 660</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
                       <Mail className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
                       <p className="text-white font-semibold text-sm">Email</p>
-                      <p className="text-blue-200 text-sm mt-1">admissions@sktmadera.ac.ug</p>
+                      <p className="text-blue-200 text-sm mt-1">stkizitmad@gmail.com</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
                       <MapPin className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
                       <p className="text-white font-semibold text-sm">Visit Us</p>
-                      <p className="text-blue-200 text-sm mt-1">Madera, Pader District</p>
+                      <p className="text-blue-200 text-sm mt-1">Madera, Soroti City</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-2 mt-6 text-blue-200 text-sm">
