@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Learning | St. Kizito's Technical Institute - Madera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #1a3a6b; 
+            --primary-light: #2756a0; 
+            --primary-dark: #0f2347; 
+            --gold: #f5c518; 
+            --gold-dark: #d4a017; 
+            --secondary: #f5f5dc; 
+            --accent: #0f2347; 
+            --light: #f3f4f6; 
+            --text: #1f2937; 
+            --muted: #6b7280; 
+            --white: #fff; 
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text); line-height:1.6; }
+        a { color:inherit; text-decoration:none; }
+        .container { max-width:1080px; margin:0 auto; padding:0 20px; }
+        .header { background:var(--accent); color:var(--white); padding:18px 0; }
+        .header-inner,.grid,.actions { display:flex; }
+        .header-inner { justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+        .brand { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; }
+        .nav { display:flex; gap:18px; flex-wrap:wrap; }
+        .nav a:hover { color:var(--secondary); }
+        .hero { padding:88px 0 56px; background:linear-gradient(135deg, var(--primary-dark), var(--primary)); color:var(--white); }
+        .badge { display:inline-block; background:rgba(252,220,4,.14); color:var(--secondary); padding:8px 14px; border-radius:999px; font-weight:600; margin-bottom:16px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .hero h1 { font-size:3rem; margin-bottom:14px; }
+        .hero p { max-width:720px; opacity:.95; }
+        .domain-card { margin-top:26px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:18px 20px; }
+        .domain-card code { font-size:1rem; color:var(--secondary); }
+        .section { padding:48px 0 80px; }
+        .grid { gap:22px; flex-wrap:wrap; margin-bottom:30px; }
+        .card { flex:1 1 240px; background:var(--white); border-radius:16px; padding:24px; box-shadow:0 12px 30px rgba(0,0,0,.08); }
+        .card i { font-size:1.3rem; color:var(--primary); margin-bottom:14px; }
+        .card h3 { color:var(--accent); margin-bottom:8px; }
+        .card p { color:var(--muted); }
+        .note { background:#fff8db; border-left:4px solid var(--secondary); border-radius:12px; padding:18px 20px; margin-bottom:28px; }
+        .actions { gap:14px; flex-wrap:wrap; }
+        .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 20px; border-radius:10px; font-weight:600; }
+        .btn-primary { background:var(--primary); color:var(--white); }
+        .btn-secondary { background:var(--accent); color:var(--white); }
+        .footer { background:#0f1d35; color:#d1d5db; padding:28px 0; }
+        @media (max-width: 768px) { .hero h1 { font-size:2.2rem; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">SKTI Madera Online Learning</a>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="student-portal.html">Student Portal</a>
+                <a href="admissions.html">Admissions</a>
+                <a href="admin.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <span class="badge">Separate Learning Domain</span>
+            <h1>Online Learning</h1>
+            <p>This page is the bridge to your future learning management system. The LMS can run on a dedicated domain for coursework, live sessions, content delivery, and assessments.</p>
+            <div class="domain-card">
+                Planned LMS domain: <code id="learning-domain-text">https://learning.example.com</code>
+            </div>
+        </div>
+    </section>
+
+    <main class="section">
+        <div class="container">
+            <div class="note"><strong>Next step:</strong> <span id="learning-notice-text">when your final LMS domain is ready, replace the placeholder domain above and on the launch button below.</span></div>
+
+            <div class="grid">
+                <article class="card">
+                    <i class="fas fa-video"></i>
+                    <h3>Live Sessions</h3>
+                    <p>Run virtual classes, tutorials, and academic meetings from the dedicated platform.</p>
+                </article>
+                <article class="card">
+                    <i class="fas fa-book-open-reader"></i>
+                    <h3>Course Materials</h3>
+                    <p>Publish notes, videos, reading lists, and practical assignments in one structured environment.</p>
+                </article>
+                <article class="card">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h3>Assessments</h3>
+                    <p>Support quizzes, coursework submission, grading workflows, and progress tracking.</p>
+                </article>
+            </div>
+
+            <div class="actions">
+                <a id="learning-launch-link" href="https://learning.example.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><i class="fas fa-arrow-up-right-from-square"></i> Launch LMS Domain</a>
+                <a href="student-portal.html" class="btn btn-secondary"><i class="fas fa-user-graduate"></i> Back to Student Portal</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">© 2026 <span id="site-footer-brand">St. Kizito's Technical Institute - Madera</span>. <span id="site-footer-description">Online learning handoff page for a separate domain.</span></div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

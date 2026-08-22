@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events | St. Kizito's Technical Institute - Madera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary:#1D8F2E; --primary-dark:#145A22; --secondary:#FCDC04; --accent:#142849; --light:#f3f4f6; --text:#1f2937; --muted:#6b7280; --white:#fff; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text); line-height:1.6; }
+        a { color:inherit; text-decoration:none; }
+        .container { max-width:1100px; margin:0 auto; padding:0 20px; }
+        .header { background:var(--accent); color:var(--white); padding:18px 0; }
+        .header-inner,.events-grid,.cta-row { display:flex; }
+        .header-inner { justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+        .brand { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; }
+        .nav { display:flex; gap:18px; flex-wrap:wrap; }
+        .nav a:hover { color:var(--secondary); }
+        .hero { background:linear-gradient(135deg, rgba(20,40,73,.94), rgba(29,143,46,.88)); color:var(--white); padding:88px 0 60px; }
+        .badge { display:inline-block; background:rgba(252,220,4,.14); color:var(--secondary); padding:8px 14px; border-radius:999px; font-weight:600; margin-bottom:16px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .hero h1 { font-size:3rem; margin-bottom:14px; }
+        .hero p { max-width:720px; opacity:.95; }
+        .section { padding:48px 0 80px; }
+        .notice { background:#fff8db; border-left:4px solid var(--secondary); border-radius:12px; padding:18px 20px; margin-bottom:28px; }
+        .events-grid { gap:24px; flex-wrap:wrap; }
+        .event-card { flex:1 1 240px; background:var(--white); border-radius:16px; padding:24px; box-shadow:0 12px 30px rgba(0,0,0,.08); }
+        .event-tag { display:inline-block; background:rgba(29,143,46,.1); color:var(--primary); padding:6px 12px; border-radius:999px; font-size:.88rem; font-weight:600; margin-bottom:14px; }
+        .event-card h3 { color:var(--accent); margin-bottom:8px; }
+        .event-card p { color:var(--muted); margin-bottom:12px; }
+        .event-date { color:var(--primary-dark); font-weight:600; }
+        .support { margin-top:32px; background:var(--accent); color:var(--white); border-radius:18px; padding:28px; }
+        .support p { max-width:700px; opacity:.9; margin-top:8px; }
+        .cta-row { gap:14px; flex-wrap:wrap; margin-top:20px; }
+        .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 20px; border-radius:10px; font-weight:600; }
+        .btn-primary { background:var(--secondary); color:var(--text); }
+        .btn-secondary { background:var(--white); color:var(--primary-dark); }
+        .footer { background:#0f1d35; color:#d1d5db; padding:28px 0; }
+        @media (max-width: 768px) { .hero h1 { font-size:2.2rem; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">SKTI Madera Upcoming Events</a>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="admissions.html">Admissions</a>
+                <a href="student-portal.html">Student Portal</a>
+                <a href="online-learning.html">Online Learning</a>
+                <a href="admin.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <span class="badge">Institute Calendar</span>
+            <h1>Upcoming Events</h1>
+            <p>Keep track of important institute activities, reporting updates, academic milestones, and campus programs from one simple page.</p>
+        </div>
+    </section>
+
+    <main class="section">
+        <div class="container">
+            <div class="notice"><strong>Note:</strong> <span id="events-note-text">Confirmed dates can be published here as the institute calendar is updated. This page is ready to highlight the next major school events.</span></div>
+
+            <div class="events-grid" data-events-container data-limit="6">
+                <article class="event-card">
+                    <span class="event-tag">Academic</span>
+                    <h3>Reporting & Orientation</h3>
+                    <p>Share new-term reporting dates, orientation sessions, registration reminders, and student briefings.</p>
+                    <div class="event-date">Dates announced by administration</div>
+                </article>
+                <article class="event-card">
+                    <span class="event-tag">Showcase</span>
+                    <h3>Skills Exhibition</h3>
+                    <p>Highlight departmental demonstrations, student projects, practical showcases, and campus open days.</p>
+                    <div class="event-date">Schedule to be posted</div>
+                </article>
+                <article class="event-card">
+                    <span class="event-tag">Assessment</span>
+                    <h3>Assessment Milestones</h3>
+                    <p>List practical assessments, exam periods, results communication, and other key academic checkpoints.</p>
+                    <div class="event-date">Updates shared as available</div>
+                </article>
+                <article class="event-card">
+                    <span class="event-tag">Campus Life</span>
+                    <h3>Community Activities</h3>
+                    <p>Feature assemblies, spiritual programs, sports, outreach events, and institute community engagements.</p>
+                    <div class="event-date">Watch this space for the next event</div>
+                </article>
+            </div>
+
+            <div class="support">
+                <h2>Want the latest confirmed dates?</h2>
+                <p>Use this page together with the main website and student portal so students, parents, and visitors can quickly find important institute updates.</p>
+                <div class="cta-row">
+                    <a href="index.html#contact" class="btn btn-primary"><i class="fas fa-envelope"></i> Contact the Institute</a>
+                    <a href="student-portal.html" class="btn btn-secondary"><i class="fas fa-user-graduate"></i> Open Student Portal</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">© 2026 <span id="site-footer-brand">St. Kizito's Technical Institute - Madera</span>. <span id="site-footer-description">Upcoming events information page.</span></div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

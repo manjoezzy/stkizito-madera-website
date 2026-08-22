@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdmissionApplication {
+  id              String   @id @default(cuid())
+  referenceNumber String   @unique
+  status          String   @default("pending") // pending, approved, rejected, enrolled
+  
+  // Personal Details
+  fullName    String
+  dob         String?
+  gender      String?
+  nationality String?
+  religion    String?
+  nin         String?
+  
+  // Contact
+  phone         String
+  email         String
+  district      String?
+  address       String?
+  nextOfKin     String?
+  nextOfKinPhone String?
+  
+  // Academic
+  lastSchool      String?
+  yearCompleted   String?
+  qualification   String?
+  
+  // Program
+  programme    String?
+  intakeYear   String?
+  
+  // Payment
+  paymentStatus  String   @default("pending") // pending, paid, failed
+  paymentRef     String?
+  paymentAmount  Float?
+  paymentMethod  String?  // schoolpay, manual
+  paidAt         DateTime?
+  
+  student    Student?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id            String   @id @default(cuid())
+  studentNumber String   @unique
+  applicationId String?  @unique
+  application   AdmissionApplication? @relation(fields: [applicationId], references: [id])
+  
+  fullName      String
+  phone         String
+  email         String
+  programme     String
+  intakeYear    String
+  status        String   @default("active") // active, graduated, suspended
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  transactionRef  String   @unique
+  applicationRef  String?
+  studentNumber   String?
+  
+  fullName        String
+  phone           String
+  email           String
+  amount          Float
+  currency        String   @default("UGX")
+  status          String   @default("pending") // pending, successful, failed
+  paymentMethod   String   @default("schoolpay")
+  
+  // SchoolPay specific
+  schoolpayTxRef  String?
+  schoolpayStatus String?
+  
+  metadata        String?  // JSON string for additional data
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String   @default("general") // academic, showcase, assessment, campus
+  eventDate   String?
+  eventTime   String?
+  location    String?
+  isPublished Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login | St. Kizito's Technical Institute - Madera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #1a3a6b; 
+            --primary-light: #2756a0; 
+            --primary-dark: #0f2347; 
+            --gold: #f5c518; 
+            --gold-dark: #d4a017; 
+            --secondary: #f5f5dc; 
+            --accent: #0f2347; 
+            --light: #f3f4f6; 
+            --text: #1f2937; 
+            --muted: #6b7280; 
+            --white: #fff; 
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text); line-height:1.6; }
+        a { color:inherit; text-decoration:none; }
+        .container { max-width:1080px; margin:0 auto; padding:0 20px; }
+        .header { background:var(--accent); color:var(--white); padding:18px 0; }
+        .header-inner,.nav,.content,.actions { display:flex; }
+        .header-inner { justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+        .brand { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; }
+        .nav { gap:18px; flex-wrap:wrap; }
+        .nav a:hover,.text-link:hover { color:var(--secondary); }
+        .hero { background:linear-gradient(135deg, var(--primary-dark), var(--primary)); color:var(--white); padding:82px 0 54px; }
+        .badge { display:inline-block; background:rgba(252,220,4,.15); color:var(--secondary); padding:8px 14px; border-radius:999px; font-weight:600; margin-bottom:16px; }
+        h1,h2,h3 { font-family:'Playfair Display',serif; }
+        .hero h1 { font-size:3rem; margin-bottom:12px; }
+        .hero p { max-width:720px; opacity:.95; }
+        .section { padding:46px 0 80px; }
+        .content { gap:24px; flex-wrap:wrap; align-items:stretch; }
+        .panel { flex:1 1 320px; background:var(--white); border-radius:16px; padding:28px; box-shadow:0 12px 30px rgba(0,0,0,.08); }
+        .notice { background:#fff8db; border-left:4px solid var(--secondary); padding:18px 20px; border-radius:12px; margin-bottom:24px; }
+        .form-group { margin-bottom:18px; }
+        label { display:block; font-weight:600; margin-bottom:8px; }
+        input { width:100%; padding:13px 14px; border:2px solid #e5e7eb; border-radius:10px; }
+        .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 20px; border:none; border-radius:10px; font-weight:600; cursor:pointer; }
+        .btn-primary { background:var(--primary); color:var(--white); }
+        .btn-secondary { background:var(--white); color:var(--primary-dark); border:2px solid #d1d5db; }
+        .actions { gap:14px; flex-wrap:wrap; margin-top:20px; }
+        .help-list { padding-left:18px; color:var(--muted); }
+        .help-list li { margin-bottom:10px; }
+        .text-link { color:var(--primary); font-weight:600; }
+        .status { margin-top:16px; color:var(--primary-dark); font-weight:600; }
+        .footer { background:#0f1d35; color:#d1d5db; padding:28px 0; }
+        @media (max-width: 768px) { .hero h1 { font-size:2.2rem; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand">SKTI Madera Student Login</a>
+            <nav class="nav">
+                <a href="index.html">Home</a>
+                <a href="student-portal.html">Student Portal</a>
+                <a href="admissions.html">Admissions</a>
+                <a href="online-learning.html">Online Learning</a>
+                <a href="admin.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <span class="badge">Student Access</span>
+            <h1>Student Login</h1>
+            <p>Use this page as the access point for student accounts. New applicants should first complete enrolment before requesting login credentials.</p>
+        </div>
+    </section>
+
+    <main class="section">
+        <div class="container">
+            <div class="notice"><strong>Important:</strong> Student account sign-in is being prepared separately from the admin login. If you do not yet have student credentials, complete enrolment first or contact the institute for account activation.</div>
+
+            <div class="content">
+                <section class="panel">
+                    <h2>Student Account Access</h2>
+                    <form id="studentLoginForm">
+                        <div class="form-group">
+                            <label for="studentId">Student Number or Email</label>
+                            <input type="text" id="studentId" name="studentId" placeholder="Enter your student number or email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentPassword">Password</label>
+                            <input type="password" id="studentPassword" name="studentPassword" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-right-to-bracket"></i> Login</button>
+                        <div id="loginStatus" class="status"></div>
+                    </form>
+                </section>
+
+                <aside class="panel">
+                    <h2>Need an account first?</h2>
+                    <ul class="help-list">
+                        <li>New students should complete the institute application form first.</li>
+                        <li>Returning students can use this page as the portal entry point once credentials are issued.</li>
+                        <li>For help with activation, use the contact section on the main website.</li>
+                    </ul>
+                    <div class="actions">
+                        <a href="student-portal.html#student-enrolment" class="btn btn-primary"><i class="fas fa-pen-to-square"></i> Student Enrolment</a>
+                        <a href="index.html#contact" class="btn btn-secondary"><i class="fas fa-headset"></i> Contact Support</a>
+                    </div>
+                    <p style="margin-top:18px;"><a href="student-portal.html" class="text-link">← Back to Student Portal</a></p>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">© 2026 St. Kizito's Technical Institute - Madera. Student login access page.</div>
+    </footer>
+
+    <script>
+        document.getElementById('studentLoginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            document.getElementById('loginStatus').textContent = 'Student login is ready as an access point, but full account authentication still needs to be connected by the institute.';
+        });
+    </script>
+</body>
+</html>

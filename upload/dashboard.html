@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - St. Kizito's Technical Institute</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a3a6b;
+            --primary-light: #2756a0;
+            --primary-dark: #0f2347;
+            --gold: #f5c518;
+            --gold-dark: #d4a017;
+            --secondary: #f5f5dc;
+            --accent: #0f2347;
+            --light-gray: #f0f4ff;
+            --medium-gray: #a0aec0;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --white: #ffffff;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #e8edf8;
+            min-height: 100vh;
+        }
+
+        /* Remove scrollbar */
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-dark) 0%, #0d1f40 60%, #111c35 100%);
+            color: white;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.25);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.78rem;
+            opacity: 0.65;
+            margin-top: 4px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 5px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(245,197,24,0.12);
+            color: var(--gold);
+        }
+
+        .nav-menu a.active {
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+            color: white;
+            border-left: 3px solid var(--gold);
+            padding-left: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 18px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(26,58,107,0.10);
+            border-left: 4px solid var(--gold);
+        }
+
+        .header h1 {
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(26,58,107,0.08);
+            border-top: 3px solid var(--gold);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(26,58,107,0.15); }
+
+        .stat-card h3 {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(26,58,107,0.08);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .section-header h2 {
+            color: var(--text-dark);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .form-span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .helper-text,
+        .section-note {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .section-note {
+            margin-bottom: 20px;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--medium-gray);
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: var(--gold);
+            background: rgba(245,197,24,0.05);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .upload-progress {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--gold));
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Admissions badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge-pending  { background: #fef3c7; color: #92400e; }
+        .badge-review   { background: #dbeafe; color: #1e40af; }
+        .badge-accepted { background: #dcfce7; color: #166534; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+        .adm-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+            margin-top: 16px;
+        }
+        .adm-detail-item label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        .adm-detail-item p {
+            color: var(--text-dark);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--light-gray);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: 10px;
+            }
+
+            .sidebar-header h2,
+            .sidebar-header p,
+            .nav-menu span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .form-row,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>SKTI Admin</h2>
+            <p>Dashboard</p>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#" data-section="dashboard"
+                    onclick="showSection('dashboard', event); return false;"><i class="fas fa-home"></i>
+                    <span>Dashboard</span></a></li>
+            <li><a href="#" data-section="announcements" onclick="showSection('announcements', event); return false;"><i
+                        class="fas fa-bullhorn"></i>
+                    <span>Announcements</span></a></li>
+            <li><a href="#" data-section="news" onclick="showSection('news', event); return false;"><i
+                        class="fas fa-newspaper"></i> <span>News</span></a></li>
+            <li><a href="#" data-section="events" onclick="showSection('events', event); return false;"><i
+                        class="fas fa-calendar"></i> <span>Events</span></a></li>
+            <li><a href="#" data-section="gallery" onclick="showSection('gallery', event); return false;"><i
+                        class="fas fa-images"></i> <span>Gallery</span></a></li>
+            <li><a href="#" data-section="files" onclick="showSection('files', event); return false;"><i
+                        class="fas fa-file-pdf"></i> <span>Downloads</span></a>
+            </li>
+            <li><a href="#" data-section="admissions-admin" onclick="showSection('admissions-admin', event); return false;"><i
+                        class="fas fa-clipboard-list"></i> <span>Admissions</span></a></li>
+            <li><a href="#" data-section="site-settings" onclick="showSection('site-settings', event); return false;"><i
+                        class="fas fa-sliders"></i> <span>Site Settings</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1 id="section-title">Admin Dashboard</h1>
+            <div class="user-info">
+                <span id="user-email">admin@example.com</span>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2>Overview</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Announcements</h3>
+                    <div class="number" id="announcements-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>News Posts</h3>
+                    <div class="number" id="news-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Events</h3>
+                    <div class="number" id="events-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Gallery Images</h3>
+                    <div class="number" id="gallery-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Applications</h3>
+                    <div class="number" id="admissions-count-overview" style="color:var(--gold-dark);">0</div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 30px;">
+                <h2>Portal Access</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Public Website</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Preview the main frontend website.</p>
+                    <a href="index.html" target="_blank" class="btn btn-primary">Open Website</a>
+                </div>
+                <div class="stat-card">
+                    <h3>Student Portal</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Open the student-facing portal page.</p>
+                    <a href="student-portal.html" target="_blank" class="btn btn-primary">Open Portal</a>
+                </div>
+                <div class="stat-card">
+                    <h3>Online Admissions</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">View the public online application form.</p>
+                    <a href="admissions.html" target="_blank" class="btn btn-primary">Open Form</a>
+                </div>
+                <div class="stat-card">
+                    <h3>Online Learning</h3>
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Handoff page for the LMS domain.</p>
+                    <a href="online-learning.html" target="_blank" class="btn btn-primary">Open Learning</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements Section -->
+        <div id="announcements" class="content-section">
+            <div class="section-header">
+                <h2>Manage Announcements</h2>
+                <button class="btn btn-primary" onclick="openAnnouncementModal()">
+                    <i class="fas fa-plus"></i> Add New
+                </button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="announcements-table">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- News Section -->
+        <div id="news" class="content-section">
+            <div class="section-header">
+                <h2>Manage News</h2>
+                <button class="btn btn-primary" onclick="openNewsModal()">
+                    <i class="fas fa-plus"></i> Add New
+                </button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="news-table">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Events Section -->
+        <div id="events" class="content-section">
+            <div class="section-header">
+                <h2>Manage Events</h2>
+                <button class="btn btn-primary" onclick="openEventModal()">
+                    <i class="fas fa-plus"></i> Add New
+                </button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="events-table">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Gallery Section -->
+        <div id="gallery" class="content-section">
+            <div class="section-header">
+                <h2>Manage Gallery</h2>
+                <button class="btn btn-primary" onclick="openGalleryModal()">
+                    <i class="fas fa-plus"></i> Upload Image
+                </button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Caption</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="gallery-table">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Downloads Section -->
+        <div id="files" class="content-section">
+            <div class="section-header">
+                <h2>Manage Downloads</h2>
+                <button class="btn btn-primary" onclick="openFileModal()">
+                    <i class="fas fa-upload"></i> Upload File
+                </button>
+            </div>
+            <p style="color: var(--text-light); margin-bottom: 20px;">Upload PDF files and assign the right category so
+                they appear on admissions pages, the student portal, or general public download areas.</p>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Display Title</th>
+                        <th>Category</th>
+                        <th>Uploaded</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="files-table">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Site Settings Section -->
+        <div id="site-settings" class="content-section">
+            <div class="section-header">
+                <h2>Site Settings</h2>
+            </div>
+            <p class="section-note">Update the shared contact details, footer links, admissions help content, student
+                portal messaging, and future online learning domain from one admin screen.</p>
+            <form id="site-settings-form" onsubmit="saveSiteSettings(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="settings-institute-name">Institute Name</label>
+                        <input type="text" id="settings-institute-name"
+                            value="St. Kizito's Technical Institute - Madera">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-contact-email">Contact Email</label>
+                        <input type="email" id="settings-contact-email" value="stkizitmad@gmail.com">
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-contact-phones">Contact Phones</label>
+                        <textarea id="settings-contact-phones" rows="4">+256 752 309 660
++256 772 309 660
++256 777 769 658</textarea>
+                        <p class="helper-text">Enter one phone number per line.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-office-hours">Office Hours</label>
+                        <textarea id="settings-office-hours" rows="4">Monday - Friday: 7:00 AM - 6:00 PM
+Saturday: 8:00 AM - 2:00 PM</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-campus-location">Campus Location</label>
+                        <textarea id="settings-campus-location" rows="4">P.O. Box Soroti, Uganda
+5km from Soroti City
+Off Soroti-Moroto Road, Madera Complex</textarea>
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-footer-description">Footer Description</label>
+                        <textarea id="settings-footer-description"
+                            rows="3">Building Skills, Transforming Lives Since 1947. A government-aided technical institute offering holistic technical education anchored on Christian principles.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-facebook-url">Facebook URL</label>
+                        <input type="url" id="settings-facebook-url" placeholder="https://facebook.com/your-page">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-twitter-url">Twitter / X URL</label>
+                        <input type="url" id="settings-twitter-url" placeholder="https://x.com/your-page">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-instagram-url">Instagram URL</label>
+                        <input type="url" id="settings-instagram-url" placeholder="https://instagram.com/your-page">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-youtube-url">YouTube URL</label>
+                        <input type="url" id="settings-youtube-url" placeholder="https://youtube.com/your-channel">
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-admissions-help-title">Admissions Help Title</label>
+                        <input type="text" id="settings-admissions-help-title" value="Need Help?">
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-admissions-help-text">Admissions Help Text</label>
+                        <textarea id="settings-admissions-help-text"
+                            rows="3">Our admissions team is ready to assist you with any questions about the application process or programs offered.</textarea>
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-portal-notice">Student Portal Notice</label>
+                        <textarea id="settings-portal-notice"
+                            rows="3">Use the enrolment option below to apply, and use student login for account access guidance. The online learning platform remains prepared for a separate domain.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-portal-support-title">Portal Support Title</label>
+                        <input type="text" id="settings-portal-support-title" value="Need help getting started?">
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-portal-support-text">Portal Support Text</label>
+                        <textarea id="settings-portal-support-text"
+                            rows="3">Start the enrolment process from this portal, then open the correct admissions download form for TVET or non-formal courses.</textarea>
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-events-notice">Upcoming Events Notice</label>
+                        <textarea id="settings-events-notice"
+                            rows="3">Confirmed dates can be published here as the institute calendar is updated. This page is ready to highlight the next major school events.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-learning-domain">Online Learning Domain</label>
+                        <input type="text" id="settings-learning-domain" value="https://learning.example.com">
+                        <p class="helper-text">You can enter either a full URL or a domain name.</p>
+                    </div>
+                    <div class="form-group form-span-2">
+                        <label for="settings-learning-notice">Online Learning Notice</label>
+                        <textarea id="settings-learning-notice"
+                            rows="3">When your final LMS domain is ready, replace the placeholder domain above and on the launch button below.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-term-closing-date">Term Closing Date</label>
+                        <input type="date" id="settings-term-closing-date">
+                        <p class="helper-text">Used to trigger the teacher evaluation form (starts 2 weeks before this
+                            date).</p>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Site Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcement-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="announcement-modal-title">Add Announcement</h3>
+                <button class="modal-close" onclick="closeModal('announcement-modal')">&times;</button>
+            </div>
+            <form id="announcement-form" onsubmit="saveAnnouncement(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="announcement-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="announcement-message" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="announcement-submit-btn">Save Announcement</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="news-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="news-modal-title">Add News Post</h3>
+                <button class="modal-close" onclick="closeModal('news-modal')">&times;</button>
+            </div>
+            <form id="news-form" onsubmit="saveNews(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="news-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="news-content" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image</label>
+                    <div class="file-upload" onclick="document.getElementById('news-image').click()">
+                        <input type="file" id="news-image" accept="image/*"
+                            onchange="previewImage(this, 'news-preview')">
+                        <p><i class="fas fa-cloud-upload-alt"></i> Click to upload image</p>
+                        <img id="news-preview" style="max-width: 100%; margin-top: 10px; display: none;">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="news-submit-btn">Save News</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="event-modal-title">Add Event</h3>
+                <button class="modal-close" onclick="closeModal('event-modal')">&times;</button>
+            </div>
+            <form id="event-form" onsubmit="saveEvent(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="event-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="event-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="event-description" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="event-submit-btn">Save Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="gallery-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="gallery-modal-title">Upload Gallery Image</h3>
+                <button class="modal-close" onclick="closeModal('gallery-modal')">&times;</button>
+            </div>
+            <form id="gallery-form" onsubmit="saveGallery(event)">
+                <div class="form-group">
+                    <label>Image</label>
+                    <div class="file-upload" onclick="document.getElementById('gallery-image').click()">
+                        <input type="file" id="gallery-image" accept="image/*"
+                            onchange="previewImage(this, 'gallery-preview')">
+                        <p><i class="fas fa-cloud-upload-alt"></i> Click to upload image</p>
+                        <img id="gallery-preview" style="max-width: 100%; margin-top: 10px; display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Caption (optional)</label>
+                    <input type="text" id="gallery-caption">
+                </div>
+                <button type="submit" class="btn btn-primary" id="gallery-submit-btn">Upload Image</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- File Modal -->
+    <div id="file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="file-modal-title">Upload File</h3>
+                <button class="modal-close" onclick="closeModal('file-modal')">&times;</button>
+            </div>
+            <form id="file-form" onsubmit="saveFile(event)">
+                <div class="form-group">
+                    <label>Display Title</label>
+                    <input type="text" id="file-title" placeholder="e.g. Current TVET Form" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="file-description" rows="3"
+                        placeholder="Short description for the public downloads section"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="file-category" required>
+                            <option value="admissions">Admissions</option>
+                            <option value="student-portal">Student Portal</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Audience</label>
+                        <select id="file-audience">
+                            <option value="public">Public</option>
+                            <option value="students">Students</option>
+                            <option value="staff">Staff</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>File</label>
+                    <div class="file-upload" onclick="document.getElementById('download-file').click()">
+                        <input type="file" id="download-file" accept=".pdf" onchange="previewFile(this)">
+                        <p><i class="fas fa-file-pdf"></i> Click to upload PDF (max 10MB)</p>
+                        <p id="file-name" style="margin-top: 10px; font-weight: bold;"></p>
+                    </div>
+                    <p class="helper-text">When editing, leave the file unchanged if you only want to update the
+                        metadata.</p>
+                </div>
+                <button type="submit" class="btn btn-primary" id="file-submit-btn">Upload File</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admissions Management Panel -->
+    <div id="admissions-admin" class="content-section">
+        <div class="section-header">
+            <h2><i class="fas fa-clipboard-list" style="color:var(--gold-dark);margin-right:8px;"></i>Online Admission Applications</h2>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="refreshAdmissionsTable()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn" style="background:var(--success);color:white;" onclick="exportAdmissionsCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+            </div>
+        </div>
+        <div style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <select id="adm-filter-status" onchange="refreshAdmissionsTable()" style="padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:0.9rem;">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            <input type="text" id="adm-search" placeholder="Search applicant name or ref..." oninput="refreshAdmissionsTable()"
+                style="padding:8px 14px;border:2px solid #e5e7eb;border-radius:8px;font-size:0.9rem;min-width:220px;">
+            <span style="color:var(--text-light);font-size:0.9rem;">Total: <strong id="adm-total">0</strong></span>
+        </div>
+        <div style="overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ref #</th>
+                    <th>Applicant Name</th>
+                    <th>Programme</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="admissions-table-body">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-light);">Loading...</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- View Application Modal -->
+    <div id="view-application-modal" class="modal">
+        <div class="modal-content" style="max-width:680px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-graduate" style="color:var(--gold-dark);margin-right:8px;"></i>Application Details</h3>
+                <button class="modal-close" onclick="closeModal('view-application-modal')">&times;</button>
+            </div>
+            <div id="application-detail-body"></div>
+            <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <label style="font-weight:600;color:var(--primary-dark);">Update Status:</label>
+                <select id="adm-status-select" style="padding:8px 14px;border:2px solid #e5e7eb;border-radius:8px;">
+                    <option value="Pending">Pending</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button class="btn btn-primary" onclick="saveApplicationStatus()"><i class="fas fa-save"></i> Save Status</button>
+                <button class="btn btn-danger" onclick="deleteApplicationFromModal()"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        // ========================================
+        // Admin Dashboard JavaScript
+        // ========================================
+
+        const siteSettingsRef = () => db.collection('siteContent').doc('main');
+        const collectionCache = {
+            announcements: {},
+            news: {},
+            events: {},
+            gallery: {},
+            files: {}
+        };
+        const editingState = {
+            announcements: null,
+            news: null,
+            events: null,
+            gallery: null,
+            files: null
+        };
+        const settingsFieldMap = {
+            instituteName: 'settings-institute-name',
+            contactEmail: 'settings-contact-email',
+            contactPhones: 'settings-contact-phones',
+            officeHours: 'settings-office-hours',
+            campusLocation: 'settings-campus-location',
+            footerDescription: 'settings-footer-description',
+            facebookUrl: 'settings-facebook-url',
+            twitterUrl: 'settings-twitter-url',
+            instagramUrl: 'settings-instagram-url',
+            youtubeUrl: 'settings-youtube-url',
+            admissionsHelpTitle: 'settings-admissions-help-title',
+            admissionsHelpText: 'settings-admissions-help-text',
+            portalNotice: 'settings-portal-notice',
+            portalSupportTitle: 'settings-portal-support-title',
+            portalSupportText: 'settings-portal-support-text',
+            eventsNotice: 'settings-events-notice',
+            learningDomain: 'settings-learning-domain',
+            learningNotice: 'settings-learning-notice',
+            termClosingDate: 'settings-term-closing-date'
+        };
+
+        // Check authentication - handle demo mode
+        const demoSession = window.firebaseServices.getDemoSession();
+        if (demoSession) {
+            document.getElementById('user-email').textContent = demoSession.email + ' (Demo)';
+            loadDashboardData();
+        } else if (!window.firebaseServices.isDemoMode) {
+            // Only check Firebase auth if not in demo mode
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                const isAdmin = await window.firebaseServices.checkAdminStatus(user);
+                if (!isAdmin) {
+                    await firebase.auth().signOut();
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                // Show user email
+                document.getElementById('user-email').textContent = user.email;
+
+                loadDashboardData();
+            });
+        } else {
+            // Demo mode without session - redirect to admin login
+            console.log('Demo mode - no active session');
+            // For demo mode, we can allow access without login
+            document.getElementById('user-email').textContent = 'Demo Admin';
+            loadDashboardData();
+        }
+
+        // Load dashboard overview data
+        function loadDashboardData() {
+            loadAnnouncementsTable();
+            loadNewsTable();
+            loadEventsTable();
+            loadGalleryTable();
+            loadFilesTable();
+            loadSiteSettings();
+        }
+
+        // ========================================
+        // Navigation
+        // ========================================
+        function showSection(sectionId, evt) {
+            if (evt) {
+                evt.preventDefault();
+            }
+
+            document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+            const activeLink = evt?.target?.closest('a') || document.querySelector(`.nav-menu a[data-section="${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // ========================================
+        // Modal Functions
+        // ========================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+            }
+
+            document.querySelectorAll(`#${modalId} img[id$="-preview"]`).forEach(img => {
+                img.removeAttribute('src');
+                img.style.display = 'none';
+            });
+
+            if (modalId === 'announcement-modal') {
+                editingState.announcements = null;
+                setModalLabels('announcement', false);
+            }
+            if (modalId === 'news-modal') {
+                editingState.news = null;
+                setModalLabels('news', false);
+            }
+            if (modalId === 'event-modal') {
+                editingState.events = null;
+                setModalLabels('event', false);
+            }
+            if (modalId === 'gallery-modal') {
+                editingState.gallery = null;
+                setModalLabels('gallery', false);
+            }
+            if (modalId === 'file-modal') {
+                editingState.files = null;
+                setModalLabels('file', false);
+                document.getElementById('file-name').textContent = '';
+            }
+        }
+
+        // ========================================
+        // Image Preview
+        // ========================================
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function previewFile(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('file-name').textContent = input.files[0].name;
+            }
+        }
+
+        function setModalLabels(type, isEditing) {
+            const labels = {
+                announcement: ['announcement-modal-title', 'announcement-submit-btn', 'Add Announcement', 'Edit Announcement', 'Save Announcement', 'Update Announcement'],
+                news: ['news-modal-title', 'news-submit-btn', 'Add News Post', 'Edit News Post', 'Save News', 'Update News'],
+                event: ['event-modal-title', 'event-submit-btn', 'Add Event', 'Edit Event', 'Save Event', 'Update Event'],
+                gallery: ['gallery-modal-title', 'gallery-submit-btn', 'Upload Gallery Image', 'Edit Gallery Image', 'Upload Image', 'Update Image'],
+                file: ['file-modal-title', 'file-submit-btn', 'Upload File', 'Edit File', 'Upload File', 'Update File']
+            };
+
+            const [titleId, buttonId, addTitle, editTitle, addButton, editButton] = labels[type];
+            document.getElementById(titleId).textContent = isEditing ? editTitle : addTitle;
+            document.getElementById(buttonId).textContent = isEditing ? editButton : addButton;
+        }
+
+        function openAnnouncementModal(id = null) {
+            const form = document.getElementById('announcement-form');
+            form.reset();
+            editingState.announcements = id;
+            setModalLabels('announcement', Boolean(id));
+
+            if (id && collectionCache.announcements[id]) {
+                const item = collectionCache.announcements[id];
+                document.getElementById('announcement-title').value = item.title || '';
+                document.getElementById('announcement-message').value = item.message || '';
+            }
+
+            openModal('announcement-modal');
+        }
+
+        function openNewsModal(id = null) {
+            const form = document.getElementById('news-form');
+            form.reset();
+            document.getElementById('news-preview').style.display = 'none';
+            editingState.news = id;
+            setModalLabels('news', Boolean(id));
+
+            if (id && collectionCache.news[id]) {
+                const item = collectionCache.news[id];
+                document.getElementById('news-title').value = item.title || '';
+                document.getElementById('news-content').value = item.content || '';
+                if (item.imageURL) {
+                    const preview = document.getElementById('news-preview');
+                    preview.src = item.imageURL;
+                    preview.style.display = 'block';
+                }
+            }
+
+            openModal('news-modal');
+        }
+
+        function openEventModal(id = null) {
+            const form = document.getElementById('event-form');
+            form.reset();
+            editingState.events = id;
+            setModalLabels('event', Boolean(id));
+
+            if (id && collectionCache.events[id]) {
+                const item = collectionCache.events[id];
+                document.getElementById('event-title').value = item.title || '';
+                document.getElementById('event-date').value = toDateInputValue(item.date);
+                document.getElementById('event-description').value = item.description || '';
+            }
+
+            openModal('event-modal');
+        }
+
+        function openGalleryModal(id = null) {
+            const form = document.getElementById('gallery-form');
+            form.reset();
+            document.getElementById('gallery-preview').style.display = 'none';
+            editingState.gallery = id;
+            setModalLabels('gallery', Boolean(id));
+
+            if (id && collectionCache.gallery[id]) {
+                const item = collectionCache.gallery[id];
+                document.getElementById('gallery-caption').value = item.caption || '';
+                if (item.imageURL) {
+                    const preview = document.getElementById('gallery-preview');
+                    preview.src = item.imageURL;
+                    preview.style.display = 'block';
+                }
+            }
+
+            openModal('gallery-modal');
+        }
+
+        function openFileModal(id = null) {
+            const form = document.getElementById('file-form');
+            form.reset();
+            document.getElementById('file-name').textContent = '';
+            editingState.files = id;
+            setModalLabels('file', Boolean(id));
+
+            if (id && collectionCache.files[id]) {
+                const item = collectionCache.files[id];
+                document.getElementById('file-title').value = item.title || item.name || '';
+                document.getElementById('file-description').value = item.description || '';
+                document.getElementById('file-category').value = item.category || 'admissions';
+                document.getElementById('file-audience').value = item.audience || 'public';
+                document.getElementById('file-name').textContent = item.name || 'Existing file will be kept unless you upload a new one.';
+            }
+
+            openModal('file-modal');
+        }
+
+        // ========================================
+        // Announcements CRUD
+        // ========================================
+        function loadAnnouncementsTable() {
+            db.collection('announcements')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    document.getElementById('announcements-count').textContent = snapshot.size;
+                    const tbody = document.getElementById('announcements-table');
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No announcements found</td></tr>';
+                        return;
+                    }
+
+                    collectionCache.announcements = {};
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        collectionCache.announcements[doc.id] = { id: doc.id, ...data };
+                        const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                        html += `
+                            <tr>
+                                <td>${escapeHtml(data.title)}</td>
+                                <td>${escapeHtml(truncateText(data.message, 60))}</td>
+                                <td>${date}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="openAnnouncementModal('${doc.id}')">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteItem('announcements', '${doc.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                });
+        }
+
+        async function saveAnnouncement(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('announcement-title').value.trim();
+            const message = document.getElementById('announcement-message').value.trim();
+
+            if (!title || !message) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const payload = {
+                    title,
+                    message,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingState.announcements) {
+                    await db.collection('announcements').doc(editingState.announcements).update(payload);
+                } else {
+                    await db.collection('announcements').add({
+                        ...payload,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                showToast(`Announcement ${editingState.announcements ? 'updated' : 'saved'} successfully!`, 'success');
+                closeModal('announcement-modal');
+            } catch (error) {
+                console.error('Error saving announcement:', error);
+                showToast('Failed to save announcement', 'error');
+            }
+        }
+
+        // ========================================
+        // News CRUD
+        // ========================================
+        function loadNewsTable() {
+            db.collection('news')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    document.getElementById('news-count').textContent = snapshot.size;
+                    const tbody = document.getElementById('news-table');
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No news found</td></tr>';
+                        return;
+                    }
+
+                    collectionCache.news = {};
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        collectionCache.news[doc.id] = { id: doc.id, ...data };
+                        const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                        html += `
+                            <tr>
+                                <td>${data.imageURL ? `<img src="${escapeHtml(data.imageURL)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">` : '<span style="color: #999;">No image</span>'}</td>
+                                <td>${escapeHtml(data.title)}</td>
+                                <td>${date}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="openNewsModal('${doc.id}')">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteItem('news', '${doc.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                });
+        }
+
+        async function saveNews(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('news-title').value.trim();
+            const content = document.getElementById('news-content').value.trim();
+            const imageFile = document.getElementById('news-image').files[0];
+
+            if (!title || !content) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+
+            try {
+                const existingItem = editingState.news ? collectionCache.news[editingState.news] : null;
+                let imageURL = existingItem?.imageURL || '';
+
+                if (imageFile) {
+                    const storageRef = storage.ref(`news/${Date.now()}_${imageFile.name}`);
+                    const snapshot = await storageRef.put(imageFile);
+                    imageURL = await snapshot.ref.getDownloadURL();
+                }
+
+                const payload = {
+                    title,
+                    content,
+                    imageURL,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingState.news) {
+                    await db.collection('news').doc(editingState.news).update(payload);
+                } else {
+                    await db.collection('news').add({
+                        ...payload,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                showToast(`News ${editingState.news ? 'updated' : 'saved'} successfully!`, 'success');
+                closeModal('news-modal');
+            } catch (error) {
+                console.error('Error saving news:', error);
+                showToast('Failed to save news', 'error');
+            }
+        }
+
+        // ========================================
+        // Events CRUD
+        // ========================================
+        function loadEventsTable() {
+            db.collection('events')
+                .orderBy('date', 'asc')
+                .onSnapshot((snapshot) => {
+                    document.getElementById('events-count').textContent = snapshot.size;
+                    const tbody = document.getElementById('events-table');
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No events found</td></tr>';
+                        return;
+                    }
+
+                    collectionCache.events = {};
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        collectionCache.events[doc.id] = { id: doc.id, ...data };
+                        const date = data.date ? data.date.toDate().toLocaleDateString() : 'N/A';
+                        html += `
+                            <tr>
+                                <td>${escapeHtml(data.title)}</td>
+                                <td>${date}</td>
+                                <td>${escapeHtml(truncateText(data.description, 60))}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="openEventModal('${doc.id}')">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteItem('events', '${doc.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                });
+        }
+
+        async function saveEvent(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('event-title').value.trim();
+            const dateStr = document.getElementById('event-date').value;
+            const description = document.getElementById('event-description').value.trim();
+
+            if (!title || !dateStr || !description) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const payload = {
+                    title,
+                    date: firebase.firestore.Timestamp.fromDate(new Date(dateStr)),
+                    description,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingState.events) {
+                    await db.collection('events').doc(editingState.events).update(payload);
+                } else {
+                    await db.collection('events').add({
+                        ...payload,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                showToast(`Event ${editingState.events ? 'updated' : 'saved'} successfully!`, 'success');
+                closeModal('event-modal');
+            } catch (error) {
+                console.error('Error saving event:', error);
+                showToast('Failed to save event', 'error');
+            }
+        }
+
+        // ========================================
+        // Gallery CRUD
+        // ========================================
+        function loadGalleryTable() {
+            db.collection('gallery')
+                .orderBy('uploadedAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    document.getElementById('gallery-count').textContent = snapshot.size;
+                    const tbody = document.getElementById('gallery-table');
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No images found</td></tr>';
+                        return;
+                    }
+
+                    collectionCache.gallery = {};
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        collectionCache.gallery[doc.id] = { id: doc.id, ...data };
+                        const date = data.uploadedAt ? data.uploadedAt.toDate().toLocaleDateString() : 'N/A';
+                        html += `
+                            <tr>
+                                <td><img src="${escapeHtml(data.imageURL)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                                <td>${escapeHtml(data.caption || '-')}</td>
+                                <td>${date}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="openGalleryModal('${doc.id}')">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteItem('gallery', '${doc.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                });
+        }
+
+        async function saveGallery(e) {
+            e.preventDefault();
+
+            const imageFile = document.getElementById('gallery-image').files[0];
+            const caption = document.getElementById('gallery-caption').value.trim();
+
+            if (!imageFile && !editingState.gallery) {
+                showToast('Please select an image', 'error');
+                return;
+            }
+
+            if (imageFile && imageFile.size > 5 * 1024 * 1024) {
+                showToast('Image must be less than 5MB', 'error');
+                return;
+            }
+
+            try {
+                const existingItem = editingState.gallery ? collectionCache.gallery[editingState.gallery] : null;
+                let imageURL = existingItem?.imageURL || '';
+
+                if (imageFile) {
+                    const storageRef = storage.ref(`gallery/${Date.now()}_${imageFile.name}`);
+                    const snapshot = await storageRef.put(imageFile);
+                    imageURL = await snapshot.ref.getDownloadURL();
+                }
+
+                const payload = {
+                    imageURL,
+                    caption,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingState.gallery) {
+                    await db.collection('gallery').doc(editingState.gallery).update(payload);
+                } else {
+                    await db.collection('gallery').add({
+                        ...payload,
+                        uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                showToast(`Gallery image ${editingState.gallery ? 'updated' : 'uploaded'} successfully!`, 'success');
+                closeModal('gallery-modal');
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                showToast('Failed to upload image', 'error');
+            }
+        }
+
+        // ========================================
+        // Files/Downloads CRUD
+        // ========================================
+        function loadFilesTable() {
+            db.collection('files')
+                .orderBy('uploadedAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    const tbody = document.getElementById('files-table');
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No files found</td></tr>';
+                        return;
+                    }
+
+                    collectionCache.files = {};
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        collectionCache.files[doc.id] = { id: doc.id, ...data };
+                        const date = data.uploadedAt ? data.uploadedAt.toDate().toLocaleDateString() : 'N/A';
+                        html += `
+                            <tr>
+                                <td>
+                                    <i class="fas fa-file-pdf" style="color: #dc2626; margin-right: 10px;"></i>
+                                    ${escapeHtml(data.title || data.name)}
+                                </td>
+                                <td>${escapeHtml(data.category || 'general')}</td>
+                                <td>${date}</td>
+                                <td class="action-buttons">
+                                    <a href="${escapeHtml(data.url)}" target="_blank" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <button class="btn btn-primary btn-sm" onclick="openFileModal('${doc.id}')">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteItem('files', '${doc.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                });
+        }
+
+        async function saveFile(e) {
+            e.preventDefault();
+
+            const file = document.getElementById('download-file').files[0];
+            const title = document.getElementById('file-title').value.trim();
+            const description = document.getElementById('file-description').value.trim();
+            const category = document.getElementById('file-category').value;
+            const audience = document.getElementById('file-audience').value;
+
+            if (!title || !category) {
+                showToast('Please complete the file details', 'error');
+                return;
+            }
+
+            if (!file && !editingState.files) {
+                showToast('Please select a file', 'error');
+                return;
+            }
+
+            if (file && file.type !== 'application/pdf') {
+                showToast('Only PDF files are allowed', 'error');
+                return;
+            }
+
+            if (file && file.size > 10 * 1024 * 1024) {
+                showToast('File must be less than 10MB', 'error');
+                return;
+            }
+
+            try {
+                const existingItem = editingState.files ? collectionCache.files[editingState.files] : null;
+                let fileName = existingItem?.name || '';
+                let url = existingItem?.url || '';
+
+                if (file) {
+                    const storageRef = storage.ref(`files/${Date.now()}_${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    url = await snapshot.ref.getDownloadURL();
+                    fileName = file.name;
+                }
+
+                const payload = {
+                    title,
+                    description,
+                    category,
+                    audience,
+                    name: fileName,
+                    url,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingState.files) {
+                    await db.collection('files').doc(editingState.files).update(payload);
+                } else {
+                    await db.collection('files').add({
+                        ...payload,
+                        uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                showToast(`File ${editingState.files ? 'updated' : 'uploaded'} successfully!`, 'success');
+                closeModal('file-modal');
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                showToast('Failed to upload file', 'error');
+            }
+        }
+
+        async function loadSiteSettings() {
+            try {
+                const doc = await siteSettingsRef().get();
+                if (!doc.exists) return;
+
+                const settings = doc.data() || {};
+                Object.entries(settingsFieldMap).forEach(([key, fieldId]) => {
+                    if (typeof settings[key] !== 'undefined') {
+                        document.getElementById(fieldId).value = settings[key];
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading site settings:', error);
+            }
+        }
+
+        async function saveSiteSettings(e) {
+            e.preventDefault();
+
+            try {
+                const payload = Object.entries(settingsFieldMap).reduce((acc, [key, fieldId]) => {
+                    acc[key] = document.getElementById(fieldId).value.trim();
+                    return acc;
+                }, {});
+
+                payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+                await siteSettingsRef().set(payload, { merge: true });
+                showToast('Site settings saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving site settings:', error);
+                showToast('Failed to save site settings', 'error');
+            }
+        }
+
+        // ========================================
+        // Delete Function
+        // ========================================
+        async function deleteItem(collection, id) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+
+            try {
+                await db.collection(collection).doc(id).delete();
+                showToast('Item deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                showToast('Failed to delete item', 'error');
+            }
+        }
+
+        // ========================================
+        // Logout
+        // ========================================
+        async function logout() {
+            window.firebaseServices.clearDemoSession();
+
+            try {
+                if (firebase.auth().currentUser) {
+                    await firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+            } finally {
+                window.location.href = 'admin.html';
+            }
+        }
+
+        // ========================================
+        // Utility Functions
+        // ========================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncateText(text, length = 60) {
+            if (!text) return '';
+            return text.length > length ? `${text.substring(0, length)}...` : text;
+        }
+
+        function toDateInputValue(timestamp) {
+            if (!timestamp || typeof timestamp.toDate !== 'function') return '';
+            return timestamp.toDate().toISOString().split('T')[0];
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ========================================
+        // Admissions Management
+        // ========================================
+        let currentViewedRef = null;
+
+        function loadDashboardData() {
+            loadAnnouncementsTable();
+            loadNewsTable();
+            loadEventsTable();
+            loadGalleryTable();
+            loadFilesTable();
+            loadSiteSettings();
+            refreshAdmissionsTable();
+            updateAdmissionsOverviewCount();
+        }
+
+        function updateAdmissionsOverviewCount() {
+            const apps = window.firebaseServices.getAdmissions();
+            const el = document.getElementById('admissions-count-overview');
+            if (el) el.textContent = apps.length;
+        }
+
+        function getBadgeClass(status) {
+            const map = { 'Pending': 'badge-pending', 'Under Review': 'badge-review', 'Accepted': 'badge-accepted', 'Rejected': 'badge-rejected' };
+            return map[status] || 'badge-pending';
+        }
+
+        function refreshAdmissionsTable() {
+            const filterStatus = document.getElementById('adm-filter-status')?.value || '';
+            const search = (document.getElementById('adm-search')?.value || '').toLowerCase();
+            let apps = window.firebaseServices.getAdmissions();
+
+            if (filterStatus) apps = apps.filter(a => a.status === filterStatus);
+            if (search) apps = apps.filter(a =>
+                (a.fullName || '').toLowerCase().includes(search) ||
+                (a.refNumber || '').toLowerCase().includes(search)
+            );
+
+            // Sort newest first
+            apps = apps.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+            const totalEl = document.getElementById('adm-total');
+            if (totalEl) totalEl.textContent = apps.length;
+
+            const tbody = document.getElementById('admissions-table-body');
+            if (!tbody) return;
+
+            if (apps.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-light);">No applications found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = apps.map(a => {
+                const date = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString('en-UG') : 'N/A';
+                const badge = getBadgeClass(a.status);
+                return `<tr>
+                    <td style="font-family:monospace;font-size:0.82rem;">${escapeHtml(a.refNumber)}</td>
+                    <td style="font-weight:600;">${escapeHtml(a.fullName || '')}</td>
+                    <td>${escapeHtml(a.programme || '')}</td>
+                    <td>${date}</td>
+                    <td><span class="badge ${badge}">${escapeHtml(a.status)}</span></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-primary btn-sm" onclick="viewApplication('${a.refNumber}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAdmission('${a.refNumber}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            updateAdmissionsOverviewCount();
+        }
+
+        function viewApplication(refNumber) {
+            const apps = window.firebaseServices.getAdmissions();
+            const app = apps.find(a => a.refNumber === refNumber);
+            if (!app) { showToast('Application not found', 'error'); return; }
+
+            currentViewedRef = refNumber;
+
+            const fields = [
+                ['Reference Number', app.refNumber],
+                ['Full Name', app.fullName],
+                ['Date of Birth', app.dob],
+                ['Gender', app.gender],
+                ['Nationality', app.nationality],
+                ['Religion', app.religion],
+                ['NIN', app.nin],
+                ['Phone', app.phone],
+                ['Email', app.email],
+                ['District', app.district],
+                ['Address', app.address],
+                ['Next of Kin', app.nextOfKin],
+                ['Next of Kin Phone', app.nextOfKinPhone],
+                ['Last School', app.lastSchool],
+                ['Year Completed', app.yearCompleted],
+                ['Qualification', app.qualification],
+                ['Programme', app.programme],
+                ['Intake Year', app.intakeYear],
+                ['Status', app.status],
+                ['Submitted At', app.submittedAt ? new Date(app.submittedAt).toLocaleString() : 'N/A'],
+            ];
+
+            const html = `
+                <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:white;padding:16px 20px;border-radius:10px;margin-bottom:16px;">
+                    <div style="font-size:1.1rem;font-weight:700;">${escapeHtml(app.fullName)}</div>
+                    <div style="font-size:0.85rem;opacity:0.8;margin-top:4px;">${escapeHtml(app.refNumber)} · ${escapeHtml(app.programme)}</div>
+                </div>
+                <div class="adm-detail-grid">
+                    ${fields.map(([label, val]) => `
+                        <div class="adm-detail-item">
+                            <label>${label}</label>
+                            <p>${escapeHtml(val || '—')}</p>
+                        </div>
+                    `).join('')}
+                </div>`;
+
+            document.getElementById('application-detail-body').innerHTML = html;
+            document.getElementById('adm-status-select').value = app.status || 'Pending';
+            openModal('view-application-modal');
+        }
+
+        function saveApplicationStatus() {
+            if (!currentViewedRef) return;
+            const newStatus = document.getElementById('adm-status-select').value;
+            const ok = window.firebaseServices.updateAdmissionStatus(currentViewedRef, newStatus);
+            if (ok) {
+                showToast('Status updated to: ' + newStatus, 'success');
+                refreshAdmissionsTable();
+                closeModal('view-application-modal');
+            } else {
+                showToast('Failed to update status', 'error');
+            }
+        }
+
+        function deleteApplicationFromModal() {
+            if (!currentViewedRef) return;
+            if (!confirm('Delete this application? This cannot be undone.')) return;
+            deleteAdmission(currentViewedRef);
+            closeModal('view-application-modal');
+        }
+
+        function deleteAdmission(refNumber) {
+            if (!confirm('Delete this application? This cannot be undone.')) return;
+            const ok = window.firebaseServices.deleteAdmission(refNumber);
+            if (ok) {
+                showToast('Application deleted.', 'success');
+                refreshAdmissionsTable();
+            } else {
+                showToast('Failed to delete application.', 'error');
+            }
+        }
+
+        function exportAdmissionsCSV() {
+            const apps = window.firebaseServices.getAdmissions();
+            if (apps.length === 0) { showToast('No applications to export', 'error'); return; }
+
+            const headers = ['RefNumber','FullName','DOB','Gender','Nationality','Religion','NIN','Phone','Email','District','Address','NextOfKin','NextOfKinPhone','LastSchool','YearCompleted','Qualification','Programme','IntakeYear','Status','SubmittedAt'];
+            const rows = apps.map(a => headers.map(h => {
+                const key = h.charAt(0).toLowerCase() + h.slice(1).replace(/([A-Z])/g, c => c.toLowerCase());
+                const val = a[key] || a[h] || '';
+                return '"' + String(val).replace(/"/g, '""') + '"';
+            }).join(','));
+
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'SKTIM_Admissions_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Exported ' + apps.length + ' applications to CSV', 'success');
+        }
+    </script>
+</body>
+
+</html>

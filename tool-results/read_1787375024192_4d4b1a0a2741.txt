@@ -1,0 +1,2002 @@
+     1→<!DOCTYPE html>
+     2→<html lang="en">
+     3→
+     4→<head>
+     5→    <meta charset="UTF-8">
+     6→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     7→    <meta name="description"
+     8→        content="St. Kizito's Technical Institute - Madera - Building Skills, Transforming Lives Since 1985. Quality technical and vocational education programs.">
+     9→    <meta name="keywords"
+    10→        content="technical institute, vocational training, Madera, automotive, electrical, welding, IT, culinary arts, building construction">
+    11→    <meta name="author" content="St. Kizito's Technical Institute">
+    12→    <meta property="og:title" content="St. Kizito's Technical Institute - Madera">
+    13→    <meta property="og:description" content="Building Skills, Transforming Lives Since 1985">
+    14→    <meta property="og:type" content="website">
+    15→    <meta name="twitter:card" content="summary_large_image">
+    16→
+    17→    <title>St. Kizito's Technical Institute - Madera | SKTIM</title>
+    18→
+    19→    <!-- Google Fonts -->
+    20→    <link rel="preconnect" href="https://fonts.googleapis.com">
+    21→    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    22→    <link
+    23→        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    24→        rel="stylesheet">
+    25→
+    26→    <!-- Font Awesome 6 -->
+    27→    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    28→
+    29→    <style>
+    30→        /* ========================================
+    31→           CSS VARIABLES & RESET
+    32→           ======================================== */
+    33→        :root {
+    34→            --primary: #1a3a6b;
+    35→            --primary-light: #2756a0;
+    36→            --primary-dark: #0f2347;
+    37→            --gold: #f5c518;
+    38→            --gold-dark: #d4a017;
+    39→            --secondary: #f5f5dc;
+    40→            --secondary-light: #fffff0;
+    41→            --secondary-dark: #d4d0ab;
+    42→            --accent: #0f2347;
+    43→            --light-gray: #f0f4ff;
+    44→            --medium-gray: #a0aec0;
+    45→            --text-dark: #1a202c;
+    46→            --text-light: #4a5568;
+    47→            --white: #ffffff;
+    48→            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    49→            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    50→            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    51→            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    52→            --transition: all 0.3s ease;
+    53→            --radius-sm: 8px;
+    54→            --radius-md: 12px;
+    55→            --radius-lg: 16px;
+    56→            --radius-full: 50%;
+    57→        }
+    58→
+    59→        * {
+    60→            margin: 0;
+    61→            padding: 0;
+    62→            box-sizing: border-box;
+    63→        }
+    64→
+    65→        html {
+    66→            scroll-behavior: smooth;
+    67→        }
+    68→
+    69→        body {
+    70→            font-family: 'Inter', sans-serif;
+    71→            color: var(--text-dark);
+    72→            background-color: var(--white);
+    73→            line-height: 1.6;
+    74→            overflow-x: hidden;
+    75→        }
+    76→
+    77→        h1,
+    78→        h2,
+    79→        h3,
+    80→        h4,
+    81→        h5,
+    82→        h6 {
+    83→            font-family: 'Playfair Display', serif;
+    84→            font-weight: 600;
+    85→            line-height: 1.2;
+    86→        }
+    87→
+    88→        a {
+    89→            text-decoration: none;
+    90→            color: inherit;
+    91→        }
+    92→
+    93→        img {
+    94→            max-width: 100%;
+    95→            height: auto;
+    96→            display: block;
+    97→        }
+    98→
+    99→        ul {
+   100→            list-style: none;
+   101→        }
+   102→
+   103→        button,
+   104→        input,
+   105→        select,
+   106→        textarea {
+   107→            font-family: inherit;
+   108→            font-size: inherit;
+   109→        }
+   110→
+   111→        /* =========================================
+   112→           REMOVE SCROLLBAR
+   113→           ======================================== */
+   114→        html,
+   115→        body {
+   116→            overflow-x: hidden;
+   117→        }
+   118→
+   119→        ::-webkit-scrollbar {
+   120→            display: none;
+   121→        }
+   122→
+   123→        * {
+   124→            scrollbar-width: none;
+   125→            -ms-overflow-style: none;
+   126→        }
+   127→
+   128→        /* ========================================
+   129→            CUSTOM SCROLLBAR
+   130→            ======================================== */
+   131→
+   132→        /* ========================================
+   133→           UTILITY CLASSES
+   134→           ======================================== */
+   135→        .container {
+   136→            max-width: 1280px;
+   137→            margin: 0 auto;
+   138→            padding: 0 20px;
+   139→        }
+   140→
+   141→        .section {
+   142→            padding: 80px 0;
+   143→        }
+   144→
+   145→        .section-title {
+   146→            font-size: 2.5rem;
+   147→            text-align: center;
+   148→            margin-bottom: 1rem;
+   149→            color: var(--primary);
+   150→        }
+   151→
+   152→        .section-subtitle {
+   153→            text-align: center;
+   154→            color: var(--text-light);
+   155→            font-size: 1.1rem;
+   156→            max-width: 600px;
+   157→            margin: 0 auto 3rem;
+   158→        }
+   159→
+   160→        .gradient-text {
+   161→            background: linear-gradient(135deg, var(--primary), var(--gold));
+   162→            -webkit-background-clip: text;
+   163→            -webkit-text-fill-color: transparent;
+   164→            background-clip: text;
+   165→        }
+   166→
+   167→        .btn {
+   168→            display: inline-flex;
+   169→            align-items: center;
+   170→            justify-content: center;
+   171→            gap: 8px;
+   172→            padding: 14px 28px;
+   173→            border-radius: var(--radius-sm);
+   174→            font-weight: 600;
+   175→            font-size: 1rem;
+   176→            cursor: pointer;
+   177→            transition: var(--transition);
+   178→            border: none;
+   179→            text-align: center;
+   180→        }
+   181→
+   182→        .btn-primary {
+   183→            background: var(--primary);
+   184→            color: var(--white);
+   185→        }
+   186→
+   187→        .btn-primary:hover {
+   188→            background: var(--primary-light);
+   189→            transform: translateY(-2px);
+   190→            box-shadow: var(--shadow-lg);
+   191→        }
+   192→
+   193→        .btn-secondary {
+   194→            background: var(--primary);
+   195→            color: var(--white);
+   196→        }
+   197→
+   198→        .btn-secondary:hover {
+   199→            background: var(--primary-light);
+   200→            transform: translateY(-2px);
+   201→            box-shadow: var(--shadow-lg);
+   202→        }
+   203→
+   204→        /* Primary button with gold background */
+   205→        .btn-cream {
+   206→            background: var(--gold);
+   207→            color: var(--primary-dark);
+   208→            font-weight: 700;
+   209→        }
+   210→
+   211→        .btn-cream:hover {
+   212→            background: var(--gold-dark);
+   213→            transform: translateY(-2px);
+   214→            box-shadow: var(--shadow-lg);
+   215→        }
+   216→
+   217→        .btn-outline {
+   218→            background: transparent;
+   219→            border: 2px solid var(--white);
+   220→            color: var(--white);
+   221→        }
+   222→
+   223→        .btn-outline:hover {
+   224→            background: var(--white);
+   225→            color: var(--primary);
+   226→        }
+   227→
+   228→        .btn-ghost {
+   229→            background: transparent;
+   230→            color: var(--primary);
+   231→            padding: 10px 20px;
+   232→        }
+   233→
+   234→        .btn-ghost:hover {
+   235→            background: var(--light-gray);
+   236→        }
+   237→
+   238→        /* ========================================
+   239→           HEADER & NAVIGATION
+   240→           ======================================== */
+   241→        .header {
+   242→            position: fixed;
+   243→            top: 0;
+   244→            left: 0;
+   245→            right: 0;
+   246→            z-index: 1000;
+   247→            transition: var(--transition);
+   248→            padding: 15px 0;
+   249→        }
+   250→
+   251→        .header.scrolled {
+   252→            background: var(--white);
+   253→            box-shadow: var(--shadow-md);
+   254→            padding: 10px 0;
+   255→        }
+   256→
+   257→        .header-inner {
+   258→            display: flex;
+   259→            align-items: center;
+   260→            justify-content: space-between;
+   261→        }
+   262→
+   263→        .logo {
+   264→            display: flex;
+   265→            align-items: center;
+   266→            gap: 12px;
+   267→        }
+   268→
+   269→        .logo-icon {
+   270→            width: 60px;
+   271→            height: 60px;
+   272→            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+   273→            border-radius: var(--radius-sm);
+   274→            display: flex;
+   275→            align-items: center;
+   276→            justify-content: center;
+   277→            color: var(--white);
+   278→            font-family: 'Playfair Display', serif;
+   279→            font-weight: 700;
+   280→            font-size: 1.2rem;
+   281→        }
+   282→
+   283→        .logo-text {
+   284→            font-family: 'Playfair Display', serif;
+   285→            font-size: 1.3rem;
+   286→            font-weight: 600;
+   287→            color: var(--white);
+   288→            transition: var(--transition);
+   289→        }
+   290→
+   291→        .header.scrolled .logo-text {
+   292→            color: var(--primary);
+   293→        }
+   294→
+   295→        .nav-menu {
+   296→            display: flex;
+   297→            align-items: center;
+   298→            gap: 20px;
+   299→        }
+   300→
+   301→        .nav-link {
+   302→            color: var(--white);
+   303→            font-weight: 500;
+   304→            position: relative;
+   305→            padding: 5px 0;
+   306→            transition: var(--transition);
+   307→        }
+   308→
+   309→        .header.scrolled .nav-link {
+   310→            color: var(--text-dark);
+   311→        }
+   312→
+   313→        .nav-link::after {
+   314→            content: '';
+   315→            position: absolute;
+   316→            bottom: 0;
+   317→            left: 0;
+   318→            width: 0;
+   319→            height: 2px;
+   320→            background: var(--gold);
+   321→            transition: var(--transition);
+   322→        }
+   323→
+   324→        .nav-link:hover::after,
+   325→        .nav-link.active::after {
+   326→            width: 100%;
+   327→        }
+   328→
+   329→        .nav-link:hover {
+   330→            color: var(--gold);
+   331→        }
+   332→
+   333→        .btn-apply {
+   334→            background: var(--gold);
+   335→            color: var(--primary-dark);
+   336→            padding: 10px 24px;
+   337→            border-radius: var(--radius-sm);
+   338→            font-weight: 600;
+   339→            transition: var(--transition);
+   340→        }
+   341→
+   342→        .btn-apply:hover {
+   343→            background: var(--gold-dark);
+   344→            transform: translateY(-2px);
+   345→            box-shadow: var(--shadow-md);
+   346→        }
+   347→
+   348→        .mobile-toggle {
+   349→            display: none;
+   350→            flex-direction: column;
+   351→            gap: 5px;
+   352→            cursor: pointer;
+   353→            padding: 10px;
+   354→        }
+   355→
+   356→        .mobile-toggle span {
+   357→            width: 25px;
+   358→            height: 2px;
+   359→            background: var(--white);
+   360→            transition: var(--transition);
+   361→        }
+   362→
+   363→        .header.scrolled .mobile-toggle span {
+   364→            background: var(--primary);
+   365→        }
+   366→
+   367→        /* Dropdown Menu */
+   368→        .nav-dropdown {
+   369→            position: relative;
+   370→            display: inline-block;
+   371→        }
+   372→
+   373→        .nav-dropdown .nav-link {
+   374→            cursor: pointer;
+   375→        }
+   376→
+   377→        .nav-dropdown .nav-link i {
+   378→            font-size: 0.75rem;
+   379→            margin-left: 5px;
+   380→            transition: transform 0.3s ease;
+   381→        }
+   382→
+   383→        .nav-dropdown:hover .nav-link i {
+   384→            transform: rotate(180deg);
+   385→        }
+   386→
+   387→        .dropdown-content {
+   388→            display: none;
+   389→            position: absolute;
+   390→            top: 100%;
+   391→            left: 50%;
+   392→            transform: translateX(-50%);
+   393→            background-color: var(--white);
+   394→            min-width: 220px;
+   395→            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+   396→            border-radius: 8px;
+   397→            z-index: 1001;
+   398→            padding: 10px 0;
+   399→            margin-top: 10px;
+   400→        }
+   401→
+   402→        .dropdown-content::before {
+   403→            content: '';
+   404→            position: absolute;
+   405→            top: -10px;
+   406→            left: 50%;
+   407→            transform: translateX(-50%);
+   408→            border-width: 0 10px 10px 10px;
+   409→            border-style: solid;
+   410→            border-color: transparent transparent var(--white) transparent;
+   411→        }
+   412→
+   413→        .nav-dropdown:hover .dropdown-content {
+   414→            display: block;
+   415→            animation: fadeInDown 0.3s ease;
+   416→        }
+   417→
+   418→        .dropdown-content a {
+   419→            color: var(--text-dark);
+   420→            padding: 12px 20px;
+   421→            text-decoration: none;
+   422→            display: flex;
+   423→            align-items: center;
+   424→            gap: 12px;
+   425→            transition: all 0.3s ease;
+   426→            font-weight: 500;
+   427→        }
+   428→
+   429→        .dropdown-content a:hover {
+   430→            background-color: var(--light-gray);
+   431→            color: var(--primary);
+   432→            padding-left: 25px;
+   433→        }
+   434→
+   435→        .dropdown-content a i {
+   436→            width: 20px;
+   437→            text-align: center;
+   438→            color: var(--primary);
+   439→        }
+   440→
+   441→        .header.scrolled .nav-dropdown .dropdown-content {
+   442→            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+   443→        }
+   444→
+   445→        /* Search Bar */
+   446→        .search-container {
+   447→            position: relative;
+   448→        }
+   449→
+   450→        .search-input {
+   451→            padding: 8px 35px 8px 15px;
+   452→            border: 1px solid var(--medium-gray);
+   453→            border-radius: var(--radius-sm);
+   454→            width: 200px;
+   455→            transition: var(--transition);
+   456→            font-size: 0.9rem;
+   457→        }
+   458→
+   459→        .search-input:focus {
+   460→            outline: none;
+   461→            border-color: var(--primary);
+   462→            width: 250px;
+   463→        }
+   464→
+   465→        .search-icon {
+   466→            position: absolute;
+   467→            right: 12px;
+   468→            top: 50%;
+   469→            transform: translateY(-50%);
+   470→            color: var(--text-light);
+   471→        }
+   472→
+   473→        /* ========================================
+   474→           HERO SECTION
+   475→           ======================================== */
+   476→        .hero {
+   477→            min-height: 100vh;
+   478→            display: flex;
+   479→            align-items: center;
+   480→            justify-content: center;
+   481→            position: relative;
+   482→            background: linear-gradient(135deg, rgba(30, 58, 95, 0.85), rgba(20, 40, 73, 0.9), rgba(245, 245, 220, 0.15)),
+   483→                url('st kizitos technical institute madera photos/front view of admin.jfif') center/cover;
+   484→            padding-top: 80px;
+   485→        }
+   486→
+   487→        .hero-content {
+   488→            text-align: center;
+   489→            color: var(--white);
+   490→            max-width: 900px;
+   491→            margin: 0 auto;
+   492→            padding: 20px;
+   493→        }
+   494→
+   495→        .hero-badge {
+   496→            display: inline-block;
+   497→            background: var(--gold);
+   498→            color: var(--primary-dark);
+   499→            padding: 10px 24px;
+   500→            border-radius: 50px;
+   501→            font-weight: 600;
+   502→            margin-bottom: 20px;
+   503→            border: 2px solid var(--gold-dark);
+   504→            animation: fadeInDown 0.8s ease;
+   505→            box-shadow: 0 4px 15px rgba(245, 197, 24, 0.4);
+   506→        }
+   507→
+   508→        .hero-title {
+   509→            font-size: 3.5rem;
+   510→            margin-bottom: 1.5rem;
+   511→            animation: fadeInUp 0.8s ease 0.2s both;
+   512→        }
+   513→
+   514→        .hero-subtitle {
+   515→            font-size: 1.4rem;
+   516→            opacity: 0.9;
+   517→            margin-bottom: 2.5rem;
+   518→            animation: fadeInUp 0.8s ease 0.4s both;
+   519→        }
+   520→
+   521→        .hero-buttons {
+   522→            display: flex;
+   523→            gap: 20px;
+   524→            justify-content: center;
+   525→            flex-wrap: wrap;
+   526→            animation: fadeInUp 0.8s ease 0.6s both;
+   527→        }
+   528→
+   529→        .hero-buttons .btn {
+   530→            min-width: 180px;
+   531→        }
+   532→
+   533→        .scroll-indicator {
+   534→            position: absolute;
+   535→            bottom: 30px;
+   536→            left: 50%;
+   537→            transform: translateX(-50%);
+   538→            animation: bounce 2s infinite;
+   539→        }
+   540→
+   541→        .scroll-indicator a {
+   542→            color: var(--gold);
+   543→            font-size: 2rem;
+   544→        }
+   545→
+   546→        /* Hero Wave Overlay */
+   547→        .hero-wave {
+   548→            position: absolute;
+   549→            bottom: 0;
+   550→            left: 0;
+   551→            width: 100%;
+   552→            overflow: hidden;
+   553→            line-height: 0;
+   554→            transform: rotate(180deg);
+   555→        }
+   556→
+   557→        .hero-wave svg {
+   558→            position: relative;
+   559→            display: block;
+   560→            width: calc(100% + 1.3px);
+   561→            height: 80px;
+   562→        }
+   563→
+   564→        .hero-wave .shape-fill {
+   565→            fill: var(--white);
+   566→        }
+   567→
+   568→        /* ========================================
+   569→           WELCOME SECTION
+   570→           ======================================== */
+   571→        .welcome {
+   572→            background: var(--white);
+   573→        }
+   574→
+   575→        .welcome-grid {
+   576→            display: grid;
+   577→            grid-template-columns: 1fr 1fr;
+   578→            gap: 60px;
+   579→            align-items: center;
+   580→        }
+   581→
+   582→        .welcome-content h2 {
+   583→            font-size: 2.5rem;
+   584→            margin-bottom: 1.5rem;
+   585→            color: var(--primary);
+   586→        }
+   587→
+   588→        .welcome-content p {
+   589→            color: var(--text-light);
+   590→            margin-bottom: 1.5rem;
+   591→            font-size: 1.05rem;
+   592→        }
+   593→
+   594→        .welcome-image {
+   595→            position: relative;
+   596→        }
+   597→
+   598→        .welcome-image img {
+   599→            border-radius: var(--radius-lg);
+   600→            box-shadow: var(--shadow-xl);
+   601→        }
+   602→
+   603→        .welcome-image::before {
+   604→            content: '';
+   605→            position: absolute;
+   606→            top: -20px;
+   607→            right: -20px;
+   608→            width: 100%;
+   609→            height: 100%;
+   610→            border: 3px solid var(--gold);
+   611→            border-radius: var(--radius-lg);
+   612→            z-index: -1;
+   613→        }
+   614→
+   615→        .stats-grid {
+   616→            display: grid;
+   617→            grid-template-columns: repeat(4, 1fr);
+   618→            gap: 20px;
+   619→            margin-top: 40px;
+   620→        }
+   621→
+   622→        .stat-card {
+   623→            background: var(--light-gray);
+   624→            padding: 25px;
+   625→            border-radius: var(--radius-md);
+   626→            text-align: center;
+   627→            transition: var(--transition);
+   628→        }
+   629→
+   630→        .stat-card:hover {
+   631→            transform: translateY(-5px);
+   632→            box-shadow: var(--shadow-lg);
+   633→        }
+   634→
+   635→        .stat-icon {
+   636→            width: 60px;
+   637→            height: 60px;
+   638→            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+   639→            border-radius: var(--radius-full);
+   640→            display: flex;
+   641→            align-items: center;
+   642→            justify-content: center;
+   643→            margin: 0 auto 15px;
+   644→            color: var(--white);
+   645→            font-size: 1.5rem;
+   646→        }
+   647→
+   648→        .stat-number {
+   649→            font-size: 2.5rem;
+   650→            font-weight: 700;
+   651→            color: var(--primary);
+   652→            font-family: 'Playfair Display', serif;
+   653→        }
+   654→
+   655→        .stat-label {
+   656→            color: var(--text-light);
+   657→            font-size: 0.9rem;
+   658→            margin-top: 5px;
+   659→        }
+   660→
+   661→        /* ========================================
+   662→           LOCATION SECTION
+   663→           ======================================== */
+   664→        .location {
+   665→            background: var(--light-gray);
+   666→        }
+   667→
+   668→        .location-grid {
+   669→            display: grid;
+   670→            grid-template-columns: 1fr 1fr;
+   671→            gap: 50px;
+   672→            align-items: center;
+   673→        }
+   674→
+   675→        .location-info h2 {
+   676→            font-size: 2.5rem;
+   677→            margin-bottom: 1.5rem;
+   678→            color: var(--primary);
+   679→        }
+   680→
+   681→        .location-info p {
+   682→            color: var(--text-light);
+   683→            margin-bottom: 2rem;
+   684→        }
+   685→
+   686→        .location-details {
+   687→            display: flex;
+   688→            flex-direction: column;
+   689→            gap: 20px;
+   690→        }
+   691→
+   692→        .location-item {
+   693→            display: flex;
+   694→            align-items: flex-start;
+   695→            gap: 15px;
+   696→        }
+   697→
+   698→        .location-item i {
+   699→            width: 40px;
+   700→            height: 40px;
+   701→            background: var(--primary);
+   702→            border-radius: var(--radius-full);
+   703→            display: flex;
+   704→            align-items: center;
+   705→            justify-content: center;
+   706→            color: var(--white);
+   707→            flex-shrink: 0;
+   708→        }
+   709→
+   710→        .location-item h4 {
+   711→            font-size: 1.1rem;
+   712→            margin-bottom: 5px;
+   713→            color: var(--text-dark);
+   714→        }
+   715→
+   716→        .location-item p {
+   717→            color: var(--text-light);
+   718→            margin: 0;
+   719→        }
+   720→
+   721→        .map-container {
+   722→            position: relative;
+   723→            border-radius: var(--radius-lg);
+   724→            overflow: hidden;
+   725→            box-shadow: var(--shadow-lg);
+   726→        }
+   727→
+   728→        .map-placeholder {
+   729→            width: 100%;
+   730→            height: 400px;
+   731→            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+   732→            display: flex;
+   733→            flex-direction: column;
+   734→            align-items: center;
+   735→            justify-content: center;
+   736→            position: relative;
+   737→        }
+   738→
+   739→        .map-placeholder i {
+   740→            font-size: 4rem;
+   741→            color: var(--primary);
+   742→            margin-bottom: 15px;
+   743→        }
+   744→
+   745→        .map-placeholder p {
+   746→            color: var(--text-light);
+   747→            font-weight: 500;
+   748→        }
+   749→
+   750→        .map-overlay {
+   751→            position: absolute;
+   752→            bottom: 20px;
+   753→            left: 20px;
+   754→            background: var(--white);
+   755→            padding: 15px 20px;
+   756→            border-radius: var(--radius-sm);
+   757→            box-shadow: var(--shadow-md);
+   758→        }
+   759→
+   760→        .map-overlay i {
+   761→            color: var(--primary);
+   762→            margin-right: 8px;
+   763→        }
+   764→
+   765→        /* ========================================
+   766→           LEADERSHIP SECTION
+   767→           ======================================== */
+   768→        .leadership {
+   769→            background: var(--white);
+   770→        }
+   771→
+   772→        .leadership-grid {
+   773→            display: grid;
+   774→            grid-template-columns: repeat(4, 1fr);
+   775→            gap: 20px;
+   776→        }
+   777→
+   778→        .leadership-card {
+   779→            background: var(--white);
+   780→            border-radius: var(--radius-lg);
+   781→            padding: 20px;
+   782→            text-align: center;
+   783→            box-shadow: var(--shadow-md);
+   784→            transition: var(--transition);
+   785→            border: 1px solid var(--light-gray);
+   786→        }
+   787→
+   788→        .leadership-card:hover {
+   789→            transform: translateY(-10px);
+   790→            box-shadow: var(--shadow-xl);
+   791→        }
+   792→
+   793→        .leader-image {
+   794→            width: 100px;
+   795→            height: 100px;
+   796→            border-radius: var(--radius-full);
+   797→            margin: 0 auto 15px;
+   798→            overflow: hidden;
+   799→            border: 4px solid var(--gold);
+   800→            position: relative;
+   801→        }
+   802→
+   803→        .leader-image img {
+   804→            width: 100%;
+   805→            height: 100%;
+   806→            object-fit: cover;
+   807→        }
+   808→
+   809→        .leader-image::after {
+   810→            content: '';
+   811→            position: absolute;
+   812→            inset: 0;
+   813→            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1), rgba(245, 158, 11, 0.1));
+   814→        }
+   815→
+   816→        .leader-name {
+   817→            font-size: 1.1rem;
+   818→            color: var(--primary);
+   819→            margin-bottom: 3px;
+   820→        }
+   821→
+   822→        .leader-title {
+   823→            color: var(--gold-dark);
+   824→            font-weight: 600;
+   825→            margin-bottom: 10px;
+   826→            font-size: 0.85rem;
+   827→        }
+   828→
+   829→        .leader-bio {
+   830→            color: var(--text-light);
+   831→            margin-bottom: 15px;
+   832→            font-size: 0.8rem;
+   833→        }
+   834→
+   835→        .leader-social {
+   836→            display: flex;
+   837→            gap: 15px;
+   838→            justify-content: center;
+   839→        }
+   840→
+   841→        .leader-social a {
+   842→            width: 40px;
+   843→            height: 40px;
+   844→            border-radius: var(--radius-full);
+   845→            background: var(--light-gray);
+   846→            display: flex;
+   847→            align-items: center;
+   848→            justify-content: center;
+   849→            color: var(--primary);
+   850→            transition: var(--transition);
+   851→        }
+   852→
+   853→        .leader-social a:hover {
+   854→            background: var(--primary);
+   855→            color: var(--white);
+   856→            transform: scale(1.1);
+   857→        }
+   858→
+   859→        /* ========================================
+   860→           GRADUATION GALLERY
+   861→           ======================================== */
+   862→        .graduation-gallery {
+   863→            background: var(--light-gray);
+   864→            position: relative;
+   865→            overflow: hidden;
+   866→        }
+   867→
+   868→        .gallery-grid {
+   869→            display: grid;
+   870→            grid-template-columns: repeat(3, 1fr);
+   871→            gap: 20px;
+   872→        }
+   873→
+   874→        .gallery-item {
+   875→            position: relative;
+   876→            border-radius: var(--radius-md);
+   877→            overflow: hidden;
+   878→            aspect-ratio: 4/3;
+   879→            cursor: pointer;
+   880→        }
+   881→
+   882→        .gallery-item:nth-child(1) {
+   883→            grid-row: span 2;
+   884→        }
+   885→
+   886→        .gallery-item img {
+   887→            width: 100%;
+   888→            height: 100%;
+   889→            object-fit: cover;
+   890→            transition: var(--transition);
+   891→        }
+   892→
+   893→        .gallery-overlay {
+   894→            position: absolute;
+   895→            inset: 0;
+   896→            background: linear-gradient(to top, rgba(30, 58, 138, 0.9), transparent);
+   897→            display: flex;
+   898→            flex-direction: column;
+   899→            justify-content: flex-end;
+   900→            padding: 20px;
+   901→            opacity: 0;
+   902→            transition: var(--transition);
+   903→        }
+   904→
+   905→        .gallery-item:hover .gallery-overlay {
+   906→            opacity: 1;
+   907→        }
+   908→
+   909→        .gallery-item:hover img {
+   910→            transform: scale(1.1);
+   911→        }
+   912→
+   913→        .gallery-caption {
+   914→            color: var(--white);
+   915→        }
+   916→
+   917→        .gallery-caption h4 {
+   918→            font-size: 1.1rem;
+   919→            margin-bottom: 5px;
+   920→        }
+   921→
+   922→        .gallery-caption p {
+   923→            font-size: 0.9rem;
+   924→            opacity: 0.8;
+   925→        }
+   926→
+   927→        /* Lightbox */
+   928→        .lightbox {
+   929→            position: fixed;
+   930→            inset: 0;
+   931→            background: rgba(0, 0, 0, 0.95);
+   932→            z-index: 2000;
+   933→            display: none;
+   934→            align-items: center;
+   935→            justify-content: center;
+   936→            padding: 50px;
+   937→        }
+   938→
+   939→        .lightbox.active {
+   940→            display: flex;
+   941→        }
+   942→
+   943→        .lightbox img {
+   944→            max-width: 90%;
+   945→            max-height: 90vh;
+   946→            border-radius: var(--radius-md);
+   947→        }
+   948→
+   949→        .lightbox-close {
+   950→            position: absolute;
+   951→            top: 30px;
+   952→            right: 30px;
+   953→            color: var(--white);
+   954→            font-size: 2rem;
+   955→            cursor: pointer;
+   956→            background: none;
+   957→            border: none;
+   958→        }
+   959→
+   960→        /* ========================================
+   961→           PRACTICAL TRAINING CAROUSEL
+   962→           ======================================== */
+   963→        .practical-training {
+   964→            background: var(--primary);
+   965→            color: var(--white);
+   966→            padding: 80px 0;
+   967→            position: relative;
+   968→            overflow: hidden;
+   969→        }
+   970→
+   971→        .practical-training::before {
+   972→            content: '';
+   973→            position: absolute;
+   974→            top: -50%;
+   975→            right: -20%;
+   976→            width: 600px;
+   977→            height: 600px;
+   978→            background: radial-gradient(circle, rgba(245, 245, 220, 0.15), transparent);
+   979→            border-radius: var(--radius-full);
+   980→        }
+   981→
+   982→        .practical-training .section-title {
+   983→            color: var(--white);
+   984→        }
+   985→
+   986→        .practical-training .section-subtitle {
+   987→            color: rgba(255, 255, 255, 0.8);
+   988→        }
+   989→
+   990→        .carousel-container {
+   991→            position: relative;
+   992→            max-width: 1000px;
+   993→            margin: 0 auto;
+   994→            overflow: hidden;
+   995→        }
+   996→
+   997→        .carousel-track {
+   998→            display: flex;
+   999→            transition: transform 0.5s ease;
+  1000→        }
+  1001→
+  1002→        .carousel-slide {
+  1003→            min-width: 100%;
+  1004→            padding: 20px;
+  1005→        }
+  1006→
+  1007→        .training-card {
+  1008→            background: rgba(255, 255, 255, 0.1);
+  1009→            backdrop-filter: blur(10px);
+  1010→            border-radius: var(--radius-lg);
+  1011→            padding: 40px;
+  1012→            text-align: center;
+  1013→            border: 1px solid rgba(255, 255, 255, 0.2);
+  1014→        }
+  1015→
+  1016→        .training-image {
+  1017→            width: 100%;
+  1018→            height: 300px;
+  1019→            border-radius: var(--radius-md);
+  1020→            overflow: hidden;
+  1021→            margin-bottom: 25px;
+  1022→        }
+  1023→
+  1024→        .training-image img {
+  1025→            width: 100%;
+  1026→            height: 100%;
+  1027→            object-fit: cover;
+  1028→        }
+  1029→
+  1030→        .training-icon {
+  1031→            width: 70px;
+  1032→            height: 70px;
+  1033→            background: var(--secondary);
+  1034→            border-radius: var(--radius-full);
+  1035→            display: flex;
+  1036→            align-items: center;
+  1037→            justify-content: center;
+  1038→            margin: -45px auto 20px;
+  1039→            font-size: 1.8rem;
+  1040→            color: var(--white);
+  1041→            position: relative;
+  1042→            z-index: 1;
+  1043→        }
+  1044→
+  1045→        .training-card h3 {
+  1046→            font-size: 1.8rem;
+  1047→            margin-bottom: 10px;
+  1048→        }
+  1049→
+  1050→        .training-card p {
+  1051→            opacity: 0.9;
+  1052→        }
+  1053→
+  1054→        .carousel-nav {
+  1055→            display: flex;
+  1056→            justify-content: center;
+  1057→            gap: 20px;
+  1058→            margin-top: 30px;
+  1059→        }
+  1060→
+  1061→        .carousel-btn {
+  1062→            width: 50px;
+  1063→            height: 50px;
+  1064→            border-radius: var(--radius-full);
+  1065→            background: var(--secondary);
+  1066→            color: var(--white);
+  1067→            border: none;
+  1068→            cursor: pointer;
+  1069→            font-size: 1.2rem;
+  1070→            transition: var(--transition);
+  1071→        }
+  1072→
+  1073→        .carousel-btn:hover {
+  1074→            background: var(--secondary-light);
+  1075→            transform: scale(1.1);
+  1076→        }
+  1077→
+  1078→        .carousel-dots {
+  1079→            display: flex;
+  1080→            justify-content: center;
+  1081→            gap: 10px;
+  1082→            margin-top: 20px;
+  1083→        }
+  1084→
+  1085→        .carousel-dot {
+  1086→            width: 12px;
+  1087→            height: 12px;
+  1088→            border-radius: var(--radius-full);
+  1089→            background: rgba(255, 255, 255, 0.3);
+  1090→            border: none;
+  1091→            cursor: pointer;
+  1092→            transition: var(--transition);
+  1093→        }
+  1094→
+  1095→        .carousel-dot.active {
+  1096→            background: var(--secondary);
+  1097→            width: 30px;
+  1098→        }
+  1099→
+  1100→        /* ========================================
+  1101→           ACADEMIC PROGRAMS
+  1102→           ======================================== */
+  1103→        .programs {
+  1104→            background: var(--white);
+  1105→        }
+  1106→
+  1107→        .programs-grid {
+  1108→            display: grid;
+  1109→            grid-template-columns: repeat(3, 1fr);
+  1110→            gap: 30px;
+  1111→        }
+  1112→
+  1113→        .program-card {
+  1114→            background: var(--white);
+  1115→            border-radius: var(--radius-lg);
+  1116→            padding: 35px;
+  1117→            box-shadow: var(--shadow-md);
+  1118→            transition: var(--transition);
+  1119→            border: 1px solid var(--light-gray);
+  1120→            position: relative;
+  1121→            overflow: hidden;
+  1122→        }
+  1123→
+  1124→        .program-card::before {
+  1125→            content: '';
+  1126→            position: absolute;
+  1127→            top: 0;
+  1128→            left: 0;
+  1129→            width: 100%;
+  1130→            height: 4px;
+  1131→            background: linear-gradient(135deg, var(--primary), var(--secondary));
+  1132→            transform: scaleX(0);
+  1133→            transition: var(--transition);
+  1134→        }
+  1135→
+  1136→        .program-card:hover {
+  1137→            transform: translateY(-8px);
+  1138→            box-shadow: var(--shadow-xl);
+  1139→        }
+  1140→
+  1141→        .program-card:hover::before {
+  1142→            transform: scaleX(1);
+  1143→        }
+  1144→
+  1145→        .program-icon {
+  1146→            width: 70px;
+  1147→            height: 70px;
+  1148→            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  1149→            border-radius: var(--radius-md);
+  1150→            display: flex;
+  1151→            align-items: center;
+  1152→            justify-content: center;
+  1153→            font-size: 1.8rem;
+  1154→            color: var(--white);
+  1155→            margin-bottom: 20px;
+  1156→        }
+  1157→
+  1158→        .program-card h3 {
+  1159→            font-size: 1.5rem;
+  1160→            color: var(--primary);
+  1161→            margin-bottom: 12px;
+  1162→        }
+  1163→
+  1164→        .program-card p {
+  1165→            color: var(--text-light);
+  1166→            margin-bottom: 20px;
+  1167→            font-size: 0.95rem;
+  1168→        }
+  1169→
+  1170→        .program-meta {
+  1171→            display: flex;
+  1172→            align-items: center;
+  1173→            gap: 20px;
+  1174→            margin-bottom: 20px;
+  1175→            padding-bottom: 20px;
+  1176→            border-bottom: 1px solid var(--light-gray);
+  1177→        }
+  1178→
+  1179→        .program-meta span {
+  1180→            display: flex;
+  1181→            align-items: center;
+  1182→            gap: 6px;
+  1183→            color: var(--text-light);
+  1184→            font-size: 0.9rem;
+  1185→        }
+  1186→
+  1187→        .program-meta i {
+  1188→            color: var(--secondary);
+  1189→        }
+  1190→
+  1191→        .program-link {
+  1192→            color: var(--primary);
+  1193→            font-weight: 600;
+  1194→            display: inline-flex;
+  1195→            align-items: center;
+  1196→            gap: 8px;
+  1197→            transition: var(--transition);
+  1198→        }
+  1199→
+  1200→        .program-link:hover {
+  1201→            color: var(--secondary);
+  1202→            gap: 12px;
+  1203→        }
+  1204→
+  1205→        /* Progress Bar */
+  1206→        .program-progress {
+  1207→            margin-top: 15px;
+  1208→        }
+  1209→
+  1210→        .progress-label {
+  1211→            display: flex;
+  1212→            justify-content: space-between;
+  1213→            font-size: 0.85rem;
+  1214→            color: var(--text-light);
+  1215→            margin-bottom: 8px;
+  1216→        }
+  1217→
+  1218→        .progress-bar {
+  1219→            height: 6px;
+  1220→            background: var(--light-gray);
+  1221→            border-radius: 3px;
+  1222→            overflow: hidden;
+  1223→        }
+  1224→
+  1225→        .progress-fill {
+  1226→            height: 100%;
+  1227→            background: linear-gradient(135deg, var(--primary), var(--secondary));
+  1228→            border-radius: 3px;
+  1229→            transition: width 1s ease;
+  1230→        }
+  1231→
+  1232→        /* ========================================
+  1233→           TESTIMONIALS
+  1234→           ======================================== */
+  1235→        .testimonials {
+  1236→            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  1237→            position: relative;
+  1238→            overflow: hidden;
+  1239→        }
+  1240→
+  1241→        .testimonials::before {
+  1242→            content: '"';
+  1243→            position: absolute;
+  1244→            top: -50px;
+  1245→            left: 50px;
+  1246→            font-size: 400px;
+  1247→            font-family: 'Playfair Display', serif;
+  1248→            color: rgba(255, 255, 255, 0.05);
+  1249→            line-height: 1;
+  1250→        }
+  1251→
+  1252→        .testimonials .section-title {
+  1253→            color: var(--white);
+  1254→        }
+  1255→
+  1256→        .testimonials .section-subtitle {
+  1257→            color: rgba(255, 255, 255, 0.8);
+  1258→        }
+  1259→
+  1260→        .testimonials-carousel {
+  1261→            max-width: 800px;
+  1262→            margin: 0 auto;
+  1263→            position: relative;
+  1264→        }
+  1265→
+  1266→        .testimonial-slide {
+  1267→            text-align: center;
+  1268→            padding: 40px;
+  1269→            display: none;
+  1270→        }
+  1271→
+  1272→        .testimonial-slide.active {
+  1273→            display: block;
+  1274→            animation: fadeIn 0.5s ease;
+  1275→        }
+  1276→
+  1277→        .testimonial-image {
+  1278→            width: 100px;
+  1279→            height: 100px;
+  1280→            border-radius: var(--radius-full);
+  1281→            margin: 0 auto 25px;
+  1282→            border: 4px solid var(--secondary);
+  1283→            overflow: hidden;
+  1284→        }
+  1285→
+  1286→        .testimonial-image img {
+  1287→            width: 100%;
+  1288→            height: 100%;
+  1289→            object-fit: cover;
+  1290→        }
+  1291→
+  1292→        .testimonial-quote {
+  1293→            color: var(--white);
+  1294→            font-size: 1.3rem;
+  1295→            font-style: italic;
+  1296→            line-height: 1.8;
+  1297→            margin-bottom: 25px;
+  1298→        }
+  1299→
+  1300→        .testimonial-quote::before {
+  1301→            content: '"';
+  1302→            font-size: 3rem;
+  1303→            color: var(--secondary);
+  1304→            line-height: 0;
+  1305→            vertical-align: middle;
+  1306→            margin-right: 10px;
+  1307→        }
+  1308→
+  1309→        .testimonial-author {
+  1310→            color: var(--white);
+  1311→        }
+  1312→
+  1313→        .testimonial-author h4 {
+  1314→            font-size: 1.2rem;
+  1315→            margin-bottom: 5px;
+  1316→        }
+  1317→
+  1318→        .testimonial-author span {
+  1319→            color: var(--secondary);
+  1320→            font-size: 0.9rem;
+  1321→        }
+  1322→
+  1323→        .testimonial-nav {
+  1324→            display: flex;
+  1325→            justify-content: center;
+  1326→            gap: 15px;
+  1327→            margin-top: 30px;
+  1328→        }
+  1329→
+  1330→        .testimonial-btn {
+  1331→            width: 40px;
+  1332→            height: 40px;
+  1333→            border-radius: var(--radius-full);
+  1334→            background: rgba(255, 255, 255, 0.2);
+  1335→            color: var(--white);
+  1336→            border: none;
+  1337→            cursor: pointer;
+  1338→            transition: var(--transition);
+  1339→        }
+  1340→
+  1341→        .testimonial-btn:hover {
+  1342→            background: var(--secondary);
+  1343→        }
+  1344→
+  1345→        /* ========================================
+  1346→           CONTACT SECTION
+  1347→           ======================================== */
+  1348→        .contact {
+  1349→            background: var(--light-gray);
+  1350→        }
+  1351→
+  1352→        .contact-grid {
+  1353→            display: grid;
+  1354→            grid-template-columns: 1fr 1fr;
+  1355→            gap: 50px;
+  1356→        }
+  1357→
+  1358→        .contact-form {
+  1359→            background: var(--white);
+  1360→            padding: 40px;
+  1361→            border-radius: var(--radius-lg);
+  1362→            box-shadow: var(--shadow-lg);
+  1363→        }
+  1364→
+  1365→        .contact-form h3 {
+  1366→            font-size: 1.8rem;
+  1367→            color: var(--primary);
+  1368→            margin-bottom: 25px;
+  1369→        }
+  1370→
+  1371→        .form-group {
+  1372→            margin-bottom: 20px;
+  1373→        }
+  1374→
+  1375→        .form-group label {
+  1376→            display: block;
+  1377→            font-weight: 500;
+  1378→            margin-bottom: 8px;
+  1379→            color: var(--text-dark);
+  1380→        }
+  1381→
+  1382→        .form-group input,
+  1383→        .form-group select,
+  1384→        .form-group textarea {
+  1385→            width: 100%;
+  1386→            padding: 14px 16px;
+  1387→            border: 2px solid var(--light-gray);
+  1388→            border-radius: var(--radius-sm);
+  1389→            transition: var(--transition);
+  1390→            font-size: 1rem;
+  1391→        }
+  1392→
+  1393→        .form-group input:focus,
+  1394→        .form-group select:focus,
+  1395→        .form-group textarea:focus {
+  1396→            outline: none;
+  1397→            border-color: var(--primary);
+  1398→        }
+  1399→
+  1400→        .form-group textarea {
+  1401→            min-height: 120px;
+  1402→            resize: vertical;
+  1403→        }
+  1404→
+  1405→        .form-group input::placeholder,
+  1406→        .form-group textarea::placeholder {
+  1407→            color: var(--medium-gray);
+  1408→        }
+  1409→
+  1410→        .form-row {
+  1411→            display: grid;
+  1412→            grid-template-columns: 1fr 1fr;
+  1413→            gap: 20px;
+  1414→        }
+  1415→
+  1416→        .form-error {
+  1417→            color: #dc2626;
+  1418→            font-size: 0.85rem;
+  1419→            margin-top: 5px;
+  1420→            display: none;
+  1421→        }
+  1422→
+  1423→        .form-group.error input,
+  1424→        .form-group.error select,
+  1425→        .form-group.error textarea {
+  1426→            border-color: #dc2626;
+  1427→        }
+  1428→
+  1429→        .form-group.error .form-error {
+  1430→            display: block;
+  1431→        }
+  1432→
+  1433→        .contact-info {
+  1434→            display: flex;
+  1435→            flex-direction: column;
+  1436→            gap: 30px;
+  1437→        }
+  1438→
+  1439→        .contact-card {
+  1440→            background: var(--white);
+  1441→            padding: 30px;
+  1442→            border-radius: var(--radius-lg);
+  1443→            box-shadow: var(--shadow-md);
+  1444→            display: flex;
+  1445→            align-items: flex-start;
+  1446→            gap: 20px;
+  1447→        }
+  1448→
+  1449→        .contact-card-icon {
+  1450→            width: 60px;
+  1451→            height: 60px;
+  1452→            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  1453→            border-radius: var(--radius-md);
+  1454→            display: flex;
+  1455→            align-items: center;
+  1456→            justify-content: center;
+  1457→            color: var(--white);
+  1458→            font-size: 1.5rem;
+  1459→            flex-shrink: 0;
+  1460→        }
+  1461→
+  1462→        .contact-card h4 {
+  1463→            font-size: 1.2rem;
+  1464→            color: var(--primary);
+  1465→            margin-bottom: 8px;
+  1466→        }
+  1467→
+  1468→        .contact-card p {
+  1469→            color: var(--text-light);
+  1470→            margin: 0;
+  1471→        }
+  1472→
+  1473→        .contact-card a {
+  1474→            color: var(--primary);
+  1475→            font-weight: 500;
+  1476→        }
+  1477→
+  1478→        .contact-card a:hover {
+  1479→            color: var(--secondary);
+  1480→        }
+  1481→
+  1482→        .contact-map {
+  1483→            height: 200px;
+  1484→            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  1485→            border-radius: var(--radius-md);
+  1486→            display: flex;
+  1487→            align-items: center;
+  1488→            justify-content: center;
+  1489→            color: var(--primary);
+  1490→            font-size: 1rem;
+  1491→        }
+  1492→
+  1493→        /* ========================================
+  1494→           DIGITAL ACCESS
+  1495→           ======================================== */
+  1496→        .digital-access {
+  1497→            background: linear-gradient(135deg, rgba(29, 143, 46, 0.08), rgba(20, 40, 73, 0.08));
+  1498→        }
+  1499→
+  1500→        .portal-grid {
+  1501→            display: grid;
+  1502→            grid-template-columns: repeat(2, minmax(0, 1fr));
+  1503→            gap: 30px;
+  1504→        }
+  1505→
+  1506→        .portal-card {
+  1507→            background: var(--white);
+  1508→            border-radius: var(--radius-lg);
+  1509→            padding: 35px;
+  1510→            box-shadow: var(--shadow-lg);
+  1511→        }
+  1512→
+  1513→        .portal-badge {
+  1514→            display: inline-flex;
+  1515→            align-items: center;
+  1516→            gap: 8px;
+  1517→            background: rgba(245, 245, 220, 0.3);
+  1518→            color: var(--primary);
+  1519→            padding: 8px 14px;
+  1520→            border-radius: 999px;
+  1521→            font-size: 0.9rem;
+  1522→            font-weight: 600;
+  1523→            margin-bottom: 18px;
+  1524→        }
+  1525→
+  1526→        .portal-card h3 {
+  1527→            color: var(--accent);
+  1528→            font-size: 1.8rem;
+  1529→            margin-bottom: 12px;
+  1530→        }
+  1531→
+  1532→        .portal-card p {
+  1533→            color: var(--text-light);
+  1534→            margin-bottom: 20px;
+  1535→        }
+  1536→
+  1537→        .portal-list {
+  1538→            display: grid;
+  1539→            gap: 12px;
+  1540→            margin-bottom: 25px;
+  1541→        }
+  1542→
+  1543→        .portal-list li {
+  1544→            display: flex;
+  1545→            align-items: center;
+  1546→            gap: 10px;
+  1547→            color: var(--text-dark);
+  1548→        }
+  1549→
+  1550→        .portal-list i {
+  1551→            color: var(--primary);
+  1552→        }
+  1553→
+  1554→        .portal-actions {
+  1555→            display: flex;
+  1556→            gap: 15px;
+  1557→            flex-wrap: wrap;
+  1558→        }
+  1559→
+  1560→        /* ========================================
+  1561→           FOOTER
+  1562→           ======================================== */
+  1563→        .footer {
+  1564→            background: var(--accent);
+  1565→            color: var(--white);
+  1566→            padding: 60px 0 20px;
+  1567→        }
+  1568→
+  1569→        .footer-grid {
+  1570→            display: grid;
+  1571→            grid-template-columns: 2fr 1fr 1fr 1fr;
+  1572→            gap: 40px;
+  1573→            margin-bottom: 40px;
+  1574→        }
+  1575→
+  1576→        .footer-brand .logo-text {
+  1577→            color: var(--white);
+  1578→            margin-bottom: 15px;
+  1579→        }
+  1580→
+  1581→        .footer-brand p {
+  1582→            color: var(--medium-gray);
+  1583→            margin-bottom: 20px;
+  1584→        }
+  1585→
+  1586→        .footer-social {
+  1587→            display: flex;
+  1588→            gap: 15px;
+  1589→        }
+  1590→
+  1591→        .footer-social a {
+  1592→            width: 40px;
+  1593→            height: 40px;
+  1594→            border-radius: var(--radius-full);
+  1595→            background: rgba(255, 255, 255, 0.1);
+  1596→            display: flex;
+  1597→            align-items: center;
+  1598→            justify-content: center;
+  1599→            color: var(--white);
+  1600→            transition: var(--transition);
+  1601→        }
+  1602→
+  1603→        .footer-social a:hover {
+  1604→            background: var(--secondary);
+  1605→            transform: translateY(-3px);
+  1606→        }
+  1607→
+  1608→        .footer-title {
+  1609→            font-size: 1.2rem;
+  1610→            margin-bottom: 20px;
+  1611→            color: var(--white);
+  1612→        }
+  1613→
+  1614→        .footer-links li {
+  1615→            margin-bottom: 12px;
+  1616→        }
+  1617→
+  1618→        .footer-links a {
+  1619→            color: var(--medium-gray);
+  1620→            transition: var(--transition);
+  1621→        }
+  1622→
+  1623→        .footer-links a:hover {
+  1624→            color: var(--secondary);
+  1625→            padding-left: 5px;
+  1626→        }
+  1627→
+  1628→        .newsletter-form {
+  1629→            display: flex;
+  1630→            gap: 10px;
+  1631→        }
+  1632→
+  1633→        .newsletter-form input {
+  1634→            flex: 1;
+  1635→            padding: 12px 16px;
+  1636→            border: 2px solid var(--light-gray);
+  1637→            border-radius: var(--radius-sm);
+  1638→            background: var(--white);
+  1639→            color: var(--text-dark);
+  1640→            font-size: 1rem;
+  1641→        }
+  1642→
+  1643→        .newsletter-form input::placeholder {
+  1644→            color: var(--text-light);
+  1645→        }
+  1646→
+  1647→        .newsletter-form button {
+  1648→            padding: 12px 20px;
+  1649→            background: var(--primary);
+  1650→            color: var(--white);
+  1651→            font-weight: 600;
+  1652→            border: none;
+  1653→            border-radius: var(--radius-sm);
+  1654→            cursor: pointer;
+  1655→            transition: var(--transition);
+  1656→        }
+  1657→
+  1658→        .newsletter-form button:hover {
+  1659→            background: var(--primary-light);
+  1660→        }
+  1661→
+  1662→        .footer-bottom {
+  1663→            border-top: 1px solid rgba(255, 255, 255, 0.1);
+  1664→            padding-top: 20px;
+  1665→            display: flex;
+  1666→            justify-content: space-between;
+  1667→            align-items: center;
+  1668→            flex-wrap: wrap;
+  1669→            gap: 15px;
+  1670→        }
+  1671→
+  1672→        .footer-bottom p {
+  1673→            color: var(--medium-gray);
+  1674→            font-size: 0.9rem;
+  1675→        }
+  1676→
+  1677→        .footer-legal {
+  1678→            display: flex;
+  1679→            gap: 20px;
+  1680→        }
+  1681→
+  1682→        .footer-legal a {
+  1683→            color: var(--medium-gray);
+  1684→            font-size: 0.9rem;
+  1685→        }
+  1686→
+  1687→        .footer-legal a:hover {
+  1688→            color: var(--secondary);
+  1689→        }
+  1690→
+  1691→        /* ========================================
+  1692→           BACK TO TOP BUTTON
+  1693→           ======================================== */
+  1694→        .back-to-top {
+  1695→            position: fixed;
+  1696→            bottom: 30px;
+  1697→            right: 30px;
+  1698→            width: 50px;
+  1699→            height: 50px;
+  1700→            background: var(--secondary);
+  1701→            color: var(--white);
+  1702→            border-radius: var(--radius-full);
+  1703→            display: flex;
+  1704→            align-items: center;
+  1705→            justify-content: center;
+  1706→            cursor: pointer;
+  1707→            opacity: 0;
+  1708→            visibility: hidden;
+  1709→            transition: var(--transition);
+  1710→            z-index: 999;
+  1711→            box-shadow: var(--shadow-lg);
+  1712→        }
+  1713→
+  1714→        .back-to-top.visible {
+  1715→            opacity: 1;
+  1716→            visibility: visible;
+  1717→        }
+  1718→
+  1719→        .back-to-top:hover {
+  1720→            background: var(--secondary-light);
+  1721→            transform: translateY(-3px);
+  1722→        }
+  1723→
+  1724→        /* ========================================
+  1725→           BREADCRUMB
+  1726→           ======================================== */
+  1727→        .breadcrumb {
+  1728→            background: var(--light-gray);
+  1729→            padding: 15px 0;
+  1730→            margin-top: 80px;
+  1731→        }
+  1732→
+  1733→        .breadcrumb-list {
+  1734→            display: flex;
+  1735→            align-items: center;
+  1736→            gap: 10px;
+  1737→            font-size: 0.9rem;
+  1738→        }
+  1739→
+  1740→        .breadcrumb-list a {
+  1741→            color: var(--primary);
+  1742→        }
+  1743→
+  1744→        .breadcrumb-list span {
+  1745→            color: var(--text-light);
+  1746→        }
+  1747→
+  1748→        .breadcrumb-list .current {
+  1749→            color: var(--text-dark);
+  1750→            font-weight: 500;
+  1751→        }
+  1752→
+  1753→        /* ========================================
+  1754→           ANIMATIONS
+  1755→           ======================================== */
+  1756→        @keyframes fadeIn {
+  1757→            from {
+  1758→                opacity: 0;
+  1759→            }
+  1760→
+  1761→            to {
+  1762→                opacity: 1;
+  1763→            }
+  1764→        }
+  1765→
+  1766→        @keyframes fadeInUp {
+  1767→            from {
+  1768→                opacity: 0;
+  1769→                transform: translateY(30px);
+  1770→            }
+  1771→
+  1772→            to {
+  1773→                opacity: 1;
+  1774→                transform: translateY(0);
+  1775→            }
+  1776→        }
+  1777→
+  1778→        @keyframes fadeInDown {
+  1779→            from {
+  1780→                opacity: 0;
+  1781→                transform: translateY(-30px);
+  1782→            }
+  1783→
+  1784→            to {
+  1785→                opacity: 1;
+  1786→                transform: translateY(0);
+  1787→            }
+  1788→        }
+  1789→
+  1790→        @keyframes bounce {
+  1791→
+  1792→            0%,
+  1793→            20%,
+  1794→            50%,
+  1795→            80%,
+  1796→            100% {
+  1797→                transform: translateX(-50%) translateY(0);
+  1798→            }
+  1799→
+  1800→            40% {
+  1801→                transform: translateX(-50%) translateY(-10px);
+  1802→            }
+  1803→
+  1804→            60% {
+  1805→                transform: translateX(-50%) translateY(-5px);
+  1806→            }
+  1807→        }
+  1808→
+  1809→        @keyframes pulse {
+  1810→
+  1811→            0%,
+  1812→            100% {
+  1813→                transform: scale(1);
+  1814→            }
+  1815→
+  1816→            50% {
+  1817→                transform: scale(1.05);
+  1818→            }
+  1819→        }
+  1820→
+  1821→        .animate-on-scroll {
+  1822→            opacity: 0;
+  1823→            transform: translateY(30px);
+  1824→            transition: all 0.8s ease;
+  1825→        }
+  1826→
+  1827→        .animate-on-scroll.animated {
+  1828→            opacity: 1;
+  1829→            transform: translateY(0);
+  1830→        }
+  1831→
+  1832→        /* ========================================
+  1833→           MOBILE MENU
+  1834→           ======================================== */
+  1835→        .mobile-menu {
+  1836→            position: fixed;
+  1837→            top: 0;
+  1838→            right: -100%;
+  1839→            width: 300px;
+  1840→            height: 100vh;
+  1841→            background: var(--white);
+  1842→            z-index: 2000;
+  1843→            padding: 80px 30px 30px;
+  1844→            transition: var(--transition);
+  1845→            box-shadow: var(--shadow-xl);
+  1846→        }
+  1847→
+  1848→        .mobile-menu.active {
+  1849→            right: 0;
+  1850→        }
+  1851→
+  1852→        .mobile-menu-close {
+  1853→            position: absolute;
+  1854→            top: 20px;
+  1855→            right: 20px;
+  1856→            background: none;
+  1857→            border: none;
+  1858→            font-size: 1.5rem;
+  1859→            color: var(--primary);
+  1860→            cursor: pointer;
+  1861→        }
+  1862→
+  1863→        .mobile-logo {
+  1864→            display: flex;
+  1865→            align-items: center;
+  1866→            gap: 12px;
+  1867→            padding: 10px 0;
+  1868→            margin-bottom: 15px;
+  1869→            border-bottom: 1px solid var(--light-gray);
+  1870→        }
+  1871→
+  1872→        .mobile-logo span {
+  1873→            font-family: 'Playfair Display', serif;
+  1874→            font-size: 1rem;
+  1875→            font-weight: 600;
+  1876→            color: var(--text-dark);
+  1877→        }
+  1878→
+  1879→        .mobile-menu .nav-link {
+  1880→            color: var(--text-dark);
+  1881→            display: block;
+  1882→            padding: 15px 0;
+  1883→            border-bottom: 1px solid var(--light-gray);
+  1884→        }
+  1885→
+  1886→        .mobile-menu .btn-apply {
+  1887→            width: 100%;
+  1888→            text-align: center;
+  1889→            margin-top: 20px;
+  1890→        }
+  1891→
+  1892→        .mobile-overlay {
+  1893→            position: fixed;
+  1894→            inset: 0;
+  1895→            background: rgba(0, 0, 0, 0.5);
+  1896→            z-index: 1999;
+  1897→            opacity: 0;
+  1898→            visibility: hidden;
+  1899→            transition: var(--transition);
+  1900→        }
+  1901→
+  1902→        .mobile-overlay.active {
+  1903→            opacity: 1;
+  1904→            visibility: visible;
+  1905→        }
+  1906→
+  1907→        /* ========================================
+  1908→           RESPONSIVE DESIGN
+  1909→           ======================================== */
+  1910→        @media (max-width: 1024px) {
+  1911→
+  1912→            .welcome-grid,
+  1913→            .location-grid,
+  1914→            .contact-grid,
+  1915→            .portal-grid {
+  1916→                grid-template-columns: 1fr;
+  1917→            }
+  1918→
+  1919→            .stats-grid {
+  1920→                grid-template-columns: repeat(2, 1fr);
+  1921→            }
+  1922→
+  1923→            .leadership-grid,
+  1924→            .programs-grid {
+  1925→                grid-template-columns: repeat(2, 1fr);
+  1926→            }
+  1927→
+  1928→            .gallery-grid {
+  1929→                grid-template-columns: repeat(2, 1fr);
+  1930→            }
+  1931→
+  1932→            .gallery-item:nth-child(1) {
+  1933→                grid-row: span 1;
+  1934→            }
+  1935→
+  1936→            .footer-grid {
+  1937→                grid-template-columns: repeat(2, 1fr);
+  1938→            }
+  1939→        }
+  1940→
+  1941→        @media (max-width: 768px) {
+  1942→
+  1943→            .nav-menu,
+  1944→            .search-container {
+  1945→                display: none;
+  1946→            }
+  1947→
+  1948→            .mobile-toggle {
+  1949→                display: flex;
+  1950→            }
+  1951→
+  1952→            .hero-title {
+  1953→                font-size: 2.5rem;
+  1954→            }
+  1955→
+  1956→            .hero-subtitle {
+  1957→                font-size: 1.1rem;
+  1958→            }
+  1959→
+  1960→            .section-title {
+  1961→                font-size: 2rem;
+  1962→            }
+  1963→
+  1964→            .stats-grid,
+  1965→            .leadership-grid,
+  1966→            .programs-grid,
+  1967→            .gallery-grid {
+  1968→                grid-template-columns: 1fr;
+  1969→            }
+  1970→
+  1971→            .form-row {
+  1972→                grid-template-columns: 1fr;
+  1973→            }
+  1974→
+  1975→            .footer-grid {
+  1976→                grid-template-columns: 1fr;
+  1977→            }
+  1978→
+  1979→            .footer-bottom {
+  1980→                flex-direction: column;
+  1981→                text-align: center;
+  1982→            }
+  1983→        }
+  1984→
+  1985→        @media (max-width: 480px) {
+  1986→            .hero-title {
+  1987→                font-size: 2rem;
+  1988→            }
+  1989→
+  1990→            .hero-buttons {
+  1991→                flex-direction: column;
+  1992→            }
+  1993→
+  1994→            .hero-buttons .btn {
+  1995→                width: 100%;
+  1996→            }
+  1997→
+  1998→            .stat-card {
+  1999→                padding: 20px;
+  2000→            }
+
+[showing lines 1-2000 of 3333; use offset=2001 with limit to continue reading]
