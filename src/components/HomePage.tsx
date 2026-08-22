@@ -1,0 +1,930 @@
+'use client';
+
+import { useState, useEffect, useRef, FormEvent } from 'react';
+import { motion } from 'framer-motion';
+import {
+  GraduationCap,
+  Users,
+  BookOpen,
+  TrendingUp,
+  Building2,
+  Wrench,
+  Zap,
+  Droplets,
+  Flame,
+  Scissors,
+  ArrowRight,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Send,
+  ChevronRight,
+  Star,
+  Quote,
+  Facebook,
+  Twitter,
+  Youtube,
+  CheckCircle,
+  Sparkles,
+  Target,
+  Award,
+  Shield,
+  Heart,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { useAppStore, type Page } from '@/store/useAppStore';
+import { PROGRAMME_FEES, formatCurrency } from '@/lib/schoolpay';
+
+/* ──────────────────── programme data ──────────────────── */
+const PROGRAMS = [
+  { name: 'Building Construction', icon: Building2 },
+  { name: 'Automotive Mechanics', icon: Wrench },
+  { name: 'Electrical Installation', icon: Zap },
+  { name: 'Plumbing', icon: Droplets },
+  { name: 'Welding', icon: Flame },
+  { name: 'Fashion and Design', icon: Scissors },
+] as const;
+
+/* ──────────────────── stats data ──────────────────── */
+const STATS = [
+  { value: 77, suffix: '+', label: 'Years of Excellence', icon: Award },
+  { value: 2000, suffix: '+', label: 'Graduates', icon: Users },
+  { value: 6, suffix: '+', label: 'Programs Offered', icon: BookOpen },
+  { value: 95, suffix: '%', label: 'Employment Rate', icon: TrendingUp },
+] as const;
+
+/* ──────────────────── testimonials ──────────────────── */
+const TESTIMONIALS = [
+  {
+    name: 'James Otim',
+    program: 'Building Construction',
+    year: 'Class of 2022',
+    quote:
+      'St. Kizito\'s gave me the practical skills I needed to start my own construction business. Today I employ 12 people and have worked on major projects across Eastern Uganda.',
+  },
+  {
+    name: 'Grace Akello',
+    program: 'Fashion and Design',
+    year: 'Class of 2023',
+    quote:
+      'The hands-on training in fashion design transformed my passion into a profession. I now run a successful tailoring workshop in Soroti town, serving clients across the region.',
+  },
+  {
+    name: 'Simon Peter Elobu',
+    program: 'Automotive Mechanics',
+    year: 'Class of 2021',
+    quote:
+      'The quality of instruction at St. Kizito\'s is unmatched. Within three months of graduating, I was employed at a leading garage in Kampala. The foundation I received here is invaluable.',
+  },
+];
+
+/* ──────────────────── quick links ──────────────────── */
+const QUICK_LINKS: { label: string; page: Page }[] = [
+  { label: 'Home', page: 'home' },
+  { label: 'Programs', page: 'programs' },
+  { label: 'Admissions', page: 'admissions' },
+  { label: 'Student Portal', page: 'student-portal' },
+  { label: 'Events', page: 'events' },
+  { label: 'Contact', page: 'contact' },
+];
+
+/* ══════════════════════════════════════════════════════
+   ANIMATED COUNTER HOOK
+   ══════════════════════════════════════════════════════ */
+function useCountUp(target: number, duration = 2000, start = false) {
+  const [count, setCount] = useState(0);
+  const frameRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setCount(Math.floor(eased * target));
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    frameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [target, duration, start]);
+
+  return count;
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION WRAPPER – shared fade-in animation
+   ══════════════════════════════════════════════════════ */
+function Section({
+  children,
+  className = '',
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <motion.section
+      id={id}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ══════════════════════════════════════════════════════ */
+export default function HomePage() {
+  const { setCurrentPage, addToast } = useAppStore();
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  });
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+
+  const stat0 = useCountUp(STATS[0].value, 2000, statsVisible);
+  const stat1 = useCountUp(STATS[1].value, 2200, statsVisible);
+  const stat2 = useCountUp(STATS[2].value, 1800, statsVisible);
+  const stat3 = useCountUp(STATS[3].value, 2000, statsVisible);
+  const counts = [stat0, stat1, stat2, stat3];
+
+  const handleContactSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setContactSubmitting(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+      if (res.ok) {
+        addToast('Message sent successfully! We will get back to you soon.', 'success');
+        setContactForm({ name: '', email: '', phone: '', subject: '', message: '' });
+      } else {
+        addToast('Failed to send message. Please try again.', 'error');
+      }
+    } catch {
+      addToast('Network error. Please check your connection.', 'error');
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  /* ──────────── floating circles ──────────── */
+  const floatingCircles = [
+    { size: 320, x: '10%', y: '20%', delay: 0, duration: 18 },
+    { size: 200, x: '80%', y: '10%', delay: 2, duration: 22 },
+    { size: 260, x: '70%', y: '65%', delay: 4, duration: 20 },
+    { size: 140, x: '20%', y: '75%', delay: 1, duration: 16 },
+    { size: 100, x: '50%', y: '40%', delay: 3, duration: 24 },
+  ];
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* ─────────────────────────────────────────────────
+          1. HERO SECTION
+          ───────────────────────────────────────────────── */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* dark gradient background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
+          }}
+        />
+
+        {/* animated floating decorative circles */}
+        {floatingCircles.map((c, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: c.size,
+              height: c.size,
+              left: c.x,
+              top: c.y,
+              background: `radial-gradient(circle, rgba(245,197,24,${0.06 + i * 0.02}) 0%, transparent 70%)`,
+            }}
+            animate={{
+              y: [0, -30, 10, -20, 0],
+              x: [0, 15, -10, 20, 0],
+              scale: [1, 1.05, 0.95, 1.02, 1],
+            }}
+            transition={{
+              duration: c.duration,
+              repeat: Infinity,
+              delay: c.delay,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+
+        {/* subtle grid overlay */}
+        <div
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+
+        {/* content */}
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          {/* badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 border border-[#f5c518]/30 bg-[#f5c518]/10"
+          >
+            <Sparkles className="h-4 w-4 text-[#f5c518]" />
+            <span className="text-[#f5c518] text-sm font-medium tracking-wide">
+              Government-Aided TVET Institution
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight"
+          >
+            Building Skills,
+            <br />
+            <span className="text-[#f5c518]">Transforming Lives</span>
+            <br />
+            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
+              Since 1947
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
+          >
+            Empowering the next generation with quality Technical and Vocational
+            Education and Training (TVET) — grounded in excellence, faith, and
+            practical skill development.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Button
+              size="lg"
+              onClick={() => setCurrentPage('admissions')}
+              className="bg-[#f5c518] hover:bg-[#e0b300] text-[#1a3a6b] font-bold text-base px-8 py-6 rounded-lg shadow-lg shadow-[#f5c518]/20 transition-all hover:shadow-xl hover:shadow-[#f5c518]/30 hover:scale-105"
+            >
+              Apply Now
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setCurrentPage('programs')}
+              className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 font-semibold text-base px-8 py-6 rounded-lg backdrop-blur-sm transition-all hover:scale-105"
+            >
+              Explore Programs
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
+          </motion.div>
+
+          {/* scroll hint */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+            >
+              <motion.div
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-1.5 h-1.5 bg-[#f5c518] rounded-full mt-2"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────
+          2. STATS COUNTERS
+          ───────────────────────────────────────────────── */}
+      <Section className="relative -mt-16 z-20 px-4">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {STATS.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                onViewportEnter={() => setStatsVisible(true)}
+              >
+                <Card className="bg-white shadow-xl shadow-black/5 border-0 rounded-2xl hover:shadow-2xl transition-shadow duration-300">
+                  <CardContent className="p-6 text-center">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#1a3a6b]/10 mb-3">
+                      <Icon className="h-6 w-6 text-[#1a3a6b]" />
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+                      {counts[i]}
+                      <span className="text-[#f5c518]">{stat.suffix}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">
+                      {stat.label}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          3. WELCOME / ABOUT SECTION
+          ───────────────────────────────────────────────── */}
+      <Section className="py-20 md:py-28 px-4">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* left – decorative visual */}
+          <div className="relative">
+            <div className="relative w-full aspect-square max-w-md mx-auto">
+              {/* concentric decorative rings */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-0 rounded-full border-2 border-dashed border-[#1a3a6b]/15"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-6 rounded-full border border-[#f5c518]/20"
+              />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-12 rounded-full border-2 border-dashed border-[#2756a0]/20"
+              />
+              {/* centre icon cluster */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center shadow-2xl shadow-[#1a3a6b]/30">
+                  <GraduationCap className="h-20 w-20 text-[#f5c518]" />
+                </div>
+              </div>
+              {/* corner accent dots */}
+              <div className="absolute top-4 right-8 w-3 h-3 rounded-full bg-[#f5c518]" />
+              <div className="absolute bottom-8 left-4 w-2 h-2 rounded-full bg-[#2756a0]" />
+              <div className="absolute top-1/4 left-0 w-2.5 h-2.5 rounded-full bg-[#1a3a6b]/40" />
+            </div>
+          </div>
+
+          {/* right – text */}
+          <div>
+            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-4">
+              <Heart className="h-4 w-4" />
+              Welcome to St. Kizito's
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b] leading-tight">
+              A Legacy of Excellence in Technical Education
+            </h2>
+            <p className="mt-6 text-muted-foreground leading-relaxed text-base">
+              Established in <strong className="text-[#1a3a6b]">1947</strong>, St. Kizito&apos;s
+              Technical Institute — Madera is a government-aided technical institute
+              anchored on Christian principles. We are committed to providing
+              quality Technical and Vocational Education and Training (TVET) that
+              equips learners with practical, market-relevant skills.
+            </p>
+            <p className="mt-4 text-muted-foreground leading-relaxed text-base">
+              Located in Madera, Soroti District, Eastern Uganda, we have produced
+              thousands of skilled professionals who are driving development across
+              Uganda and beyond. Our programs are designed to meet the demands of
+              today&apos;s labour market while nurturing ethical, responsible citizens.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-6">
+              {[Target, Shield, Award, Users].map((Icon, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-[#1a3a6b]" />
+                  </div>
+                  <span className="text-sm font-medium text-[#1a3a6b]">
+                    {['Practical Training', 'Christian Values', 'Certified', 'Industry Ready'][i]}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              onClick={() => setCurrentPage('about')}
+              className="mt-8 bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105"
+            >
+              Learn More
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          4. PROGRAMS SHOWCASE
+          ───────────────────────────────────────────────── */}
+      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+              <BookOpen className="h-4 w-4" />
+              Our Programs
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+              Explore Our TVET Programs
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+              Industry-aligned certificate and diploma programs designed to give
+              you the hands-on skills employers demand.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PROGRAMS.map((prog, i) => {
+              const Icon = prog.icon;
+              const fee = PROGRAMME_FEES[prog.name];
+              return (
+                <motion.div
+                  key={prog.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                >
+                  <Card className="group h-full border border-slate-200/80 rounded-2xl hover:border-[#1a3a6b]/20 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white">
+                    {/* top accent bar */}
+                    <div className="h-1.5 bg-gradient-to-r from-[#1a3a6b] via-[#2756a0] to-[#f5c518]" />
+                    <CardContent className="p-6 flex flex-col h-full">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center shadow-lg shadow-[#1a3a6b]/20 mb-5 group-hover:scale-110 transition-transform duration-300">
+                        <Icon className="h-7 w-7 text-[#f5c518]" />
+                      </div>
+                      <h3 className="text-lg font-bold text-[#1a3a6b] mb-1">
+                        {prog.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4 flex-1">
+                        Comprehensive hands-on training leading to a recognized
+                        TVET qualification.
+                      </p>
+                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Tuition Fee
+                          </p>
+                          <p className="text-xl font-bold text-[#1a3a6b]">
+                            {fee ? formatCurrency(fee) : 'Contact Us'}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => setCurrentPage('admissions')}
+                          className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold rounded-lg transition-all hover:scale-105"
+                        >
+                          Apply
+                          <ArrowRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage('programs')}
+              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+            >
+              View All Programs
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          5. ADMISSIONS CTA BANNER
+          ───────────────────────────────────────────────── */}
+      <Section className="px-4 py-20 md:py-28">
+        <div className="max-w-6xl mx-auto">
+          <div
+            className="relative rounded-3xl overflow-hidden px-6 py-14 sm:px-12 sm:py-20 text-center"
+            style={{
+              background:
+                'linear-gradient(135deg, #1a3a6b 0%, #2756a0 50%, #1a3a6b 100%)',
+            }}
+          >
+            {/* decorative circles */}
+            <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-[#f5c518]/5 -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#f5c518]/5 translate-x-1/3 translate-y-1/3" />
+            <div className="absolute top-1/2 right-10 w-20 h-20 rounded-full bg-white/5" />
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f5c518]/20 mb-6">
+                <GraduationCap className="h-8 w-8 text-[#f5c518]" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Ready to Build Your Future?
+              </h2>
+              <p className="mt-4 text-blue-100/80 max-w-xl mx-auto text-lg">
+                Applications are now open for the {new Date().getFullYear()} intake.
+                Secure your spot and start your journey toward a rewarding career.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => setCurrentPage('admissions')}
+                  className="bg-[#f5c518] hover:bg-[#e0b300] text-[#1a3a6b] font-bold text-base px-8 py-6 rounded-lg shadow-lg shadow-[#f5c518]/20 transition-all hover:scale-105"
+                >
+                  Start Application
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setCurrentPage('contact')}
+                  className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 font-semibold text-base px-8 py-6 rounded-lg transition-all"
+                >
+                  Ask a Question
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          6. TESTIMONIALS
+          ───────────────────────────────────────────────── */}
+      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+              <Star className="h-4 w-4" />
+              Testimonials
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+              What Our Graduates Say
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+              Hear from the men and women whose lives were transformed through
+              training at St. Kizito&apos;s.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <Card className="h-full border border-slate-200/80 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 bg-white">
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <Quote className="h-10 w-10 text-[#f5c518]/40 mb-4" />
+                    <p className="text-muted-foreground leading-relaxed flex-1 italic">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center text-white font-bold text-sm">
+                        {t.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#1a3a6b] text-sm">
+                          {t.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t.program} &middot; {t.year}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          7. CONTACT SECTION
+          ───────────────────────────────────────────────── */}
+      <Section className="py-20 md:py-28 px-4" id="contact">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+              <Mail className="h-4 w-4" />
+              Get in Touch
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+              Contact Us
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+              Have questions? We&apos;d love to hear from you. Send us a message
+              and we&apos;ll respond as soon as possible.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
+            {/* contact info – 2 cols */}
+            <div className="md:col-span-2 space-y-6">
+              {[
+                {
+                  icon: MapPin,
+                  label: 'Address',
+                  value: 'Madera, Soroti District,\nEastern Uganda',
+                },
+                {
+                  icon: Phone,
+                  label: 'Phone',
+                  value: '+256 7XX XXX XXX',
+                },
+                {
+                  icon: Mail,
+                  label: 'Email',
+                  value: 'info@stkizitos.edu.ug',
+                },
+                {
+                  icon: Clock,
+                  label: 'Office Hours',
+                  value: 'Mon – Fri: 8:00 AM – 5:00 PM',
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 shrink-0 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+                      <Icon className="h-5 w-5 text-[#1a3a6b]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#1a3a6b]">
+                        {item.label}
+                      </p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-line">
+                        {item.value}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* contact form – 3 cols */}
+            <div className="md:col-span-3">
+              <Card className="border border-slate-200/80 rounded-2xl shadow-lg">
+                <CardContent className="p-6 sm:p-8">
+                  <form onSubmit={handleContactSubmit} className="space-y-5">
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="contact-name" className="text-sm font-medium text-[#1a3a6b]">
+                          Full Name <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="contact-name"
+                          placeholder="John Doe"
+                          required
+                          value={contactForm.name}
+                          onChange={(e) =>
+                            setContactForm((f) => ({ ...f, name: e.target.value }))
+                          }
+                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="contact-email" className="text-sm font-medium text-[#1a3a6b]">
+                          Email Address <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="contact-email"
+                          type="email"
+                          placeholder="john@example.com"
+                          required
+                          value={contactForm.email}
+                          onChange={(e) =>
+                            setContactForm((f) => ({ ...f, email: e.target.value }))
+                          }
+                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="contact-phone" className="text-sm font-medium text-[#1a3a6b]">
+                          Phone Number
+                        </Label>
+                        <Input
+                          id="contact-phone"
+                          placeholder="+256 7XX XXX XXX"
+                          value={contactForm.phone}
+                          onChange={(e) =>
+                            setContactForm((f) => ({ ...f, phone: e.target.value }))
+                          }
+                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="contact-subject" className="text-sm font-medium text-[#1a3a6b]">
+                          Subject <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="contact-subject"
+                          placeholder="How can we help?"
+                          required
+                          value={contactForm.subject}
+                          onChange={(e) =>
+                            setContactForm((f) => ({ ...f, subject: e.target.value }))
+                          }
+                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-message" className="text-sm font-medium text-[#1a3a6b]">
+                        Message <span className="text-red-500">*</span>
+                      </Label>
+                      <Textarea
+                        id="contact-message"
+                        placeholder="Tell us more about your inquiry..."
+                        required
+                        rows={5}
+                        value={contactForm.message}
+                        onChange={(e) =>
+                          setContactForm((f) => ({ ...f, message: e.target.value }))
+                        }
+                        className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20 resize-none"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={contactSubmitting}
+                      className="w-full sm:w-auto bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-8 py-3 rounded-lg transition-all hover:scale-[1.02] disabled:opacity-60"
+                    >
+                      {contactSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          />
+                          Sending...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Send className="h-4 w-4" />
+                          Send Message
+                        </span>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─────────────────────────────────────────────────
+          8. FOOTER
+          ───────────────────────────────────────────────── */}
+      <footer className="mt-auto bg-[#0d1b2a] text-white">
+        <div className="max-w-6xl mx-auto px-4 py-14 md:py-20">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
+            {/* brand column */}
+            <div>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center">
+                  <GraduationCap className="h-5 w-5 text-[#f5c518]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base leading-tight">
+                    St. Kizito&apos;s
+                  </h3>
+                  <p className="text-xs text-blue-200/60">Technical Institute — Madera</p>
+                </div>
+              </div>
+              <p className="text-sm text-blue-200/70 leading-relaxed mb-6">
+                Building skills and transforming lives since 1947. A government-aided
+                TVET institution anchored on Christian principles in Soroti District,
+                Eastern Uganda.
+              </p>
+              {/* social links */}
+              <div className="flex items-center gap-3">
+                {[Facebook, Twitter, Youtube].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#f5c518] hover:text-[#1a3a6b] flex items-center justify-center transition-all duration-200"
+                    aria-label="Social media"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* quick links */}
+            <div>
+              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+                Quick Links
+              </h4>
+              <ul className="space-y-3">
+                {QUICK_LINKS.map((link) => (
+                  <li key={link.page}>
+                    <button
+                      onClick={() => setCurrentPage(link.page)}
+                      className="flex items-center gap-2 text-sm text-blue-200/70 hover:text-[#f5c518] transition-colors group"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* programs column */}
+            <div>
+              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+                Our Programs
+              </h4>
+              <ul className="space-y-3">
+                {PROGRAMS.map((prog) => (
+                  <li key={prog.name}>
+                    <button
+                      onClick={() => setCurrentPage('programs')}
+                      className="flex items-center gap-2 text-sm text-blue-200/70 hover:text-[#f5c518] transition-colors group"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+                      {prog.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* bottom bar */}
+        <div className="border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm text-blue-200/50">
+              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute — Madera.
+              All rights reserved.
+            </p>
+            <p className="text-xs text-blue-200/40">
+              Crafted with <Heart className="inline h-3 w-3 text-[#f5c518]" /> for
+              excellence in TVET education
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
