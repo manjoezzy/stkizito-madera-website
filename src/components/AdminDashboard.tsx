@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -35,6 +35,7 @@ import {
   Menu,
   X,
   ImageIcon,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -279,6 +280,9 @@ export default function AdminDashboard() {
   const [expandedMessage, setExpandedMessage] = useState<ContactMsg | null>(null);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
   const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Gallery form
   const [galleryForm, setGalleryForm] = useState({
@@ -532,9 +536,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        setGalleryForm((f) => ({ ...f, imageUrl: data.url }));
+        setUploadPreview(data.url);
+        addToast('Photo uploaded successfully', 'success');
+      } else {
+        addToast('Upload failed. Try again or use a URL.', 'error');
+      }
+    } catch {
+      addToast('Upload failed. Try again or use a URL.', 'error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const createGalleryItem = async () => {
     if (!galleryForm.title.trim() || !galleryForm.imageUrl.trim()) {
-      addToast('Title and image URL are required', 'error');
+      addToast('Title and image are required. Upload a photo or provide a URL.', 'error');
       return;
     }
     try {
@@ -546,6 +574,8 @@ export default function AdminDashboard() {
       if (res.ok) {
         addToast('Gallery item added successfully', 'success');
         setGalleryForm({ title: '', description: '', imageUrl: '', category: 'general', eventDate: '' });
+        setUploadPreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         setGalleryDialogOpen(false);
         fetchGallery();
       } else {
@@ -1137,11 +1167,14 @@ export default function AdminDashboard() {
       </Dialog>
 
       {/* ===== GALLERY DIALOG ===== */}
-      <Dialog open={galleryDialogOpen} onOpenChange={setGalleryDialogOpen}>
+      <Dialog open={galleryDialogOpen} onOpenChange={(open) => {
+        if (!open) { setUploadPreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }
+        setGalleryDialogOpen(open);
+      }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Add Gallery Photo</DialogTitle>
-            <DialogDescription>Upload a photo to the public gallery with event details.</DialogDescription>
+            <DialogDescription>Upload a photo directly or paste an image URL.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -1160,15 +1193,60 @@ export default function AdminDashboard() {
                 onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
               />
             </div>
+
+            {/* File Upload Zone */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Image URL *</label>
-              <Input
-                placeholder="/images/photo.jpg or https://..."
-                value={galleryForm.imageUrl}
-                onChange={(e) => setGalleryForm({ ...galleryForm, imageUrl: e.target.value })}
-              />
-              <p className="text-xs text-slate-400 mt-1">Use a path like /images/photo.jpg for uploaded images, or a full URL.</p>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Upload Photo *</label>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp,.jfif"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                {uploading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-8 h-8 border-3 border-[#1a3a6b]/30 border-t-[#1a3a6b] rounded-full" />
+                    <p className="text-sm text-slate-500">Uploading...</p>
+                  </div>
+                ) : uploadPreview || galleryForm.imageUrl ? (
+                  <div className="space-y-2">
+                    <img src={uploadPreview || galleryForm.imageUrl} alt="Preview" className="max-h-40 mx-auto rounded-lg object-contain" />
+                    <p className="text-xs text-emerald-600 font-medium">Photo uploaded - click to replace</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Upload className="mx-auto h-8 w-8 text-slate-400" />
+                    <p className="text-sm text-slate-600 font-medium">Click to upload a photo</p>
+                    <p className="text-xs text-slate-400">JPG, PNG, GIF or WebP up to 10MB</p>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Fallback URL input */}
+            {!uploadPreview && !galleryForm.imageUrl && (
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center z-10">
+                  <div className="flex-1 border-t border-slate-200" />
+                  <span className="px-3 text-xs text-slate-400 bg-white">or enter URL</span>
+                  <div className="flex-1 border-t border-slate-200" />
+                </div>
+                <div className="pt-5">
+                  <Input
+                    placeholder="https://example.com/photo.jpg"
+                    value={galleryForm.imageUrl}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, imageUrl: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
@@ -1200,9 +1278,10 @@ export default function AdminDashboard() {
             <div className="flex gap-2 pt-2">
               <Button
                 onClick={createGalleryItem}
-                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+                disabled={uploading}
+                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white disabled:opacity-50"
               >
-                Add Photo
+                {uploading ? 'Uploading...' : 'Add Photo'}
               </Button>
               <Button variant="outline" onClick={() => setGalleryDialogOpen(false)}>
                 Cancel

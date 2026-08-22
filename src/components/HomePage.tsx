@@ -11,7 +11,8 @@ import {
   Wrench,
   Zap,
   Droplets,
-  Flame,
+  Cog,
+  TreePine,
   Scissors,
   ArrowRight,
   Phone,
@@ -46,7 +47,8 @@ const PROGRAMS = [
   { name: 'Automotive Mechanics', icon: Wrench },
   { name: 'Electrical Installation', icon: Zap },
   { name: 'Plumbing', icon: Droplets },
-  { name: 'Welding', icon: Flame },
+  { name: 'Machining and Fitting', icon: Cog },
+  { name: 'Woodwork Technology', icon: TreePine },
   { name: 'Fashion and Design', icon: Scissors },
 ] as const;
 
