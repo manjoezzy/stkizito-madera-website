@@ -29,3 +29,39 @@ Stage Summary:
 - All pages properly account for fixed navigation bar with pt-28/pt-36
 - Full institute name "St. Kizito's Technical Institute - Madera" used everywhere
 - All contact information updated with real details including Principal's phone
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: UI/UX updates - hero slider, nav cleanup, contact scroll, footer bg, application fee
+
+Work Log:
+- Removed "Apply Now" and "Explore Programs" buttons from hero section (first section) of HomePage
+- Replaced static hero background image with dynamic image slider (HeroImageSlider component)
+  - 6 rotating images: campus.png, graduation.png, admin-building.jpg, electrical-workshop.jpg, institute-bus.jpg, about-workshop.png
+  - Auto-rotates every 5 seconds with crossfade transition
+  - Clickable dot indicators at bottom of hero
+- Removed "Student Login" from Portals dropdown in Navigation (kept Student Portal, Online Learning, Admin Login)
+- Removed unused LogIn import from Navigation.tsx
+- Fixed contact page navigation: Added useEffect in HomePage that scrolls to #contact section when currentPage is 'contact'
+- Added image background underlay to footer (Quick Links area) - campus.png with dark overlay, matching hero style
+- Updated AdmissionsPage to use admin-settable application fee instead of tuition:
+  - Fetches 'application_fee' from /api/settings on mount
+  - Step 4 now shows "Application Fee (Non-refundable)" instead of "Tuition Fee"
+  - Step 5 payment card shows "Application Fee (Non-refundable)" as the amount
+  - Payment dialog shows application fee with "Non-refundable application fee" label
+  - Removed selectedProgrammeFee and unused imports (PROGRAMME_FEES, getProgrammeFee)
+- Added Application Fee Setting card to Admin Dashboard Settings section:
+  - UGX input with save button
+  - Loads current fee from /api/settings on mount
+  - Saves via PUT /api/settings with key 'application_fee'
+  - Shows success confirmation for 3 seconds
+- Build compiled successfully with zero errors
+
+Stage Summary:
+- Hero section is now dynamic with 6 rotating campus images and dot indicators
+- Navigation dropdown simplified to 3 items (no Student Login)
+- Contact page now scrolls directly to the contact form section
+- Footer has subtle campus image background underlay
+- Admission payment now uses a flat, admin-configurable application fee (non-refundable) instead of programme tuition
+- Admin can set the application fee amount in Settings section of the dashboard

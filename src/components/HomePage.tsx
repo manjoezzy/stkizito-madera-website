@@ -153,10 +153,60 @@ function Section({
 }
 
 /* ══════════════════════════════════════════════════════
+   HERO IMAGE SLIDER
+   ══════════════════════════════════════════════════════ */
+const HERO_SLIDES = [
+  { src: '/images/campus.png', alt: 'SKTM Campus Grounds' },
+  { src: '/images/graduation.png', alt: 'Graduation Ceremony' },
+  { src: '/images/admin-building.jpg', alt: 'Administration Building' },
+  { src: '/images/electrical-workshop.jpg', alt: 'Electrical Workshop' },
+  { src: '/images/institute-bus.jpg', alt: 'Institute Bus' },
+  { src: '/images/about-workshop.png', alt: 'Students in Workshop' },
+];
+
+function HeroImageSlider() {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 z-[1]">
+      {HERO_SLIDES.map((slide, i) => (
+        <div
+          key={slide.src}
+          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          style={{ opacity: i === current ? 0.25 : 0 }}
+        >
+          <Image src={slide.src} alt={slide.alt} fill className="object-cover" priority={i === 0} />
+        </div>
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/80 via-[#1a3a6b]/60 to-[#0d1b2a]/90" />
+      {/* Slide indicators */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        {HERO_SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === current ? 'w-8 bg-[#f5c518]' : 'w-4 bg-white/30 hover:bg-white/50'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
    MAIN COMPONENT
    ══════════════════════════════════════════════════════ */
 export default function HomePage() {
-  const { setCurrentPage, addToast } = useAppStore();
+  const { currentPage, setCurrentPage, addToast } = useAppStore();
   const [statsVisible, setStatsVisible] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -166,6 +216,17 @@ export default function HomePage() {
     message: '',
   });
   const [contactSubmitting, setContactSubmitting] = useState(false);
+
+  // Scroll to contact section when navigating to 'contact' page
+  useEffect(() => {
+    if (currentPage === 'contact') {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('contact');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPage]);
 
   const stat0 = useCountUp(STATS[0].value, 2000, statsVisible);
   const stat1 = useCountUp(STATS[1].value, 2200, statsVisible);
@@ -255,17 +316,8 @@ export default function HomePage() {
           }}
         />
 
-        {/* Hero background image overlay */}
-        <div className="absolute inset-0 z-[1]">
-          <Image
-            src="/images/hero-bg.png"
-            alt="St. Kizito's Technical Institute Madera Campus"
-            fill
-            className="object-cover opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/80 via-[#1a3a6b]/60 to-[#0d1b2a]/90" />
-        </div>
+        {/* Dynamic Hero image slider */}
+        <HeroImageSlider />
 
         {/* content */}
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -307,31 +359,6 @@ export default function HomePage() {
             Education and Training (TVET) - grounded in excellence, faith, and
             practical skill development.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Button
-              size="lg"
-              onClick={() => setCurrentPage('admissions')}
-              className="bg-[#f5c518] hover:bg-[#e0b300] text-[#1a3a6b] font-bold text-base px-8 py-6 rounded-lg shadow-lg shadow-[#f5c518]/20 transition-all hover:shadow-xl hover:shadow-[#f5c518]/30 hover:scale-105"
-            >
-              Apply Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setCurrentPage('programs')}
-              className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 font-semibold text-base px-8 py-6 rounded-lg backdrop-blur-sm transition-all hover:scale-105"
-            >
-              Explore Programs
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-          </motion.div>
 
           {/* scroll hint */}
           <motion.div
@@ -910,8 +937,14 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────
           8. FOOTER
           ───────────────────────────────────────────────── */}
-      <footer className="mt-auto bg-[#0d1b2a] text-white">
-        <div className="max-w-6xl mx-auto px-4 py-14 md:py-20">
+      <footer className="mt-auto bg-[#0d1b2a] text-white relative overflow-hidden">
+        {/* Footer background image underlay */}
+        <div className="absolute inset-0">
+          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-10" />
+          <div className="absolute inset-0 bg-[#0d1b2a]/90" />
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
             {/* brand column */}
             <div>

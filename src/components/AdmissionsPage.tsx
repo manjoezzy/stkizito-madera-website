@@ -58,7 +58,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { PROGRAMME_FEES, getProgrammeFee, formatCurrency } from '@/lib/schoolpay';
+import { formatCurrency } from '@/lib/schoolpay';
 import { useAppStore } from '@/store/useAppStore';
 
 /* ──────────────── constants ──────────────── */
@@ -155,13 +155,16 @@ export default function AdmissionsPage() {
 
   const [nonFormalFormUrl, setNonFormalFormUrl] = useState<string | null>(null);
   const [tvetFormUrl, setTvetFormUrl] = useState<string>('/forms/tvet-admission-form.pdf');
+  const [applicationFee, setApplicationFee] = useState<number>(50000); // default
   useEffect(() => {
     Promise.all([
       fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
       fetch('/api/settings?key=tvet_form_url').then((r) => r.json()),
-    ]).then(([nf, tf]) => {
+      fetch('/api/settings?key=application_fee').then((r) => r.json()),
+    ]).then(([nf, tf, af]) => {
       if (nf.value) setNonFormalFormUrl(nf.value);
       if (tf.value) setTvetFormUrl(tf.value);
+      if (af.value) setApplicationFee(parseInt(af.value, 10) || 50000);
     }).catch(() => {});
   }, []);
 
@@ -185,7 +188,6 @@ export default function AdmissionsPage() {
     }
   };
 
-  const selectedProgrammeFee = form.programme ? getProgrammeFee(form.programme) : 0;
 
   /* ──────── validation ──────── */
 
@@ -273,7 +275,7 @@ export default function AdmissionsPage() {
           fullName: form.fullName,
           phone: form.phone,
           email: form.email,
-          amount: selectedProgrammeFee,
+          amount: applicationFee,
           programme: form.programme,
           intakeYear: form.intakeYear,
         }),
@@ -546,20 +548,21 @@ export default function AdmissionsPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg border border-amber-200 bg-amber-50 p-4"
+                className="rounded-lg border border-blue-200 bg-blue-50 p-4"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-amber-800">Selected Programme</p>
+                    <p className="text-sm font-medium text-blue-800">Selected Programme</p>
                     <p className="text-lg font-bold mt-1" style={{ color: PRIMARY }}>
                       {form.programme}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-amber-700">Tuition Fee</p>
-                    <p className="text-2xl font-bold" style={{ color: GOLD }}>
-                      {formatCurrency(selectedProgrammeFee)}
+                    <p className="text-xs text-blue-600">Application Fee</p>
+                    <p className="text-xl font-bold" style={{ color: GOLD }}>
+                      {formatCurrency(applicationFee)}
                     </p>
+                    <p className="text-[10px] text-blue-500 mt-0.5">Non-refundable</p>
                   </div>
                 </div>
               </motion.div>
@@ -595,9 +598,9 @@ export default function AdmissionsPage() {
             ) : (
               <>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Complete Your Payment</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Pay Application Fee</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    Pay the admission fee via SchoolPay to confirm your place.
+                    Pay the non-refundable application fee via SchoolPay to confirm your application.
                   </p>
                 </div>
 
@@ -637,9 +640,9 @@ export default function AdmissionsPage() {
                       <span className="font-medium text-sm text-gray-900">{form.phone}</span>
                     </div>
                     <div className="flex justify-between items-center py-3">
-                      <span className="text-base font-bold text-gray-900">Total Amount</span>
+                      <span className="text-base font-bold text-gray-900">Application Fee <span className="text-xs font-normal text-gray-400">(Non-refundable)</span></span>
                       <span className="text-2xl font-extrabold" style={{ color: GOLD }}>
-                        {formatCurrency(selectedProgrammeFee)}
+                        {formatCurrency(applicationFee)}
                       </span>
                     </div>
 
@@ -708,7 +711,7 @@ export default function AdmissionsPage() {
       <div>
         <h3 className="text-2xl font-bold text-gray-900">Payment Successful!</h3>
         <p className="text-gray-500 mt-2">
-          Your admission fee has been received. Welcome to St. Kizito's Technical Institute - Madera!
+          Your application fee has been received. Welcome to St. Kizito's Technical Institute - Madera!
         </p>
       </div>
 
@@ -775,8 +778,9 @@ export default function AdmissionsPage() {
             <div className="text-center space-y-1">
               <p className="text-sm text-gray-500">Amount to Pay</p>
               <p className="text-3xl font-extrabold" style={{ color: GOLD }}>
-                {formatCurrency(selectedProgrammeFee)}
+                {formatCurrency(applicationFee)}
               </p>
+              <p className="text-xs text-gray-400 mt-1">Non-refundable application fee</p>
             </div>
 
             <div className="space-y-3 bg-gray-50 rounded-lg p-4">

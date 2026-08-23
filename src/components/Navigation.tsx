@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
    Menu, X, Home, BookOpen, ClipboardList,
-  User, LogIn, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon
+  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -20,7 +20,6 @@ const NAV_ITEMS: { label: string; page: Page; icon?: React.ReactNode }[] = [
 
 const DROPDOWN_ITEMS: { label: string; page: Page; icon: React.ReactNode }[] = [
   { label: 'Student Portal', page: 'student-portal', icon: <User size={15} /> },
-  { label: 'Student Login', page: 'student-login', icon: <LogIn size={15} /> },
   { label: 'Online Learning', page: 'online-learning', icon: <Laptop size={15} /> },
   { label: 'Admin Login', page: 'admin-login', icon: <Shield size={15} /> },
 ];

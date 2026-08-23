@@ -2280,11 +2280,33 @@ function SettingsSection() {
   const [currentFormUrl, setCurrentFormUrl] = useState<string | null>(null);
   const [tvetFormFile, setTvetFormFile] = useState<File | null>(null);
   const [tvetUploading, setTvetUploading] = useState(false);
+  const [appFee, setAppFee] = useState('50000');
+  const [savingFee, setSavingFee] = useState(false);
+  const [feeSaved, setFeeSaved] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings?key=non_formal_form_url')
-      .then((r) => r.json()).then((d) => { if (d.value) setCurrentFormUrl(d.value); }).catch(() => {});
+    Promise.all([
+      fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
+      fetch('/api/settings?key=application_fee').then((r) => r.json()),
+    ]).then(([nf, af]) => {
+      if (nf.value) setCurrentFormUrl(nf.value);
+      if (af.value) setAppFee(af.value);
+    }).catch(() => {});
   }, []);
+
+  const saveApplicationFee = async () => {
+    setSavingFee(true);
+    setFeeSaved(false);
+    try {
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'application_fee', value: appFee }),
+      });
+      setFeeSaved(true);
+      setTimeout(() => setFeeSaved(false), 3000);
+    } catch {} finally { setSavingFee(false); }
+  };
 
   const uploadNonFormalForm = async () => {
     if (!formFile) return;
@@ -2354,6 +2376,44 @@ function SettingsSection() {
               <Input defaultValue={new Date().getFullYear().toString()} disabled className="bg-slate-50" />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Application Fee ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-[#1a3a6b]" />
+            Application Fee Setting
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-slate-400 mb-4">
+            Set the non-refundable application fee paid via SchoolPay when students submit their online application. This fee is separate from tuition.
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">UGX</span>
+              <Input
+                type="number"
+                value={appFee}
+                onChange={(e) => setAppFee(e.target.value)}
+                className="pl-12"
+                min="0"
+              />
+            </div>
+            <Button
+              onClick={saveApplicationFee}
+              disabled={savingFee}
+              style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+              className="shrink-0 disabled:opacity-50 hover:opacity-90 font-semibold"
+            >
+              {savingFee ? 'Saving...' : feeSaved ? 'Saved!' : 'Save Fee'}
+            </Button>
+          </div>
+          {feeSaved && (
+            <p className="text-xs text-emerald-600 mt-2 font-medium">Application fee updated successfully.</p>
+          )}
         </CardContent>
       </Card>
 
