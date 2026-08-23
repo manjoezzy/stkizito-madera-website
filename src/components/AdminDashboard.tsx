@@ -36,6 +36,8 @@ import {
   X,
   ImageIcon,
   Upload,
+  Paperclip,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -154,6 +156,9 @@ interface EventItem {
   eventDate: string | null;
   eventTime: string | null;
   location: string | null;
+  isBanner: boolean;
+  bannerUrl: string;
+  attachmentUrl: string;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -278,6 +283,7 @@ export default function AdminDashboard() {
   // Dialogs
   const [viewApplicant, setViewApplicant] = useState<Application | null>(null);
   const [expandedMessage, setExpandedMessage] = useState<ContactMsg | null>(null);
+  const [expandedApp, setExpandedApp] = useState<Application | null>(null);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
   const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -301,6 +307,9 @@ export default function AdminDashboard() {
     eventDate: '',
     eventTime: '',
     location: '',
+    isBanner: false,
+    bannerUrl: '',
+    attachmentUrl: '',
   });
 
   // Loading
@@ -613,7 +622,7 @@ export default function AdminDashboard() {
       const json = await res.json();
       if (json.success) {
         addToast('Event created successfully', 'success');
-        setEventForm({ title: '', description: '', category: 'general', eventDate: '', eventTime: '', location: '' });
+        setEventForm({ title: '', description: '', category: 'general', eventDate: '', eventTime: '', location: '', isBanner: false, bannerUrl: '', attachmentUrl: '' });
         setEventDialogOpen(false);
         fetchEvents();
       } else {
@@ -875,6 +884,7 @@ export default function AdminDashboard() {
                   formatDate={formatDate}
                   getStatusBadge={getStatusBadge}
                   onViewApplicant={setViewApplicant}
+                  onExpand={setExpandedApp}
                   onApprove={updateApplicationStatus}
                   onReject={updateApplicationStatus}
                   onEnroll={updateApplicationStatus}
@@ -1081,6 +1091,138 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
+      {/* ===== EXPANDED APPLICANT DIALOG ===== */
+      <Dialog open={!!expandedApp} onOpenChange={() => setExpandedApp(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+              Applicant Details
+            </DialogTitle>
+            <DialogDescription>
+              Full application information
+            </DialogDescription>
+          </DialogHeader>
+          {expandedApp && (
+            <div className="space-y-6">
+              {/* Header with ref + status */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <p className="text-2xl font-mono font-bold text-[#1a3a6b] tracking-wide">{expandedApp.referenceNumber}</p>
+                  <h3 className="text-xl font-bold text-slate-800 mt-1">{expandedApp.fullName}</h3>
+                </div>
+                {getStatusBadge(expandedApp.status)}
+              </div>
+
+              {/* Payment Status Indicator */}
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
+                <div className={`w-3 h-3 rounded-full ${expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+                <span className="text-sm font-medium">
+                  Payment: {expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                  {expandedApp.paymentAmount ? ` — ${formatCurrency(expandedApp.paymentAmount)}` : ''}
+                </span>
+              </div>
+
+              {/* Personal Info */}
+              <DetailCard title="Personal Information">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailRow label="Date of Birth" value={expandedApp.dob} />
+                  <DetailRow label="Gender" value={expandedApp.gender} />
+                  <DetailRow label="Nationality" value={expandedApp.nationality} />
+                  <DetailRow label="Religion" value={expandedApp.religion} />
+                  <DetailRow label="NIN" value={expandedApp.nin} />
+                </div>
+              </DetailCard>
+
+              {/* Contact Info */}
+              <DetailCard title="Contact Information">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailRow label="Phone" value={expandedApp.phone} />
+                  <DetailRow label="Email" value={expandedApp.email} />
+                  <DetailRow label="District" value={expandedApp.district} />
+                  <DetailRow label="Address" value={expandedApp.address} />
+                </div>
+              </DetailCard>
+
+              {/* Next of Kin */}
+              <DetailCard title="Next of Kin">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailRow label="Name" value={expandedApp.nextOfKin} />
+                  <DetailRow label="Phone" value={expandedApp.nextOfKinPhone} />
+                </div>
+              </DetailCard>
+
+              {/* Academic Background */}
+              <DetailCard title="Academic Background">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailRow label="Last School" value={expandedApp.lastSchool} />
+                  <DetailRow label="Year Completed" value={expandedApp.yearCompleted} />
+                  <DetailRow label="Qualification" value={expandedApp.qualification} />
+                </div>
+              </DetailCard>
+
+              {/* Programme Selection */}
+              <DetailCard title="Programme Selection">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailRow label="Programme" value={expandedApp.programme} />
+                  <DetailRow label="Intake Year" value={expandedApp.intakeYear} />
+                  <DetailRow label="Applied On" value={formatDate(expandedApp.createdAt)} />
+                </div>
+              </DetailCard>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2 pt-2">
+                {(expandedApp.status === 'pending' || expandedApp.status === 'rejected') && (
+                  <Button
+                    onClick={() => {
+                      updateApplicationStatus(expandedApp.id, 'approved');
+                      setExpandedApp(null);
+                    }}
+                    disabled={!!actionLoading}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Approve
+                  </Button>
+                )}
+                {(expandedApp.status === 'pending' || expandedApp.status === 'approved') && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      updateApplicationStatus(expandedApp.id, 'rejected');
+                      setExpandedApp(null);
+                    }}
+                    disabled={!!actionLoading}
+                  >
+                    <XCircle className="w-4 h-4 mr-1" />
+                    Reject
+                  </Button>
+                )}
+                {expandedApp.status === 'approved' && (
+                  <Button
+                    onClick={() => {
+                      updateApplicationStatus(expandedApp.id, 'enrolled');
+                      setExpandedApp(null);
+                    }}
+                    disabled={!!actionLoading}
+                    className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+                  >
+                    <UserPlus className="w-4 h-4 mr-1" />
+                    Enroll Student
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={() => setExpandedApp(null)}
+                  className="ml-auto"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* ===== CREATE EVENT DIALOG ===== */}
       <Dialog open={eventDialogOpen} onOpenChange={setEventDialogOpen}>
         <DialogContent className="sm:max-w-lg">
@@ -1151,10 +1293,130 @@ export default function AdminDashboard() {
                 />
               </div>
             </div>
+            {/* Banner Toggle */}
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200">
+              <input
+                type="checkbox"
+                id="isBanner"
+                checked={eventForm.isBanner}
+                onChange={(e) => setEventForm({ ...eventForm, isBanner: e.target.checked, bannerUrl: e.target.checked ? eventForm.bannerUrl : '' })}
+                className="w-4 h-4 rounded border-slate-300 text-[#1a3a6b] focus:ring-[#1a3a6b]"
+              />
+              <label htmlFor="isBanner" className="text-sm font-medium text-slate-700 cursor-pointer">
+                Display as Banner (full-width hero image)
+              </label>
+            </div>
+            {/* Banner Image Upload */}
+            {eventForm.isBanner && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Banner Image *</label>
+                <div
+                  onClick={() => document.getElementById('bannerFileInput')?.click()}
+                  className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <input
+                    id="bannerFileInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      try {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setEventForm((f) => ({ ...f, bannerUrl: data.url }));
+                          addToast('Banner image uploaded', 'success');
+                        } else {
+                          addToast('Banner upload failed', 'error');
+                        }
+                      } catch {
+                        addToast('Banner upload failed', 'error');
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                  />
+                  {uploading ? (
+                    <p className="text-sm text-slate-500">Uploading...</p>
+                  ) : eventForm.bannerUrl ? (
+                    <div className="space-y-2">
+                      <img src={eventForm.bannerUrl} alt="Banner preview" className="max-h-32 mx-auto rounded-lg object-contain" />
+                      <p className="text-xs text-emerald-600 font-medium">Banner uploaded - click to replace</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <Upload className="mx-auto h-6 w-6 text-slate-400" />
+                      <p className="text-sm text-slate-600 font-medium">Click to upload banner image</p>
+                      <p className="text-xs text-slate-400">JPG, PNG, GIF or WebP</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {/* Attachment Upload */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                <span className="flex items-center gap-1.5">
+                  <Paperclip className="w-3.5 h-3.5" /> Attachment (optional)
+                </span>
+              </label>
+              <div
+                onClick={() => document.getElementById('attachmentFileInput')?.click()}
+                className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+              >
+                <input
+                  id="attachmentFileInput"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploading(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setEventForm((f) => ({ ...f, attachmentUrl: data.url }));
+                        addToast('Attachment uploaded', 'success');
+                      } else {
+                        addToast('Attachment upload failed', 'error');
+                      }
+                    } catch {
+                      addToast('Attachment upload failed', 'error');
+                    } finally {
+                      setUploading(false);
+                    }
+                  }}
+                />
+                {uploading ? (
+                  <p className="text-sm text-slate-500">Uploading...</p>
+                ) : eventForm.attachmentUrl ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Paperclip className="w-4 h-4 text-emerald-600" />
+                    <p className="text-sm text-emerald-600 font-medium">File attached — click to replace</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Upload className="mx-auto h-6 w-6 text-slate-400" />
+                    <p className="text-sm text-slate-600 font-medium">Click to attach a file</p>
+                    <p className="text-xs text-slate-400">PDF, DOCX, JPG or PNG</p>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex gap-2 pt-2">
               <Button
                 onClick={createEvent}
-                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+                disabled={eventForm.isBanner && !eventForm.bannerUrl}
+                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white disabled:opacity-50"
               >
                 Create Event
               </Button>
@@ -1631,6 +1893,7 @@ interface ApplicationsProps {
   formatDate: (s: string) => string;
   getStatusBadge: (s: string) => React.ReactNode;
   onViewApplicant: (app: Application) => void;
+  onExpand: (app: Application) => void;
   onApprove: (id: string, status: string) => Promise<void>;
   onReject: (id: string, status: string) => Promise<void>;
   onEnroll: (id: string, status: string) => Promise<void>;
@@ -1647,6 +1910,7 @@ function ApplicationsSection({
   formatDate,
   getStatusBadge,
   onViewApplicant,
+  onExpand,
   onApprove,
   onReject,
   onEnroll,
@@ -1729,7 +1993,7 @@ function ApplicationsSection({
                 </TableHeader>
                 <TableBody>
                   {applications.map((app) => (
-                    <TableRow key={app.id} className="border-slate-50">
+                    <TableRow key={app.id} className="border-slate-50 cursor-pointer hover:bg-slate-50" onClick={() => onExpand(app)}>
                       <TableCell className="text-xs font-mono text-slate-600">
                         {app.referenceNumber.slice(-8)}
                       </TableCell>
@@ -1750,12 +2014,12 @@ function ApplicationsSection({
                         {formatDate(app.createdAt)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                           <Button
                             variant="ghost"
                             size="sm"
                             className="h-7 w-7 p-0 text-slate-400 hover:text-[#1a3a6b]"
-                            onClick={() => onViewApplicant(app)}
+                            onClick={() => onExpand(app)}
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
@@ -2050,6 +2314,150 @@ function EventsSection({ events, onCreateNew, onDelete, formatDate }: EventsProp
     .filter((e) => e.eventDate && new Date(e.eventDate) < new Date())
     .sort((a, b) => new Date(b.eventDate!).getTime() - new Date(a.eventDate!).getTime());
 
+  const upcomingRegular = upcoming.filter((e) => !e.isBanner);
+  const upcomingBanners = upcoming.filter((e) => e.isBanner);
+  const pastRegular = past.filter((e) => !e.isBanner);
+  const pastBanners = past.filter((e) => e.isBanner);
+
+  const renderEventCard = (event: EventItem, isPast: boolean) => (
+    <motion.div
+      key={event.id}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className={`border-0 shadow-sm hover:shadow-md transition-shadow group ${isPast ? 'opacity-60' : ''}`}>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className={categoryColors[event.category] || categoryColors.general}
+              >
+                {event.category}
+              </Badge>
+              {event.attachmentUrl && (
+                <a
+                  href={event.attachmentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-[#1a3a6b] transition-colors"
+                  title="Download attachment"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Paperclip className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 text-slate-300 hover:text-red-500 ${isPast ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+              onClick={() => onDelete(event.id)}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+          <h4 className={`font-semibold mb-1 line-clamp-2 ${isPast ? 'text-slate-600' : 'text-slate-800'}`}>{event.title}</h4>
+          {event.description && (
+            <p className="text-sm text-slate-500 line-clamp-2 mb-3">{event.description}</p>
+          )}
+          <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+            {event.eventDate && (
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+              </span>
+            )}
+            {event.eventTime && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" /> {event.eventTime}
+              </span>
+            )}
+            {event.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {event.location}
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderBannerCard = (event: EventItem, isPast: boolean) => (
+    <motion.div
+      key={event.id}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div
+        className={`relative rounded-xl overflow-hidden shadow-sm group ${isPast ? 'opacity-60' : ''}`}
+        style={{
+          backgroundImage: event.bannerUrl ? `url(${event.bannerUrl})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '180px',
+        }}
+      >
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+        {/* Content */}
+        <div className="relative z-10 p-6 flex flex-col justify-end h-full" style={{ minHeight: '180px' }}>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                {event.category}
+              </Badge>
+              <Badge className="bg-[#f5c518]/90 text-[#0f2347] font-semibold">Banner</Badge>
+              {event.attachmentUrl && (
+                <a
+                  href={event.attachmentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 hover:text-white transition-colors"
+                  title="Download attachment"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Paperclip className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-7 w-7 p-0 text-white/50 hover:text-red-400 hover:bg-white/10 ${isPast ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+              onClick={() => onDelete(event.id)}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+          <h4 className="text-xl font-bold text-white mt-3 line-clamp-2">{event.title}</h4>
+          {event.description && (
+            <p className="text-sm text-white/80 line-clamp-2 mt-1">{event.description}</p>
+          )}
+          <div className="flex flex-wrap gap-3 text-xs text-white/60 mt-3">
+            {event.eventDate && (
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
+              </span>
+            )}
+            {event.eventTime && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" /> {event.eventTime}
+              </span>
+            )}
+            {event.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {event.location}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header with Add Button */}
@@ -2074,102 +2482,50 @@ function EventsSection({ events, onCreateNew, onDelete, formatDate }: EventsProp
         </div>
       ) : (
         <>
-          {/* Upcoming Events */}
-          {upcoming.length > 0 && (
+          {/* Upcoming Banner Events */}
+          {upcomingBanners.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                Upcoming Banners
+              </h3>
+              <div className="space-y-4">
+                {upcomingBanners.map((event) => renderBannerCard(event, false))}
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming Regular Events */}
+          {upcomingRegular.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Upcoming Events
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {upcoming.map((event) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <Badge
-                            variant="secondary"
-                            className={categoryColors[event.category] || categoryColors.general}
-                          >
-                            {event.category}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => onDelete(event.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                        <h4 className="font-semibold text-slate-800 mb-1 line-clamp-2">{event.title}</h4>
-                        {event.description && (
-                          <p className="text-sm text-slate-500 line-clamp-2 mb-3">{event.description}</p>
-                        )}
-                        <div className="flex flex-wrap gap-3 text-xs text-slate-400">
-                          {event.eventDate && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
-                            </span>
-                          )}
-                          {event.eventTime && (
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> {event.eventTime}
-                            </span>
-                          )}
-                          {event.location && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" /> {event.location}
-                            </span>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                {upcomingRegular.map((event) => renderEventCard(event, false))}
               </div>
             </div>
           )}
 
-          {/* Past Events */}
-          {past.length > 0 && (
+          {/* Past Banner Events */}
+          {pastBanners.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                Past Banners
+              </h3>
+              <div className="space-y-4">
+                {pastBanners.map((event) => renderBannerCard(event, true))}
+              </div>
+            </div>
+          )}
+
+          {/* Past Regular Events */}
+          {pastRegular.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Past Events
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {past.map((event) => (
-                  <Card key={event.id} className="border-0 shadow-sm opacity-60">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <Badge
-                          variant="secondary"
-                          className={categoryColors[event.category] || categoryColors.general}
-                        >
-                          {event.category}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 text-slate-300 hover:text-red-500"
-                          onClick={() => onDelete(event.id)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                      <h4 className="font-semibold text-slate-600 mb-1 line-clamp-2">{event.title}</h4>
-                      {event.eventDate && (
-                        <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> {formatDate(event.eventDate)}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {pastRegular.map((event) => renderEventCard(event, true))}
               </div>
             </div>
           )}

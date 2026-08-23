@@ -1,3 +1,383 @@
+   100→];
+   101→
+   102→/* ══════════════════════════════════════════════════════
+   103→   ANIMATED COUNTER HOOK
+   104→   ══════════════════════════════════════════════════════ */
+   105→function useCountUp(target: number, duration = 2000, start = false) {
+   106→  const [count, setCount] = useState(0);
+   107→  const frameRef = useRef<number>(0);
+   108→
+   109→  useEffect(() => {
+   110→    if (!start) return;
+   111→    let startTime: number | null = null;
+   112→
+   113→    const animate = (timestamp: number) => {
+   114→      if (!startTime) startTime = timestamp;
+   115→      const progress = Math.min((timestamp - startTime) / duration, 1);
+   116→      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+   117→      setCount(Math.floor(eased * target));
+   118→      if (progress < 1) {
+   119→        frameRef.current = requestAnimationFrame(animate);
+   120→      }
+   121→    };
+   122→
+   123→    frameRef.current = requestAnimationFrame(animate);
+   124→    return () => cancelAnimationFrame(frameRef.current);
+   125→  }, [target, duration, start]);
+   126→
+   127→  return count;
+   128→}
+   129→
+   130→/* ══════════════════════════════════════════════════════
+   131→   SECTION WRAPPER - shared fade-in animation
+   132→   ══════════════════════════════════════════════════════ */
+   133→function Section({
+   134→  children,
+   135→  className = '',
+   136→  id,
+   137→}: {
+   138→  children: React.ReactNode;
+   139→  className?: string;
+   140→  id?: string;
+   141→}) {
+   142→  return (
+   143→    <motion.section
+   144→      id={id}
+   145→      initial={{ opacity: 0, y: 40 }}
+   146→      whileInView={{ opacity: 1, y: 0 }}
+   147→      viewport={{ once: true, amount: 0.15 }}
+   148→      transition={{ duration: 0.6, ease: 'easeOut' }}
+   149→      className={className}
+   150→    >
+   151→      {children}
+   152→    </motion.section>
+   153→  );
+   154→}
+   155→
+   156→/* ══════════════════════════════════════════════════════
+   157→   HERO IMAGE SLIDER
+   158→   ══════════════════════════════════════════════════════ */
+   159→const HERO_SLIDES = [
+   160→  { src: '/images/campus.png', alt: 'SKTM Campus Grounds' },
+   161→  { src: '/images/graduation.png', alt: 'Graduation Ceremony' },
+   162→  { src: '/images/admin-building.jpg', alt: 'Administration Building' },
+   163→  { src: '/images/electrical-workshop.jpg', alt: 'Electrical Workshop' },
+   164→  { src: '/images/institute-bus.jpg', alt: 'Institute Bus' },
+   165→  { src: '/images/about-workshop.png', alt: 'Students in Workshop' },
+   166→];
+   167→
+   168→function HeroImageSlider() {
+   169→  const [current, setCurrent] = useState(0);
+   170→
+   171→  useEffect(() => {
+   172→    const timer = setInterval(() => {
+   173→      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
+   174→    }, 5000);
+   175→    return () => clearInterval(timer);
+   176→  }, []);
+   177→
+   178→  return (
+   179→    <div className="absolute inset-0 z-[1]">
+   180→      {HERO_SLIDES.map((slide, i) => (
+   181→        <div
+   182→          key={slide.src}
+   183→          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+   184→          style={{ opacity: i === current ? 0.25 : 0 }}
+   185→        >
+   186→          <Image src={slide.src} alt={slide.alt} fill className="object-cover" priority={i === 0} />
+   187→        </div>
+   188→      ))}
+   189→      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/80 via-[#1a3a6b]/60 to-[#0d1b2a]/90" />
+   190→      {/* Slide indicators */}
+   191→      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+   192→        {HERO_SLIDES.map((_, i) => (
+   193→          <button
+   194→            key={i}
+   195→            onClick={() => setCurrent(i)}
+   196→            className={`h-1.5 rounded-full transition-all duration-300 ${
+   197→              i === current ? 'w-8 bg-[#f5c518]' : 'w-4 bg-white/30 hover:bg-white/50'
+   198→            }`}
+   199→          />
+   200→        ))}
+   201→      </div>
+   202→    </div>
+   203→  );
+   204→}
+   205→
+   206→/* ══════════════════════════════════════════════════════
+   207→   MAIN COMPONENT
+   208→   ══════════════════════════════════════════════════════ */
+   209→export default function HomePage() {
+   210→  const { currentPage, setCurrentPage, addToast } = useAppStore();
+   211→  const [statsVisible, setStatsVisible] = useState(false);
+   212→  const [contactForm, setContactForm] = useState({
+   213→    name: '',
+   214→    email: '',
+   215→    phone: '',
+   216→    subject: '',
+   217→    message: '',
+   218→  });
+   219→  const [contactSubmitting, setContactSubmitting] = useState(false);
+   220→
+   221→  // Scroll to contact section when navigating to 'contact' page
+   222→  useEffect(() => {
+   223→    if (currentPage === 'contact') {
+   224→      const timer = setTimeout(() => {
+   225→        const el = document.getElementById('contact');
+   226→        if (el) el.scrollIntoView({ behavior: 'smooth' });
+   227→      }, 100);
+   228→      return () => clearTimeout(timer);
+   229→    }
+   230→  }, [currentPage]);
+   231→
+   232→  const stat0 = useCountUp(STATS[0].value, 2000, statsVisible);
+   233→  const stat1 = useCountUp(STATS[1].value, 2200, statsVisible);
+   234→  const stat2 = useCountUp(STATS[2].value, 1800, statsVisible);
+   235→  const stat3 = useCountUp(STATS[3].value, 2000, statsVisible);
+   236→  const counts = [stat0, stat1, stat2, stat3];
+   237→
+   238→  const handleContactSubmit = async (e: FormEvent) => {
+   239→    e.preventDefault();
+   240→    setContactSubmitting(true);
+   241→    try {
+   242→      const res = await fetch('/api/contact', {
+   243→        method: 'POST',
+   244→        headers: { 'Content-Type': 'application/json' },
+   245→        body: JSON.stringify(contactForm),
+   246→      });
+   247→      if (res.ok) {
+   248→        addToast('Message sent successfully! We will get back to you soon.', 'success');
+   249→        setContactForm({ name: '', email: '', phone: '', subject: '', message: '' });
+   250→      } else {
+   251→        addToast('Failed to send message. Please try again.', 'error');
+   252→      }
+   253→    } catch {
+   254→      addToast('Network error. Please check your connection.', 'error');
+   255→    } finally {
+   256→      setContactSubmitting(false);
+   257→    }
+   258→  };
+   259→
+   260→  /* ──────────── floating circles ──────────── */
+   261→  const floatingCircles = [
+   262→    { size: 320, x: '10%', y: '20%', delay: 0, duration: 18 },
+   263→    { size: 200, x: '80%', y: '10%', delay: 2, duration: 22 },
+   264→    { size: 260, x: '70%', y: '65%', delay: 4, duration: 20 },
+   265→    { size: 140, x: '20%', y: '75%', delay: 1, duration: 16 },
+   266→    { size: 100, x: '50%', y: '40%', delay: 3, duration: 24 },
+   267→  ];
+   268→
+   269→  return (
+   270→    <div className="min-h-screen flex flex-col bg-white">
+   271→      {/* ─────────────────────────────────────────────────
+   272→          1. HERO SECTION
+   273→          ───────────────────────────────────────────────── */}
+   274→      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[104px] lg:pt-[108px]">
+   275→        {/* dark gradient background */}
+   276→        <div
+   277→          className="absolute inset-0"
+   278→          style={{
+   279→            background:
+   280→              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
+   281→          }}
+   282→        />
+   283→
+   284→        {/* animated floating decorative circles */}
+   285→        {floatingCircles.map((c, i) => (
+   286→          <motion.div
+   287→            key={i}
+   288→            className="absolute rounded-full"
+   289→            style={{
+   290→              width: c.size,
+   291→              height: c.size,
+   292→              left: c.x,
+   293→              top: c.y,
+   294→              background: `radial-gradient(circle, rgba(245,197,24,${0.06 + i * 0.02}) 0%, transparent 70%)`,
+   295→            }}
+   296→            animate={{
+   297→              y: [0, -30, 10, -20, 0],
+   298→              x: [0, 15, -10, 20, 0],
+   299→              scale: [1, 1.05, 0.95, 1.02, 1],
+   300→            }}
+   301→            transition={{
+   302→              duration: c.duration,
+   303→              repeat: Infinity,
+   304→              delay: c.delay,
+   305→              ease: 'easeInOut',
+   306→            }}
+   307→          />
+   308→        ))}
+   309→
+   310→        {/* subtle grid overlay */}
+   311→        <div
+   312→          className="absolute inset-0 opacity-5"
+   313→          style={{
+   314→            backgroundImage:
+   315→              'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+   316→            backgroundSize: '60px 60px',
+   317→          }}
+   318→        />
+   319→
+   320→        {/* Dynamic Hero image slider */}
+   321→        <HeroImageSlider />
+   322→
+   323→        {/* content */}
+   324→        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+   325→          {/* badge */}
+   326→          <motion.div
+   327→            initial={{ opacity: 0, y: -20 }}
+   328→            animate={{ opacity: 1, y: 0 }}
+   329→            transition={{ duration: 0.6 }}
+   330→            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 border border-[#f5c518]/30 bg-[#f5c518]/10"
+   331→          >
+   332→            <Sparkles className="h-4 w-4 text-[#f5c518]" />
+   333→            <span className="text-[#f5c518] text-sm font-medium tracking-wide">
+   334→              Government-Aided TVET Institution
+   335→            </span>
+   336→          </motion.div>
+   337→
+   338→          <motion.h1
+   339→            initial={{ opacity: 0, y: 30 }}
+   340→            animate={{ opacity: 1, y: 0 }}
+   341→            transition={{ duration: 0.7, delay: 0.15 }}
+   342→            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight"
+   343→          >
+   344→            Building Skills,
+   345→            <br />
+   346→            <span className="text-[#f5c518]">Transforming Lives</span>
+   347→            <br />
+   348→            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
+   349→              St. Kizito's Technical Institute - Madera
+   350→            </span>
+   351→          </motion.h1>
+   352→
+   353→          <motion.p
+   354→            initial={{ opacity: 0, y: 20 }}
+   355→            animate={{ opacity: 1, y: 0 }}
+   356→            transition={{ duration: 0.6, delay: 0.3 }}
+   357→            className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
+   358→          >
+   359→            Empowering the next generation with quality Technical and Vocational
+   360→            Education and Training (TVET) - grounded in excellence, faith, and
+   361→            practical skill development.
+   362→          </motion.p>
+   363→
+   364→          {/* scroll hint */}
+   365→          <motion.div
+   366→            initial={{ opacity: 0 }}
+   367→            animate={{ opacity: 1 }}
+   368→            transition={{ delay: 1.2 }}
+   369→            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+   370→          >
+   371→            <motion.div
+   372→              animate={{ y: [0, 8, 0] }}
+   373→              transition={{ duration: 2, repeat: Infinity }}
+   374→              className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+   375→            >
+   376→              <motion.div
+   377→                animate={{ y: [0, 12, 0] }}
+   378→                transition={{ duration: 2, repeat: Infinity }}
+   379→                className="w-1.5 h-1.5 bg-[#f5c518] rounded-full mt-2"
+   380→              />
+   381→            </motion.div>
+   382→          </motion.div>
+   383→        </div>
+   384→      </section>
+   385→
+   386→      {/* ─────────────────────────────────────────────────
+   387→          2. STATS COUNTERS
+   388→          ───────────────────────────────────────────────── */}
+   389→      <Section className="relative -mt-16 z-20 px-4">
+   390→        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+   391→          {STATS.map((stat, i) => {
+   392→            const Icon = stat.icon;
+   393→            return (
+   394→              <motion.div
+   395→                key={stat.label}
+   396→                initial={{ opacity: 0, y: 30 }}
+   397→                whileInView={{ opacity: 1, y: 0 }}
+   398→                viewport={{ once: true }}
+   399→                transition={{ duration: 0.5, delay: i * 0.1 }}
+   400→                onViewportEnter={() => setStatsVisible(true)}
+   401→              >
+   402→                <Card className="bg-white shadow-xl shadow-black/5 border-0 rounded-2xl hover:shadow-2xl transition-shadow duration-300">
+   403→                  <CardContent className="p-6 text-center">
+   404→                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#1a3a6b]/10 mb-3">
+   405→                      <Icon className="h-6 w-6 text-[#1a3a6b]" />
+   406→                    </div>
+   407→                    <div className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   408→                      {counts[i]}
+   409→                      <span className="text-[#f5c518]">{stat.suffix}</span>
+   410→                    </div>
+   411→                    <p className="text-sm text-muted-foreground mt-1 font-medium">
+   412→                      {stat.label}
+   413→                    </p>
+   414→                  </CardContent>
+   415→                </Card>
+   416→              </motion.div>
+   417→            );
+   418→          })}
+   419→        </div>
+   420→      </Section>
+   421→
+   422→      {/* ─────────────────────────────────────────────────
+   423→          3. WELCOME / ABOUT SECTION
+   424→          ───────────────────────────────────────────────── */}
+   425→      <Section className="py-20 md:py-28 px-4">
+   426→        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+   427→          {/* left - campus photo */}
+   428→          <div className="relative">
+   429→            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-[#1a3a6b]/20">
+   430→              <div className="absolute -inset-1 bg-gradient-to-br from-[#1a3a6b] to-[#f5c518] rounded-3xl opacity-20 blur-sm" />
+   431→              <div className="relative aspect-[4/3] max-w-md mx-auto">
+   432→                <Image
+   433→                  src="/images/about-workshop.png"
+   434→                  alt="Students in the workshop at St. Kizito's Technical Institute - Madera"
+   435→                  fill
+   436→                  className="object-cover rounded-2xl"
+   437→                />
+   438→              </div>
+   439→            </div>
+   440→            {/* floating accent card */}
+   441→            <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-2xl shadow-xl p-4 border border-slate-100">
+   442→              <div className="flex items-center gap-3">
+   443→                <div className="w-12 h-12 rounded-xl bg-[#f5c518]/20 flex items-center justify-center">
+   444→                  <Award className="h-6 w-6 text-[#f5c518]" />
+   445→                </div>
+   446→                <div>
+   447→                  <p className="text-2xl font-bold text-[#1a3a6b]">77+</p>
+   448→                  <p className="text-xs text-muted-foreground">Years of Excellence</p>
+   449→                </div>
+   450→              </div>
+   451→            </div>
+   452→          </div>
+   453→
+   454→          {/* right - text */}
+   455→          <div>
+   456→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-4">
+   457→              <Heart className="h-4 w-4" />
+   458→              Welcome to SKTM
+   459→            </div>
+   460→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b] leading-tight">
+   461→              A Legacy of Excellence in Technical Education
+   462→            </h2>
+   463→            <p className="mt-6 text-muted-foreground leading-relaxed text-base">
+   464→              Established in <strong className="text-[#1a3a6b]">1947</strong>, St. Kizito&apos;s
+   465→              Technical Institute - Madera is a government-aided technical institute
+   466→              anchored on Christian principles. We are committed to providing
+   467→              quality Technical and Vocational Education and Training (TVET) that
+   468→              equips learners with practical, market-relevant skills.
+   469→            </p>
+   470→            <p className="mt-4 text-muted-foreground leading-relaxed text-base">
+   471→              Located in Soroti City, Eastern Uganda, we have produced
+   472→              thousands of skilled professionals who are driving development across
+   473→              Uganda and beyond. Our programs are designed to meet the demands of
+   474→              today&apos;s labour market while nurturing ethical, responsible citizens.
+   475→            </p>
+   476→
+   477→            <div className="mt-8 flex flex-wrap gap-6">
+   478→              {[Target, Shield, Award, Users].map((Icon, i) => (
+   479→                <div key={i} className="flex items-center gap-2">
    480→                  <div className="w-10 h-10 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
    481→                    <Icon className="h-5 w-5 text-[#1a3a6b]" />
    482→                  </div>
@@ -462,8 +842,8 @@
    941→      <footer className="mt-auto bg-[#0d1b2a] text-white relative overflow-hidden">
    942→        {/* Footer background image underlay */}
    943→        <div className="absolute inset-0">
-   944→          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-20" />
-   945→          <div className="absolute inset-0 bg-[#0d1b2a]/75" />
+   944→          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-25" />
+   945→          <div className="absolute inset-0 bg-[#0d1b2a]/65" />
    946→        </div>
    947→
    948→        <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
@@ -475,13 +855,13 @@
    954→                  <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
    955→                </div>
    956→                <div>
-   957→                  <h3 className="font-bold text-base leading-tight">
+   957→                  <h3 className="font-bold text-base leading-tight text-white">
    958→                    St. Kizito&apos;s
    959→                  </h3>
-   960→                  <p className="text-xs text-blue-100/80">Technical Institute - Madera</p>
+   960→                  <p className="text-xs text-blue-100">Technical Institute - Madera</p>
    961→                </div>
    962→              </div>
-   963→              <p className="text-sm text-blue-100/90 leading-relaxed mb-6">
+   963→              <p className="text-sm text-blue-100 leading-relaxed mb-6">
    964→                Building skills and transforming lives since 1947. A government-aided
    965→                TVET institution anchored on Christian principles in Soroti City,
    966→                Eastern Uganda.
@@ -511,7 +891,7 @@
    990→                  <li key={link.page}>
    991→                    <button
    992→                      onClick={() => setCurrentPage(link.page)}
-   993→                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
+   993→                      className="flex items-center gap-2 text-sm text-blue-100 hover:text-[#f5c518] transition-colors group"
    994→                    >
    995→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
    996→                      {link.label}
@@ -531,7 +911,7 @@
   1010→                  <li key={prog.name}>
   1011→                    <button
   1012→                      onClick={() => setCurrentPage('programs')}
-  1013→                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
+  1013→                      className="flex items-center gap-2 text-sm text-blue-100 hover:text-[#f5c518] transition-colors group"
   1014→                    >
   1015→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
   1016→                      {prog.name}
@@ -546,11 +926,11 @@
   1025→        {/* bottom bar */}
   1026→        <div className="border-t border-white/10">
   1027→          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-  1028→            <p className="text-sm text-blue-100/70">
+  1028→            <p className="text-sm text-blue-100">
   1029→              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
   1030→              All rights reserved.
   1031→            </p>
-  1032→            <p className="text-xs text-blue-100/60">
+  1032→            <p className="text-xs text-blue-100/80">
   1033→              Crafted with <Heart className="inline h-3 w-3 text-[#f5c518]" /> for
   1034→              excellence in TVET education
   1035→            </p>

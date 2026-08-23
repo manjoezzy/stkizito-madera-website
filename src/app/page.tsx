@@ -15,6 +15,8 @@ import OnlineLearningPage from '@/components/OnlineLearningPage';
 import EventsPage from '@/components/EventsPage';
 import GalleryPage from '@/components/GalleryPage';
 import AboutPage from '@/components/AboutPage';
+import AlumniPage from '@/components/AlumniPage';
+import GraduationPage from '@/components/GraduationPage';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
@@ -30,6 +32,8 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   'admin-login': AdminLoginPage,
   'admin-dashboard': AdminDashboard,
   about: AboutPage,
+  alumni: AlumniPage,
+  graduation: GraduationPage,
 };
 
 const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
@@ -45,6 +49,8 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
   'admin-login': { showNav: true, fullWidth: false },
   'admin-dashboard': { showNav: false, fullWidth: true },
   about: { showNav: true, fullWidth: false },
+  alumni: { showNav: true, fullWidth: false },
+  graduation: { showNav: true, fullWidth: false },
 };
 
 export default function MainApp() {

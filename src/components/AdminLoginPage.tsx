@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden"
+      className="h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, #1e4d8a 100%)`,
       }}
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full max-w-md" style={{ maxHeight: '95vh', overflowY: 'auto' }}
       >
         <Card className="border-0 shadow-2xl overflow-hidden">
           {/* Top accent bar */}
@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
             style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${GOLD}, ${PRIMARY})` }}
           />
 
-          <CardContent className="p-6 sm:p-8">
+          <CardContent className="p-5 sm:p-6">
             {/* School Badge */}
             <div className="text-center mb-6">
               <motion.div

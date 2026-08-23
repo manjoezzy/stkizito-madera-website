@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, Home, BookOpen, ClipboardList,
-  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon, Info
+  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon, Info, Users, GraduationCap
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -15,6 +15,8 @@ const NAV_ITEMS: { label: string; page: Page; icon?: React.ReactNode }[] = [
   { label: 'Admissions', page: 'admissions', icon: <ClipboardList size={15} /> },
   { label: 'Gallery', page: 'gallery', icon: <ImageIcon size={15} /> },
   { label: 'Events', page: 'events', icon: <Calendar size={15} /> },
+  { label: 'Alumni', page: 'alumni', icon: <Users size={15} /> },
+  { label: 'Graduation', page: 'graduation', icon: <GraduationCap size={15} /> },
   { label: 'Contact', page: 'contact', icon: <Phone size={15} /> },
 ];
 
