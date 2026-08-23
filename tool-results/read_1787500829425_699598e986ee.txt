@@ -1,0 +1,563 @@
+   480→                  <div className="w-10 h-10 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+   481→                    <Icon className="h-5 w-5 text-[#1a3a6b]" />
+   482→                  </div>
+   483→                  <span className="text-sm font-medium text-[#1a3a6b]">
+   484→                    {['Practical Training', 'Christian Values', 'Certified', 'Industry Ready'][i]}
+   485→                  </span>
+   486→                </div>
+   487→              ))}
+   488→            </div>
+   489→
+   490→            <Button
+   491→              onClick={() => setCurrentPage('about')}
+   492→              className="mt-8 bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105"
+   493→            >
+   494→              Learn More
+   495→              <ArrowRight className="ml-2 h-4 w-4" />
+   496→            </Button>
+   497→          </div>
+   498→        </div>
+   499→      </Section>
+   500→
+   501→      {/* ─────────────────────────────────────────────────
+   502→          4. PROGRAMS SHOWCASE
+   503→          ───────────────────────────────────────────────── */}
+   504→      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+   505→        <div className="max-w-6xl mx-auto">
+   506→          <div className="text-center mb-14">
+   507→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   508→              <BookOpen className="h-4 w-4" />
+   509→              Our Programs
+   510→            </div>
+   511→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   512→              Explore Our TVET Programs
+   513→            </h2>
+   514→            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+   515→              Industry-aligned certificate and diploma programs designed to give
+   516→              you the hands-on skills employers demand.
+   517→            </p>
+   518→          </div>
+   519→
+   520→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+   521→            {PROGRAMS.map((prog, i) => {
+   522→              const Icon = prog.icon;
+   523→              return (
+   524→                <motion.div
+   525→                  key={prog.name}
+   526→                  initial={{ opacity: 0, y: 30 }}
+   527→                  whileInView={{ opacity: 1, y: 0 }}
+   528→                  viewport={{ once: true }}
+   529→                  transition={{ duration: 0.5, delay: i * 0.08 }}
+   530→                >
+   531→                  <Card className="group h-full border border-slate-200/80 rounded-2xl hover:border-[#1a3a6b]/20 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white">
+   532→                    {/* top accent bar */}
+   533→                    <div className="h-1.5 bg-gradient-to-r from-[#1a3a6b] via-[#2756a0] to-[#f5c518]" />
+   534→                    <CardContent className="p-6 flex flex-col h-full">
+   535→                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center shadow-lg shadow-[#1a3a6b]/20 mb-5 group-hover:scale-110 transition-transform duration-300">
+   536→                        <Icon className="h-7 w-7 text-[#f5c518]" />
+   537→                      </div>
+   538→                      <h3 className="text-lg font-bold text-[#1a3a6b] mb-1">
+   539→                        {prog.name}
+   540→                      </h3>
+   541→                      <p className="text-sm text-muted-foreground mb-4 flex-1">
+   542→                        Comprehensive hands-on training leading to a recognized
+   543→                        TVET qualification.
+   544→                      </p>
+   545→                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
+   546→                        <div>
+   547→                          <p className="text-xs text-[#f5c518] font-semibold uppercase tracking-wider">
+   548→                            Fees
+   549→                          </p>
+   550→                          <p className="text-sm font-medium text-muted-foreground">
+   551→                            Contact Administration
+   552→                          </p>
+   553→                        </div>
+   554→                        <Button
+   555→                          size="sm"
+   556→                          onClick={() => setCurrentPage('admissions')}
+   557→                          className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold rounded-lg transition-all hover:scale-105"
+   558→                        >
+   559→                          Apply
+   560→                          <ArrowRight className="ml-1 h-4 w-4" />
+   561→                        </Button>
+   562→                      </div>
+   563→                    </CardContent>
+   564→                  </Card>
+   565→                </motion.div>
+   566→              );
+   567→            })}
+   568→          </div>
+   569→
+   570→          <div className="text-center mt-12">
+   571→            <Button
+   572→              variant="outline"
+   573→              onClick={() => setCurrentPage('programs')}
+   574→              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+   575→            >
+   576→              View All Programs
+   577→              <ChevronRight className="ml-2 h-4 w-4" />
+   578→            </Button>
+   579→          </div>
+   580→        </div>
+   581→      </Section>
+   582→
+   583→      {/* ─────────────────────────────────────────────────
+   584→          5. CAMPUS PHOTO STRIP
+   585→          ───────────────────────────────────────────────── */}
+   586→      <Section className="py-12 md:py-16 px-4 overflow-hidden">
+   587→        <div className="max-w-7xl mx-auto">
+   588→          <div className="text-center mb-10">
+   589→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   590→              <Heart className="h-4 w-4" />
+   591→              Life at SKTM
+   592→            </div>
+   593→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   594→              Our Campus in Pictures
+   595→            </h2>
+   596→          </div>
+   597→          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+   598→            {[
+   599→              { src: '/images/campus.png', alt: 'Campus grounds' },
+   600→              { src: '/images/graduation.png', alt: 'Graduation ceremony' },
+   601→              { src: '/images/gallery-openday.png', alt: 'Open day celebrations' },
+   602→              { src: '/images/gallery-outreach.png', alt: 'Community outreach' },
+   603→            ].map((img, i) => (
+   604→              <motion.div
+   605→                key={img.alt}
+   606→                initial={{ opacity: 0, scale: 0.95 }}
+   607→                whileInView={{ opacity: 1, scale: 1 }}
+   608→                viewport={{ once: true }}
+   609→                transition={{ duration: 0.5, delay: i * 0.1 }}
+   610→                className={`relative rounded-2xl overflow-hidden shadow-lg group cursor-pointer ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
+   611→                onClick={() => setCurrentPage('gallery')}
+   612→              >
+   613→                <div className={`relative ${i === 0 ? 'aspect-square' : 'aspect-[4/3]'}`}>
+   614→                  <Image
+   615→                    src={img.src}
+   616→                    alt={img.alt}
+   617→                    fill
+   618→                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+   619→                  />
+   620→                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+   621→                  <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+   622→                    <p className="text-white text-sm font-medium">{img.alt}</p>
+   623→                  </div>
+   624→                </div>
+   625→              </motion.div>
+   626→            ))}
+   627→          </div>
+   628→          <div className="text-center mt-8">
+   629→            <Button
+   630→              variant="outline"
+   631→              onClick={() => setCurrentPage('gallery')}
+   632→              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+   633→            >
+   634→              View Full Gallery
+   635→              <ChevronRight className="ml-2 h-4 w-4" />
+   636→            </Button>
+   637→          </div>
+   638→        </div>
+   639→      </Section>
+   640→
+   641→      {/* ─────────────────────────────────────────────────
+   642→          6. ADMISSIONS CTA BANNER
+   643→          ───────────────────────────────────────────────── */}
+   644→      <Section className="px-4 py-20 md:py-28">
+   645→        <div className="max-w-6xl mx-auto">
+   646→          <div
+   647→            className="relative rounded-3xl overflow-hidden px-6 py-14 sm:px-12 sm:py-20 text-center"
+   648→            style={{
+   649→              background:
+   650→                'linear-gradient(135deg, #1a3a6b 0%, #2756a0 50%, #1a3a6b 100%)',
+   651→            }}
+   652→          >
+   653→            {/* decorative circles */}
+   654→            <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-[#f5c518]/5 -translate-x-1/2 -translate-y-1/2" />
+   655→            <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#f5c518]/5 translate-x-1/3 translate-y-1/3" />
+   656→            <div className="absolute top-1/2 right-10 w-20 h-20 rounded-full bg-white/5" />
+   657→
+   658→            <div className="relative z-10">
+   659→              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white mb-6 overflow-hidden">
+   660→                <Image src="/images/institute-logo.jpg" alt="SKTM" width={64} height={64} className="object-contain w-full h-full" />
+   661→              </div>
+   662→              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+   663→                Ready to Build Your Future?
+   664→              </h2>
+   665→              <p className="mt-4 text-blue-100/80 max-w-xl mx-auto text-lg">
+   666→                Applications are now open for the {new Date().getFullYear()} intake.
+   667→                Secure your spot and start your journey toward a rewarding career.
+   668→              </p>
+   669→              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+   670→                <Button
+   671→                  size="lg"
+   672→                  onClick={() => setCurrentPage('admissions')}
+   673→                  className="bg-[#f5c518] hover:bg-[#e0b300] text-[#1a3a6b] font-bold text-base px-8 py-6 rounded-lg shadow-lg shadow-[#f5c518]/20 transition-all hover:scale-105"
+   674→                >
+   675→                  Start Application
+   676→                  <ArrowRight className="ml-2 h-5 w-5" />
+   677→                </Button>
+   678→                <Button
+   679→                  size="lg"
+   680→                  variant="outline"
+   681→                  onClick={() => setCurrentPage('contact')}
+   682→                  className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 font-semibold text-base px-8 py-6 rounded-lg transition-all"
+   683→                >
+   684→                  Ask a Question
+   685→                </Button>
+   686→              </div>
+   687→            </div>
+   688→          </div>
+   689→        </div>
+   690→      </Section>
+   691→
+   692→      {/* ─────────────────────────────────────────────────
+   693→          6. TESTIMONIALS
+   694→          ───────────────────────────────────────────────── */}
+   695→      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+   696→        <div className="max-w-6xl mx-auto">
+   697→          <div className="text-center mb-14">
+   698→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   699→              <Star className="h-4 w-4" />
+   700→              Testimonials
+   701→            </div>
+   702→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   703→              What Our Graduates Say
+   704→            </h2>
+   705→            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+   706→              Hear from the men and women whose lives were transformed through
+   707→              training at St. Kizito&apos;s.
+   708→            </p>
+   709→          </div>
+   710→
+   711→          <div className="grid md:grid-cols-3 gap-6">
+   712→            {TESTIMONIALS.map((t, i) => (
+   713→              <motion.div
+   714→                key={t.name}
+   715→                initial={{ opacity: 0, y: 30 }}
+   716→                whileInView={{ opacity: 1, y: 0 }}
+   717→                viewport={{ once: true }}
+   718→                transition={{ duration: 0.5, delay: i * 0.1 }}
+   719→              >
+   720→                <Card className="h-full border border-slate-200/80 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 bg-white">
+   721→                  <CardContent className="p-6 flex flex-col h-full">
+   722→                    <Quote className="h-10 w-10 text-[#f5c518]/40 mb-4" />
+   723→                    <p className="text-muted-foreground leading-relaxed flex-1 italic">
+   724→                      &ldquo;{t.quote}&rdquo;
+   725→                    </p>
+   726→                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+   727→                      <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
+   728→                        <Image
+   729→                          src={t.photo}
+   730→                          alt={t.name}
+   731→                          width={44}
+   732→                          height={44}
+   733→                          className="w-full h-full object-cover"
+   734→                        />
+   735→                      </div>
+   736→                      <div>
+   737→                        <p className="font-semibold text-[#1a3a6b] text-sm">
+   738→                          {t.name}
+   739→                        </p>
+   740→                        <p className="text-xs text-muted-foreground">
+   741→                          {t.program} &middot; {t.year}
+   742→                        </p>
+   743→                      </div>
+   744→                    </div>
+   745→                  </CardContent>
+   746→                </Card>
+   747→              </motion.div>
+   748→            ))}
+   749→          </div>
+   750→        </div>
+   751→      </Section>
+   752→
+   753→      {/* ─────────────────────────────────────────────────
+   754→          7. CONTACT SECTION
+   755→          ───────────────────────────────────────────────── */}
+   756→      <Section className="py-20 md:py-28 px-4" id="contact">
+   757→        <div className="max-w-6xl mx-auto">
+   758→          <div className="text-center mb-14">
+   759→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   760→              <Mail className="h-4 w-4" />
+   761→              Get in Touch
+   762→            </div>
+   763→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   764→              Contact Us
+   765→            </h2>
+   766→            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+   767→              Have questions? We&apos;d love to hear from you. Send us a message
+   768→              and we&apos;ll respond as soon as possible.
+   769→            </p>
+   770→          </div>
+   771→
+   772→          <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
+   773→            {/* contact info - 2 cols */}
+   774→            <div className="md:col-span-2 space-y-6">
+   775→              {[
+   776→                {
+   777→                  icon: MapPin,
+   778→                  label: 'Address',
+   779→                  value: 'P.O. Box 320, Soroti City,\nUganda',
+   780→                },
+   781→                {
+   782→                  icon: Phone,
+   783→                  label: 'Institute Lines',
+   784→                  value: '+256 752 309 660\n+256 772 309 660',
+   785→                },
+   786→                {
+   787→                  icon: Phone,
+   788→                  label: 'Principal',
+   789→                  value: '+256 772 383 391',
+   790→                },
+   791→                {
+   792→                  icon: Mail,
+   793→                  label: 'Email',
+   794→                  value: 'stkizitmad@gmail.com',
+   795→                },
+   796→                {
+   797→                  icon: Clock,
+   798→                  label: 'Office Hours',
+   799→                  value: 'Mon - Fri: 8:00 AM - 5:00 PM',
+   800→                },
+   801→              ].map((item) => {
+   802→                const Icon = item.icon;
+   803→                return (
+   804→                  <div
+   805→                    key={item.label}
+   806→                    className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+   807→                  >
+   808→                    <div className="w-10 h-10 shrink-0 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+   809→                      <Icon className="h-5 w-5 text-[#1a3a6b]" />
+   810→                    </div>
+   811→                    <div>
+   812→                      <p className="text-sm font-semibold text-[#1a3a6b]">
+   813→                        {item.label}
+   814→                      </p>
+   815→                      <p className="text-sm text-muted-foreground whitespace-pre-line">
+   816→                        {item.value}
+   817→                      </p>
+   818→                    </div>
+   819→                  </div>
+   820→                );
+   821→              })}
+   822→            </div>
+   823→
+   824→            {/* contact form - 3 cols */}
+   825→            <div className="md:col-span-3">
+   826→              <Card className="border border-slate-200/80 rounded-2xl shadow-lg">
+   827→                <CardContent className="p-6 sm:p-8">
+   828→                  <form onSubmit={handleContactSubmit} className="space-y-5">
+   829→                    <div className="grid sm:grid-cols-2 gap-5">
+   830→                      <div className="space-y-2">
+   831→                        <Label htmlFor="contact-name" className="text-sm font-medium text-[#1a3a6b]">
+   832→                          Full Name <span className="text-red-500">*</span>
+   833→                        </Label>
+   834→                        <Input
+   835→                          id="contact-name"
+   836→                          placeholder="John Doe"
+   837→                          required
+   838→                          value={contactForm.name}
+   839→                          onChange={(e) =>
+   840→                            setContactForm((f) => ({ ...f, name: e.target.value }))
+   841→                          }
+   842→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   843→                        />
+   844→                      </div>
+   845→                      <div className="space-y-2">
+   846→                        <Label htmlFor="contact-email" className="text-sm font-medium text-[#1a3a6b]">
+   847→                          Email Address <span className="text-red-500">*</span>
+   848→                        </Label>
+   849→                        <Input
+   850→                          id="contact-email"
+   851→                          type="email"
+   852→                          placeholder="john@example.com"
+   853→                          required
+   854→                          value={contactForm.email}
+   855→                          onChange={(e) =>
+   856→                            setContactForm((f) => ({ ...f, email: e.target.value }))
+   857→                          }
+   858→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   859→                        />
+   860→                      </div>
+   861→                    </div>
+   862→                    <div className="grid sm:grid-cols-2 gap-5">
+   863→                      <div className="space-y-2">
+   864→                        <Label htmlFor="contact-phone" className="text-sm font-medium text-[#1a3a6b]">
+   865→                          Phone Number
+   866→                        </Label>
+   867→                        <Input
+   868→                          id="contact-phone"
+   869→                          placeholder="+256 7XX XXX XXX"
+   870→                          value={contactForm.phone}
+   871→                          onChange={(e) =>
+   872→                            setContactForm((f) => ({ ...f, phone: e.target.value }))
+   873→                          }
+   874→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   875→                        />
+   876→                      </div>
+   877→                      <div className="space-y-2">
+   878→                        <Label htmlFor="contact-subject" className="text-sm font-medium text-[#1a3a6b]">
+   879→                          Subject <span className="text-red-500">*</span>
+   880→                        </Label>
+   881→                        <Input
+   882→                          id="contact-subject"
+   883→                          placeholder="How can we help?"
+   884→                          required
+   885→                          value={contactForm.subject}
+   886→                          onChange={(e) =>
+   887→                            setContactForm((f) => ({ ...f, subject: e.target.value }))
+   888→                          }
+   889→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   890→                        />
+   891→                      </div>
+   892→                    </div>
+   893→                    <div className="space-y-2">
+   894→                      <Label htmlFor="contact-message" className="text-sm font-medium text-[#1a3a6b]">
+   895→                        Message <span className="text-red-500">*</span>
+   896→                      </Label>
+   897→                      <Textarea
+   898→                        id="contact-message"
+   899→                        placeholder="Tell us more about your inquiry..."
+   900→                        required
+   901→                        rows={5}
+   902→                        value={contactForm.message}
+   903→                        onChange={(e) =>
+   904→                          setContactForm((f) => ({ ...f, message: e.target.value }))
+   905→                        }
+   906→                        className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20 resize-none"
+   907→                      />
+   908→                    </div>
+   909→                    <Button
+   910→                      type="submit"
+   911→                      disabled={contactSubmitting}
+   912→                      className="w-full sm:w-auto bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-8 py-3 rounded-lg transition-all hover:scale-[1.02] disabled:opacity-60"
+   913→                    >
+   914→                      {contactSubmitting ? (
+   915→                        <span className="flex items-center gap-2">
+   916→                          <motion.div
+   917→                            animate={{ rotate: 360 }}
+   918→                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+   919→                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+   920→                          />
+   921→                          Sending...
+   922→                        </span>
+   923→                      ) : (
+   924→                        <span className="flex items-center gap-2">
+   925→                          <Send className="h-4 w-4" />
+   926→                          Send Message
+   927→                        </span>
+   928→                      )}
+   929→                    </Button>
+   930→                  </form>
+   931→                </CardContent>
+   932→              </Card>
+   933→            </div>
+   934→          </div>
+   935→        </div>
+   936→      </Section>
+   937→
+   938→      {/* ─────────────────────────────────────────────────
+   939→          8. FOOTER
+   940→          ───────────────────────────────────────────────── */}
+   941→      <footer className="mt-auto bg-[#0d1b2a] text-white relative overflow-hidden">
+   942→        {/* Footer background image underlay */}
+   943→        <div className="absolute inset-0">
+   944→          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-20" />
+   945→          <div className="absolute inset-0 bg-[#0d1b2a]/75" />
+   946→        </div>
+   947→
+   948→        <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
+   949→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
+   950→            {/* brand column */}
+   951→            <div>
+   952→              <div className="flex items-center gap-3 mb-5">
+   953→                <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+   954→                  <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
+   955→                </div>
+   956→                <div>
+   957→                  <h3 className="font-bold text-base leading-tight">
+   958→                    St. Kizito&apos;s
+   959→                  </h3>
+   960→                  <p className="text-xs text-blue-100/80">Technical Institute - Madera</p>
+   961→                </div>
+   962→              </div>
+   963→              <p className="text-sm text-blue-100/90 leading-relaxed mb-6">
+   964→                Building skills and transforming lives since 1947. A government-aided
+   965→                TVET institution anchored on Christian principles in Soroti City,
+   966→                Eastern Uganda.
+   967→              </p>
+   968→              {/* social links */}
+   969→              <div className="flex items-center gap-3">
+   970→                {[Facebook, Twitter, Youtube].map((Icon, i) => (
+   971→                  <a
+   972→                    key={i}
+   973→                    href="#"
+   974→                    className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#f5c518] hover:text-[#1a3a6b] flex items-center justify-center transition-all duration-200"
+   975→                    aria-label="Social media"
+   976→                  >
+   977→                    <Icon className="h-4 w-4" />
+   978→                  </a>
+   979→                ))}
+   980→              </div>
+   981→            </div>
+   982→
+   983→            {/* quick links */}
+   984→            <div>
+   985→              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+   986→                Quick Links
+   987→              </h4>
+   988→              <ul className="space-y-3">
+   989→                {QUICK_LINKS.map((link) => (
+   990→                  <li key={link.page}>
+   991→                    <button
+   992→                      onClick={() => setCurrentPage(link.page)}
+   993→                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
+   994→                    >
+   995→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+   996→                      {link.label}
+   997→                    </button>
+   998→                  </li>
+   999→                ))}
+  1000→              </ul>
+  1001→            </div>
+  1002→
+  1003→            {/* programs column */}
+  1004→            <div>
+  1005→              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+  1006→                Our Programs
+  1007→              </h4>
+  1008→              <ul className="space-y-3">
+  1009→                {PROGRAMS.map((prog) => (
+  1010→                  <li key={prog.name}>
+  1011→                    <button
+  1012→                      onClick={() => setCurrentPage('programs')}
+  1013→                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
+  1014→                    >
+  1015→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+  1016→                      {prog.name}
+  1017→                    </button>
+  1018→                  </li>
+  1019→                ))}
+  1020→              </ul>
+  1021→            </div>
+  1022→          </div>
+  1023→        </div>
+  1024→
+  1025→        {/* bottom bar */}
+  1026→        <div className="border-t border-white/10">
+  1027→          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+  1028→            <p className="text-sm text-blue-100/70">
+  1029→              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
+  1030→              All rights reserved.
+  1031→            </p>
+  1032→            <p className="text-xs text-blue-100/60">
+  1033→              Crafted with <Heart className="inline h-3 w-3 text-[#f5c518]" /> for
+  1034→              excellence in TVET education
+  1035→            </p>
+  1036→          </div>
+  1037→        </div>
+  1038→      </footer>
+  1039→    </div>
+  1040→  );
+  1041→}
+  1042→

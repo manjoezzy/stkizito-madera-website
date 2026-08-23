@@ -212,7 +212,7 @@ export default function ProgramsPage() {
     <div className="min-h-screen bg-white">
       {/* ── Page Header ── */}
       <section
-        className="relative pt-28 pb-20 md:pt-36 md:pb-28 px-4 text-center overflow-hidden"
+        className="relative pt-[108px] lg:pt-[116px] pb-20 md:pb-28 px-4 text-center overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 100%)`,
         }}

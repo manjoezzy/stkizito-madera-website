@@ -97,3 +97,40 @@ Stage Summary:
 - Footer background image more visible (20% opacity), text much more readable
 - Full About page with 6 collapsible sections available via navigation dropdown
 - About appears in Quick Links and mobile menu
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Redesign navigation (two-bar layout), beautiful organogram, footer text fix
+
+Work Log:
+- Redesigned Navigation.tsx with a two-bar layout:
+  - Top bar (h-14 lg:h-16): Logo + institute name (whitespace-nowrap) + Apply Now button (right)
+  - Secondary bar (h-10 lg:h-11): Main nav links (left) + About Us dropdown + Portals dropdown (right)
+  - Mobile menu preserved with all nav items, About section, and Portals section
+  - Both bars have transparent/dark mode on home page, white mode on other pages
+- Institute name and Apply Now button no longer wrap - they are in separate bars
+- About Us and Portals moved to right corner of secondary navigation bar
+- Reduced nav link font size to 13px and padding to px-2.5 for compact fit
+- Fixed footer: increased background image opacity from 20% to 25%, reduced overlay from 75% to 65%
+- Fixed footer text: removed all /opacity modifiers, using full white/blue-100 for readability
+- Designed beautiful organogram in AboutPage.tsx based on the uploaded document:
+  - Level 1: Board of Governors (gold-bordered top box)
+  - Level 2: Principal / Secretary BoG (primary box)
+  - Level 3 (branched): Dean of Students > Warden/Matron | Deputy Principal > Bursar > Secretary + Exam Secretary
+  - Level 4: Heads of Department with department list (AM, WWT, TCG, EISM, PLG, BCP, FM & ICT)
+  - Level 5: Teachers + Workshop Assistants under HODs
+  - Support Staff row: Caterer, Stores Asst., Nurse, Office Attendant, Askaris, Compound Workers, Sanitary Attendant, Library Asst., Driver
+  - Student Leadership: Guild President > Students (gold accent)
+  - Uses proper connecting lines, horizontal branch connectors, variant-styled boxes
+- Updated all page header paddings across 7 files to account for taller two-bar navigation:
+  - HomePage, AboutPage, GalleryPage, AdmissionsPage: pt-[104px] lg:pt-[108px]
+  - ProgramsPage, EventsPage, StudentPortalPage, OnlineLearningPage: pt-[108px] lg:pt-[116px]
+- Build compiled successfully with zero errors
+
+Stage Summary:
+- Navigation redesigned as two-bar system - no more wrapping of name or Apply button
+- About Us and Portals positioned on right corner of secondary nav bar
+- Organogram redesigned to match the official document structure with beautiful visual hierarchy
+- Footer background image now clearly visible, all text fully readable
+- All 8 pages have correct top padding for the two-bar navigation

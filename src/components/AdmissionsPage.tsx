@@ -850,7 +850,7 @@ export default function AdmissionsPage() {
     <div className="min-h-screen flex flex-col">
       {/* ═══════════ PAGE HEADER ═══════════ */}
       <header
-        className="pt-24 pb-16 relative overflow-hidden"
+        className="pt-[104px] lg:pt-[108px] pb-16 relative overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, ${PRIMARY} 100%)` }}
       >
         <div className="absolute inset-0 opacity-10">

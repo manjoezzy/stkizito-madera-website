@@ -96,7 +96,7 @@ export default function GalleryPage() {
     <div className="min-h-screen bg-white">
       {/* ── Page Header ── */}
       <section
-        className="relative pt-20 pb-16 md:pb-24 px-4 text-center overflow-hidden"
+        className="relative pt-[104px] lg:pt-[108px] pb-16 md:pb-24 px-4 text-center overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 100%)`,
         }}

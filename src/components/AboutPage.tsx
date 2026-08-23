@@ -24,6 +24,17 @@ import {
   CheckCircle,
   Briefcase,
   ClipboardList,
+  UserCog,
+  UserCheck,
+  Building,
+  Truck,
+  Utensils,
+  Stethoscope,
+  Library,
+  ShieldCheck,
+  HardHat,
+  UserCircle,
+  UsersRound,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,133 +46,34 @@ const GOLD = '#f5c518';
 /* ──────────────── section data ──────────────── */
 
 const ABOUT_SECTIONS = [
-  {
-    id: 'vision',
-    label: 'Our Vision',
-    icon: Eye,
-    color: PRIMARY,
-  },
-  {
-    id: 'mission',
-    label: 'Our Mission',
-    icon: Target,
-    color: PRIMARY_LIGHT,
-  },
-  {
-    id: 'values',
-    label: 'Core Values',
-    icon: Heart,
-    color: '#e11d48',
-  },
-  {
-    id: 'organogram',
-    label: 'Organogram',
-    icon: Network,
-    color: '#0d9488',
-  },
-  {
-    id: 'governance',
-    label: 'Governance',
-    icon: Landmark,
-    color: '#7c3aed',
-  },
-  {
-    id: 'anthem',
-    label: 'School Anthem',
-    icon: Music,
-    color: GOLD,
-  },
+  { id: 'vision', label: 'Our Vision', icon: Eye, color: PRIMARY },
+  { id: 'mission', label: 'Our Mission', icon: Target, color: PRIMARY_LIGHT },
+  { id: 'values', label: 'Core Values', icon: Heart, color: '#e11d48' },
+  { id: 'organogram', label: 'Organogram', icon: Network, color: '#0d9488' },
+  { id: 'governance', label: 'Governance', icon: Landmark, color: '#7c3aed' },
+  { id: 'anthem', label: 'School Anthem', icon: Music, color: GOLD },
 ];
 
 /* ──────────────── values data ──────────────── */
 
 const CORE_VALUES = [
-  {
-    icon: Cross,
-    title: 'Faith & Prayer',
-    description: 'Rooted in Catholic Christian values, we nurture spiritual growth and moral integrity alongside academic excellence.',
-  },
-  {
-    icon: Lightbulb,
-    title: 'Innovation',
-    description: 'We embrace modern technology and creative problem-solving to prepare students for a rapidly evolving workforce.',
-  },
-  {
-    icon: Handshake,
-    title: 'Integrity',
-    description: 'Honesty, transparency, and ethical conduct are the foundation of every interaction within our institution.',
-  },
-  {
-    icon: Users,
-    title: 'Teamwork',
-    description: 'Collaborative learning and mutual respect define our community, preparing students for professional environments.',
-  },
-  {
-    icon: Globe,
-    title: 'Excellence',
-    description: 'We pursue the highest standards in technical education, producing graduates who stand out in their fields.',
-  },
-  {
-    icon: Shield,
-    title: 'Discipline',
-    description: 'A structured and disciplined environment fosters focus, responsibility, and professional work habits.',
-  },
+  { icon: Cross, title: 'Faith & Prayer', description: 'Rooted in Catholic Christian values, we nurture spiritual growth and moral integrity alongside academic excellence.' },
+  { icon: Lightbulb, title: 'Innovation', description: 'We embrace modern technology and creative problem-solving to prepare students for a rapidly evolving workforce.' },
+  { icon: Handshake, title: 'Integrity', description: 'Honesty, transparency, and ethical conduct are the foundation of every interaction within our institution.' },
+  { icon: Users, title: 'Teamwork', description: 'Collaborative learning and mutual respect define our community, preparing students for professional environments.' },
+  { icon: Globe, title: 'Excellence', description: 'We pursue the highest standards in technical education, producing graduates who stand out in their fields.' },
+  { icon: Shield, title: 'Discipline', description: 'A structured and disciplined environment fosters focus, responsibility, and professional work habits.' },
 ];
 
 /* ──────────────── governance data ──────────────── */
 
 const GOVERNANCE_BODY = [
-  {
-    role: 'Board of Governors',
-    description: 'The supreme governing body that provides strategic direction, policy oversight, and ensures the institution meets its mandate as a government-aided TVET centre.',
-    icon: Landmark,
-  },
-  {
-    role: 'Principal',
-    description: 'The chief executive of the institute responsible for day-to-day academic and administrative operations, implementation of board decisions, and staff management.',
-    icon: GraduationCap,
-  },
-  {
-    role: 'Deputy Principal',
-    description: 'Assists the Principal in academic coordination, curriculum implementation, and student welfare across all programmes.',
-    icon: BookOpen,
-  },
-  {
-    role: 'Director of Studies',
-    description: 'Oversees curriculum development, examination coordination, academic standards, and ensures compliance with DIT/UBTEB requirements.',
-    icon: ClipboardList,
-  },
-  {
-    role: 'Bursar',
-    description: 'Manages the institute\'s financial operations including budgeting, fee collection, procurement, and financial reporting to the Board.',
-    icon: Briefcase,
-  },
+  { role: 'Board of Governors', description: 'The supreme governing body that provides strategic direction, policy oversight, and ensures the institution meets its mandate as a government-aided TVET centre.', icon: Landmark },
+  { role: 'Principal', description: 'The chief executive of the institute responsible for day-to-day academic and administrative operations, implementation of board decisions, and staff management.', icon: GraduationCap },
+  { role: 'Deputy Principal', description: 'Assists the Principal in academic coordination, curriculum implementation, and student welfare across all programmes.', icon: BookOpen },
+  { role: 'Director of Studies', description: 'Oversees curriculum development, examination coordination, academic standards, and ensures compliance with DIT/UBTEB requirements.', icon: ClipboardList },
+  { role: 'Bursar', description: "Manages the institute's financial operations including budgeting, fee collection, procurement, and financial reporting to the Board.", icon: Briefcase },
 ];
-
-/* ──────────────── organogram data ──────────────── */
-
-const ORGANOGRAM_DATA = {
-  top: { title: 'Board of Governors', icon: Landmark },
-  second: { title: 'Principal', icon: GraduationCap },
-  third: [
-    { title: 'Deputy Principal', icon: BookOpen },
-    { title: 'Bursar', icon: Briefcase },
-  ],
-  fourth: [
-    { title: 'Director of Studies', icon: ClipboardList },
-    { title: 'Dean of Students', icon: Users },
-    { title: 'Head of Departments', icon: Briefcase },
-  ],
-  fifth: [
-    'Building Construction',
-    'Automotive Mechanics',
-    'Electrical Installation',
-    'Plumbing',
-    'Machining & Fitting',
-    'Woodwork Technology',
-    'Fashion & Design',
-  ],
-};
 
 /* ══════════════════════════════════════════════════════
    MAIN COMPONENT
@@ -178,7 +90,7 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col bg-white">
       {/* ═══════════ PAGE HEADER ═══════════ */}
       <header
-        className="pt-24 pb-16 relative overflow-hidden"
+        className="pt-[104px] lg:pt-[108px] pb-16 relative overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, ${PRIMARY} 100%)` }}
       >
         <div className="absolute inset-0 opacity-10">
@@ -191,9 +103,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-              About Us
-            </h1>
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">About Us</h1>
             <p className="mt-4 text-lg text-blue-100 max-w-2xl mx-auto">
               Discover the heritage, purpose, and structure of St. Kizito&apos;s Technical Institute - Madera.
             </p>
@@ -234,12 +144,7 @@ export default function AboutPage() {
             >
               <div className="rounded-3xl overflow-hidden shadow-2xl">
                 <div className="relative aspect-[4/3]">
-                  <Image
-                    src="/images/about-workshop.png"
-                    alt="Students in workshop at SKTM"
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src="/images/about-workshop.png" alt="Students in workshop at SKTM" fill className="object-cover" />
                 </div>
               </div>
               <div className="absolute -bottom-6 -left-4 bg-white rounded-2xl shadow-xl p-4 border border-slate-100">
@@ -267,9 +172,7 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold" style={{ color: PRIMARY }}>
-              Explore Our Institution
-            </h2>
+            <h2 className="text-3xl font-bold" style={{ color: PRIMARY }}>Explore Our Institution</h2>
             <p className="mt-2 text-slate-500">Click each section to learn more about who we are</p>
           </motion.div>
 
@@ -291,17 +194,12 @@ export default function AboutPage() {
                       className="w-full flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-slate-50/50 transition-colors"
                     >
                       <div className="flex items-center gap-4">
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center"
-                          style={{ background: `${section.color}15` }}
-                        >
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${section.color}15` }}>
                           <Icon className="h-5 w-5" style={{ color: section.color }} />
                         </div>
                         <span className="text-base font-semibold text-slate-800">{section.label}</span>
                       </div>
-                      <ChevronDown
-                        className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                      />
+                      <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>
                       {isOpen && (
@@ -368,20 +266,13 @@ export default function AboutPage() {
 
 function renderSectionContent(id: string) {
   switch (id) {
-    case 'vision':
-      return <VisionContent />;
-    case 'mission':
-      return <MissionContent />;
-    case 'values':
-      return <ValuesContent />;
-    case 'organogram':
-      return <OrganogramContent />;
-    case 'governance':
-      return <GovernanceContent />;
-    case 'anthem':
-      return <AnthemContent />;
-    default:
-      return null;
+    case 'vision': return <VisionContent />;
+    case 'mission': return <MissionContent />;
+    case 'values': return <ValuesContent />;
+    case 'organogram': return <OrganogramContent />;
+    case 'governance': return <GovernanceContent />;
+    case 'anthem': return <AnthemContent />;
+    default: return null;
   }
 }
 
@@ -474,80 +365,145 @@ function ValuesContent() {
   );
 }
 
-/* ──── ORGANOGRAM ──── */
+/* ══════════════════════════════════════════════════════
+   BEAUTIFUL ORGANOGRAM
+   ══════════════════════════════════════════════════════ */
 function OrganogramContent() {
   return (
     <div className="space-y-4">
       <p className="text-slate-600 leading-relaxed">
-        The organisational structure of St. Kizito&apos;s Technical Institute - Madera ensures clear lines of authority, effective communication, and efficient management of academic and administrative functions.
+        The organisational structure of St. Kizito&apos;s Technical Institute - Madera follows the government-aided institution framework, ensuring clear lines of authority, effective communication, and efficient management of academic and administrative functions.
       </p>
 
-      <div className="flex flex-col items-center py-4 space-y-3">
-        {/* Top level - Board */}
-        <OrgNode title={ORGANOGRAM_DATA.top.title} icon={ORGANOGRAM_DATA.top.icon} variant="primary" />
-        <OrgConnector />
+      {/* Scrollable container for the org chart */}
+      <div className="overflow-x-auto -mx-2 px-2 pb-4">
+        <div className="min-w-[640px] flex flex-col items-center py-4">
 
-        {/* Second level - Principal */}
-        <OrgNode title={ORGANOGRAM_DATA.second.title} icon={ORGANOGRAM_DATA.second.icon} variant="gold" />
-        <OrgConnector />
+          {/* ── LEVEL 1: Board of Governors ── */}
+          <OrgBox title="Board of Governors" icon={<Landmark size={16} />} variant="top" />
+          <VertLine />
 
-        {/* Third level */}
-        <div className="flex items-start gap-12">
-          {ORGANOGRAM_DATA.third.map((item) => (
-            <div key={item.title} className="flex flex-col items-center">
-              <OrgNode title={item.title} icon={item.icon} variant="default" />
-              <OrgConnector />
-              {/* Fourth level items under this third-level node */}
-              <div className="flex flex-col items-center gap-3">
-                {ORGANOGRAM_DATA.fourth
-                  .filter((_, idx) => {
-                    if (item.title.includes('Deputy')) return idx < 2;
-                    return idx >= 2;
-                  })
-                  .map((fourth) => (
-                    <OrgNode key={fourth.title} title={fourth.title} icon={fourth.icon} variant="small" />
-                  ))}
+          {/* ── LEVEL 2: Principal ── */}
+          <OrgBox title="Principal / Secretary BoG" icon={<GraduationCap size={16} />} variant="primary" />
+          <VertLine />
+
+          {/* ── Horizontal connector that branches ── */}
+          <div className="flex items-center w-full max-w-[560px]">
+            {/* left section span */}
+            <div className="flex-1 flex justify-end pr-2">
+              <div className="w-px h-5 bg-[#1a3a6b]/30" />
+            </div>
+            {/* centre horizontal line */}
+            <div className="w-16 border-t-2 border-[#1a3a6b]/30" />
+            {/* right section span */}
+            <div className="flex-1 flex justify-start pl-2">
+              <div className="w-px h-5 bg-[#1a3a6b]/30" />
+            </div>
+          </div>
+
+          {/* ── LEVEL 3: Two groups ── */}
+          <div className="flex items-start w-full max-w-[600px] mt-0">
+
+            {/* LEFT GROUP: Student welfare line */}
+            <div className="flex-1 flex flex-col items-center gap-0">
+              <OrgBox title="Dean of Students" icon={<Users size={14} />} variant="secondary" />
+              <VertLine short />
+              <OrgBox title="Warden / Matron" icon={<ShieldCheck size={14} />} variant="small" />
+            </div>
+
+            {/* RIGHT GROUP: Admin line */}
+            <div className="flex-1 flex flex-col items-center gap-0">
+              <OrgBox title="Deputy Principal" icon={<BookOpen size={14} />} variant="secondary" />
+              <VertLine short />
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <OrgBox title="Bursar" icon={<Briefcase size={13} />} variant="small" />
+                  <VertLine short />
+                  <OrgBox title="Secretary" icon={<UserCog size={13} />} variant="tiny" />
+                </div>
+                <div className="flex flex-col items-center">
+                  <OrgBox title="Exam Secretary" icon={<ClipboardList size={13} />} variant="small" />
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Departments - shown under Head of Departments */}
-        <div className="w-full mt-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-center mb-3">Departments</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {ORGANOGRAM_DATA.fifth.map((dept) => (
+          {/* ── LEVEL 4: Heads of Department ── */}
+          <VertLine />
+          <OrgBox title="Heads of Department" icon={<Building size={16} />} variant="primary" />
+          <p className="text-[10px] text-slate-400 font-medium -mt-1 mb-1">(AM, WWT, TCG, EISM, PLG, BCP, FM &amp; ICT)</p>
+          <VertLine short />
+
+          {/* ── LEVEL 5: Under HODs ── */}
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center">
+              <OrgBox title="Teachers" icon={<UserCheck size={13} />} variant="small" />
+            </div>
+            <div className="flex flex-col items-center">
+              <OrgBox title="Workshop Assistants" icon={<HardHat size={13} />} variant="small" />
+            </div>
+          </div>
+
+          {/* ── Divider ── */}
+          <div className="w-full max-w-[560px] my-4 border-t border-dashed border-slate-200" />
+
+          {/* ── SUPPORT STAFF ── */}
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Support Staff</p>
+          <div className="flex flex-wrap justify-center gap-2 max-w-[580px]">
+            {[
+              { label: 'Caterer', icon: <Utensils size={12} /> },
+              { label: 'Stores Asst.', icon: <Briefcase size={12} /> },
+              { label: 'Nurse', icon: <Stethoscope size={12} /> },
+              { label: 'Office Attendant', icon: <UserCog size={12} /> },
+              { label: 'Askaris', icon: <ShieldCheck size={12} /> },
+              { label: 'Compound Workers', icon: <HardHat size={12} /> },
+              { label: 'Sanitary Attendant', icon: <UserCircle size={12} /> },
+              { label: 'Library Asst.', icon: <Library size={12} /> },
+              { label: 'Driver', icon: <Truck size={12} /> },
+            ].map((s) => (
               <span
-                key={dept}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 bg-white"
+                key={s.label}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border border-slate-200 text-slate-600 bg-white"
               >
-                {dept}
+                {s.icon} {s.label}
               </span>
             ))}
           </div>
+
+          {/* ── Divider ── */}
+          <div className="w-full max-w-[560px] my-4 border-t border-dashed border-slate-200" />
+
+          {/* ── STUDENT BODY ── */}
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Student Leadership</p>
+          <OrgBox title="Guild President" icon={<UsersRound size={14} />} variant="secondary" />
+          <VertLine short />
+          <OrgBox title="Students" icon={<Users size={14} />} variant="gold" />
+
         </div>
       </div>
     </div>
   );
 }
 
-function OrgNode({ title, icon: Icon, variant }: { title: string; icon: React.ElementType; variant: 'primary' | 'gold' | 'default' | 'small' }) {
-  const styles = {
-    primary: `px-6 py-3 text-white font-bold text-sm ${PRIMARY}`,
-    gold: `px-5 py-2.5 font-bold text-sm border-2 ${GOLD} ${PRIMARY}`,
-    default: `px-4 py-2 font-semibold text-xs bg-white border border-slate-200 text-slate-700`,
-    small: `px-3 py-1.5 font-medium text-xs bg-slate-50 border border-slate-200 text-slate-600`,
+/* ── ORGANOGRAM PRIMITIVES ── */
+
+function OrgBox({ title, icon, variant }: { title: string; icon: React.ReactNode; variant: 'top' | 'primary' | 'secondary' | 'gold' | 'small' | 'tiny' }) {
+  const base = 'flex items-center gap-2 rounded-xl font-semibold shadow-sm transition-transform hover:scale-[1.02]';
+
+  const styles: Record<string, string> = {
+    top:      `${base} px-6 py-3 text-white text-sm bg-gradient-to-r from-[#1a3a6b] to-[#2756a0] border-2 border-[#f5c518]/40`,
+    primary:  `${base} px-5 py-2.5 text-white text-sm bg-[#1a3a6b] border border-[#1a3a6b]`,
+    secondary:`${base} px-4 py-2 text-sm bg-white border-2 border-[#1a3a6b] text-[#1a3a6b]`,
+    gold:     `${base} px-5 py-2.5 text-sm bg-[#f5c518] text-[#1a3a6b] border border-[#f5c518]`,
+    small:    `${base} px-3 py-1.5 text-xs bg-white border border-[#1a3a6b]/60 text-[#1a3a6b]`,
+    tiny:     `${base} px-2.5 py-1 text-[11px] bg-slate-50 border border-slate-200 text-slate-600`,
   };
-  return (
-    <div className={`flex items-center gap-2 rounded-xl shadow-sm ${styles[variant]}`}>
-      <Icon className={variant === 'primary' ? 'h-5 w-5' : variant === 'gold' ? 'h-4 w-4' : 'h-3.5 w-3.5'} />
-      <span>{title}</span>
-    </div>
-  );
+
+  return <div className={styles[variant]}>{icon}<span>{title}</span></div>;
 }
 
-function OrgConnector() {
-  return <div className="w-px h-6 bg-slate-300" />;
+function VertLine({ short }: { short?: boolean }) {
+  return <div className={`w-px ${short ? 'h-4' : 'h-6'} bg-[#1a3a6b]/25`} />;
 }
 
 /* ──── GOVERNANCE ──── */
@@ -558,7 +514,7 @@ function GovernanceContent() {
         The governance of St. Kizito&apos;s Technical Institute - Madera operates within the framework established by the Ministry of Education and Sports for government-aided institutions. Our governance structure ensures accountability, transparency, and effective management.
       </p>
       <div className="space-y-3">
-        {GOVERNANCE_BODY.map((role, i) => {
+        {GOVERNANCE_BODY.map((role) => {
           const Icon = role.icon;
           return (
             <div key={role.role} className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
@@ -595,44 +551,20 @@ function AnthemContent() {
         </div>
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-4">St. Kizito&apos;s Technical Institute - Madera</p>
         <div className="max-w-lg mx-auto space-y-3 text-slate-700 leading-relaxed italic text-base">
-          <p>
-            St. Kizito&apos;s our great institute,
-          </p>
-          <p>
-            Built on faith and solid ground,
-          </p>
-          <p>
-            Madera stands with pride and honour,
-          </p>
-          <p>
-            Where true skills and knowledge abound.
-          </p>
+          <p>St. Kizito&apos;s our great institute,</p>
+          <p>Built on faith and solid ground,</p>
+          <p>Madera stands with pride and honour,</p>
+          <p>Where true skills and knowledge abound.</p>
           <br />
-          <p>
-            With hands and hearts we work together,
-          </p>
-          <p>
-            In harmony and love united,
-          </p>
-          <p>
-            To build our nation strong and brighter,
-          </p>
-          <p>
-            Through technical skills, we are ignited.
-          </p>
+          <p>With hands and hearts we work together,</p>
+          <p>In harmony and love united,</p>
+          <p>To build our nation strong and brighter,</p>
+          <p>Through technical skills, we are ignited.</p>
           <br />
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>
-            Forward ever, backward never,
-          </p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>
-            St. Kizito&apos;s, we pledge to thee,
-          </p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>
-            Excellence in all we endeavour,
-          </p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>
-            For God and country, we are free.
-          </p>
+          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>Forward ever, backward never,</p>
+          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>St. Kizito&apos;s, we pledge to thee,</p>
+          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>Excellence in all we endeavour,</p>
+          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>For God and country, we are free.</p>
         </div>
         <p className="mt-6 text-xs text-slate-400">The school anthem is sung during official assemblies and ceremonies.</p>
       </div>
