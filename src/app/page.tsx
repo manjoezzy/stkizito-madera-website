@@ -14,6 +14,7 @@ import StudentLoginPage from '@/components/StudentLoginPage';
 import OnlineLearningPage from '@/components/OnlineLearningPage';
 import EventsPage from '@/components/EventsPage';
 import GalleryPage from '@/components/GalleryPage';
+import AboutPage from '@/components/AboutPage';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
@@ -28,7 +29,7 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   contact: HomePage, // Contact section is part of HomePage
   'admin-login': AdminLoginPage,
   'admin-dashboard': AdminDashboard,
-  about: HomePage, // About section is part of HomePage
+  about: AboutPage,
 };
 
 const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {

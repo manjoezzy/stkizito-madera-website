@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
    Menu, X, Home, BookOpen, ClipboardList,
-  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon
+  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon, Info
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -18,6 +18,14 @@ const NAV_ITEMS: { label: string; page: Page; icon?: React.ReactNode }[] = [
   { label: 'Contact', page: 'contact', icon: <Phone size={16} /> },
 ];
 
+const ABOUT_DROPDOWN: { label: string; section: string }[] = [
+  { label: 'Vision & Mission', section: 'vision' },
+  { label: 'Core Values', section: 'values' },
+  { label: 'Organogram', section: 'organogram' },
+  { label: 'Governance', section: 'governance' },
+  { label: 'School Anthem', section: 'anthem' },
+];
+
 const DROPDOWN_ITEMS: { label: string; page: Page; icon: React.ReactNode }[] = [
   { label: 'Student Portal', page: 'student-portal', icon: <User size={15} /> },
   { label: 'Online Learning', page: 'online-learning', icon: <Laptop size={15} /> },
@@ -28,6 +36,7 @@ export default function Navigation() {
   const { currentPage, setCurrentPage, mobileMenuOpen, setMobileMenuOpen } = useAppStore();
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 40);
@@ -56,8 +65,8 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <button onClick={() => setCurrentPage('home')} className="flex items-center gap-3 group">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${scrolled || currentPage !== 'home' ? 'bg-white' : 'bg-white/20 backdrop-blur-sm'} transition-all`}>
-                <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden ${scrolled || currentPage !== 'home' ? 'bg-white' : 'bg-white/20 backdrop-blur-sm'} transition-all`}>
+                <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={48} height={48} className="object-contain w-full h-full" />
               </div>
               <div className="hidden sm:block">
                 <h1 className={`text-sm lg:text-base font-bold leading-tight ${logoColor} transition-colors`}>
@@ -85,7 +94,48 @@ export default function Navigation() {
                 </button>
               ))}
 
-              {/* Dropdown */}
+              {/* About Dropdown */}
+              <div className="relative" onMouseEnter={() => setAboutOpen(true)} onMouseLeave={() => setAboutOpen(false)}>
+                <button
+                  className={`px-3 xl:px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all ${
+                    currentPage === 'about'
+                      ? (scrolled || currentPage !== 'home' ? 'bg-[#1a3a6b]/10 text-[#1a3a6b]' : 'bg-white/15 text-white')
+                      : `${textColor} hover:bg-black/5`
+                  }`}
+                >
+                  About <ChevronDown size={14} className={`transition-transform ${aboutOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {aboutOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-1"
+                    >
+                      <button
+                        onClick={() => { setCurrentPage('about'); setAboutOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#1a3a6b] hover:bg-slate-50 transition-colors"
+                      >
+                        <Info size={14} /> Overview
+                      </button>
+                      <div className="border-t border-slate-100 my-1" />
+                      {ABOUT_DROPDOWN.map((item) => (
+                        <button
+                          key={item.section}
+                          onClick={() => { setCurrentPage('about'); setAboutOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#1a3a6b] transition-colors"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Portals Dropdown */}
               <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
                 <button className={`px-3 xl:px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all ${textColor} hover:bg-black/5`}> 
                   Portals <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -158,6 +208,13 @@ export default function Navigation() {
                     {item.icon} {item.label}
                   </button>
                 ))}
+                <button
+                  onClick={() => setCurrentPage('about')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === 'about' ? 'bg-[#1a3a6b]/10 text-[#1a3a6b]' : 'text-slate-600 hover:bg-slate-50'
+                  }`}>
+                  <Info size={16} /> About
+                </button>
                 <div className="border-t border-slate-100 my-3 pt-3">
                   {DROPDOWN_ITEMS.map((item) => (
                     <button

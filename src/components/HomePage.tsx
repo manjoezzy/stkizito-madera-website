@@ -91,6 +91,7 @@ const TESTIMONIALS = [
 /* ──────────────────── quick links ──────────────────── */
 const QUICK_LINKS: { label: string; page: Page }[] = [
   { label: 'Home', page: 'home' },
+  { label: 'About', page: 'about' },
   { label: 'Programs', page: 'programs' },
   { label: 'Admissions', page: 'admissions' },
   { label: 'Student Portal', page: 'student-portal' },
@@ -940,8 +941,8 @@ export default function HomePage() {
       <footer className="mt-auto bg-[#0d1b2a] text-white relative overflow-hidden">
         {/* Footer background image underlay */}
         <div className="absolute inset-0">
-          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-10" />
-          <div className="absolute inset-0 bg-[#0d1b2a]/90" />
+          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-20" />
+          <div className="absolute inset-0 bg-[#0d1b2a]/75" />
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
@@ -956,10 +957,10 @@ export default function HomePage() {
                   <h3 className="font-bold text-base leading-tight">
                     St. Kizito&apos;s
                   </h3>
-                  <p className="text-xs text-blue-200/60">Technical Institute - Madera</p>
+                  <p className="text-xs text-blue-100/80">Technical Institute - Madera</p>
                 </div>
               </div>
-              <p className="text-sm text-blue-200/70 leading-relaxed mb-6">
+              <p className="text-sm text-blue-100/90 leading-relaxed mb-6">
                 Building skills and transforming lives since 1947. A government-aided
                 TVET institution anchored on Christian principles in Soroti City,
                 Eastern Uganda.
@@ -989,7 +990,7 @@ export default function HomePage() {
                   <li key={link.page}>
                     <button
                       onClick={() => setCurrentPage(link.page)}
-                      className="flex items-center gap-2 text-sm text-blue-200/70 hover:text-[#f5c518] transition-colors group"
+                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
                     >
                       <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
                       {link.label}
@@ -1009,7 +1010,7 @@ export default function HomePage() {
                   <li key={prog.name}>
                     <button
                       onClick={() => setCurrentPage('programs')}
-                      className="flex items-center gap-2 text-sm text-blue-200/70 hover:text-[#f5c518] transition-colors group"
+                      className="flex items-center gap-2 text-sm text-blue-100/90 hover:text-[#f5c518] transition-colors group"
                     >
                       <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
                       {prog.name}
@@ -1024,11 +1025,11 @@ export default function HomePage() {
         {/* bottom bar */}
         <div className="border-t border-white/10">
           <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-sm text-blue-200/50">
+            <p className="text-sm text-blue-100/70">
               &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
               All rights reserved.
             </p>
-            <p className="text-xs text-blue-200/40">
+            <p className="text-xs text-blue-100/60">
               Crafted with <Heart className="inline h-3 w-3 text-[#f5c518]" /> for
               excellence in TVET education
             </p>

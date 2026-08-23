@@ -65,3 +65,35 @@ Stage Summary:
 - Footer has subtle campus image background underlay
 - Admission payment now uses a flat, admin-configurable application fee (non-refundable) instead of programme tuition
 - Admin can set the application fee amount in Settings section of the dashboard
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Logo size, footer fix, About page with dropdown sections
+
+Work Log:
+- Increased Navigation header logo from w-10 h-10 (40px) to w-12 h-12 (48px)
+- Fixed footer image underlay: increased opacity from 10% to 20%, reduced dark overlay from 90% to 75%
+- Fixed all footer text contrast: upgraded blue-200/70, blue-200/50, blue-200/40 to blue-100/90, blue-100/70, blue-100/60
+- Created full AboutPage component (/src/components/AboutPage.tsx) with:
+  - Page header matching site design
+  - Brief history section with campus image and 77+ years badge
+  - 6 accordion/dropdown sections: Vision, Mission, Core Values, Organogram, Governance, School Anthem
+  - Vision: quoted statement with context paragraph
+  - Mission: quoted statement with 6 mission focus areas with checkmarks
+  - Core Values: 6 values (Faith, Innovation, Integrity, Teamwork, Excellence, Discipline) in 2-column grid with icons
+  - Organogram: visual hierarchy chart (Board > Principal > Deputy/Bursar > Directors/HoDs > 7 Departments)
+  - Governance: 5 governance roles with descriptions plus board meeting note
+  - School Anthem: styled lyric display with highlighted chorus
+  - Key Facts section (Year Founded, Type, Affiliations, Location)
+- Added About dropdown to Navigation desktop menu (Overview + 5 sub-sections)
+- Added About link to mobile menu
+- Added About to footer Quick Links
+- Wired AboutPage in page.tsx (replaced HomePage mapping)
+- Build compiled successfully with zero errors
+
+Stage Summary:
+- Logo is now 48px in header (was 40px)
+- Footer background image more visible (20% opacity), text much more readable
+- Full About page with 6 collapsible sections available via navigation dropdown
+- About appears in Quick Links and mobile menu
