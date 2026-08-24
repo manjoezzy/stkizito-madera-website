@@ -43,6 +43,7 @@ import {
   Globe,
   Share2,
   Send,
+  Edit3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -607,14 +608,17 @@ export default function AdminDashboard() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setGalleryForm((f) => ({ ...f, imageUrl: data.url }));
         setUploadPreview(data.url);
         addToast('Photo uploaded successfully', 'success');
+      } else if (res.status === 401 || res.status === 403) {
+        addToast('Session expired. Please log out and log in again.', 'error');
       } else {
-        addToast('Upload failed. Try again or use a URL.', 'error');
+        const errData = await res.json().catch(() => ({}));
+        addToast(errData.error || 'Upload failed. Try again or use a URL.', 'error');
       }
     } catch {
       addToast('Upload failed. Try again or use a URL.', 'error');
@@ -1591,11 +1595,13 @@ export default function AdminDashboard() {
                         const formData = new FormData();
                         formData.append('file', file);
                         formData.append('type', 'event');
-                        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                        const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
                         if (res.ok) {
                           const data = await res.json();
                           setEventForm((f) => ({ ...f, bannerUrl: data.url }));
                           addToast('Banner image uploaded', 'success');
+                        } else if (res.status === 401) {
+                          addToast('Session expired. Please log in again.', 'error');
                         } else {
                           addToast('Banner upload failed', 'error');
                         }
@@ -1647,11 +1653,13 @@ export default function AdminDashboard() {
                       const formData = new FormData();
                       formData.append('file', file);
                       formData.append('type', 'event');
-                      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
                       if (res.ok) {
                         const data = await res.json();
                         setEventForm((f) => ({ ...f, attachmentUrl: data.url, attachmentName: data.fileName || file.name }));
                         addToast('Attachment uploaded', 'success');
+                      } else if (res.status === 401) {
+                        addToast('Session expired. Please log in again.', 'error');
                       } else {
                         addToast('Attachment upload failed', 'error');
                       }
@@ -3010,16 +3018,22 @@ function SettingsSection() {
     try {
       const formData = new FormData();
       formData.append('file', formFile);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         await fetch('/api/settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ key: 'non_formal_form_url', value: data.url }),
         });
         setCurrentFormUrl(data.url);
         setFormFile(null);
+        addToast('Non-formal form uploaded', 'success');
+      } else if (res.status === 401) {
+        addToast('Session expired. Please log in again.', 'error');
+      } else {
+        addToast('Upload failed', 'error');
       }
     } catch {} finally { setFormUploading(false); }
   };
@@ -3030,15 +3044,21 @@ function SettingsSection() {
     try {
       const formData = new FormData();
       formData.append('file', tvetFormFile);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         await fetch('/api/settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ key: 'tvet_form_url', value: data.url }),
         });
         setTvetFormFile(null);
+        addToast('TVET form uploaded', 'success');
+      } else if (res.status === 401) {
+        addToast('Session expired. Please log in again.', 'error');
+      } else {
+        addToast('Upload failed', 'error');
       }
     } catch {} finally { setTvetUploading(false); }
   };
@@ -3125,7 +3145,7 @@ function SettingsSection() {
           {/* TVET Form */}
           <div className="p-4 rounded-xl border border-slate-200">
             <h4 className="text-sm font-semibold text-slate-700 mb-1">Formal Admission Form (TVET)</h4>
-            <p className="text-xs text-slate-400 mb-4">The official TVET admission form provided by the Ministry of Education &amp; Sports for national certificate and diploma programmes.</p>
+            <p className="text-xs text-slate-400 mb-4">The official TVET admission form for national certificate programmes.</p>
             <div className="flex items-center gap-3">
               <label className="flex-1 cursor-pointer">
                 <input
@@ -3152,16 +3172,22 @@ function SettingsSection() {
                 {tvetUploading ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
-            <p className="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
-              <span>Applicants can also fill this form online:</span>
+            <div className="flex flex-wrap items-center gap-3 mt-3">
               <button
                 type="button"
                 onClick={() => useAppStore.getState().setCurrentPage('tvet-form')}
-                className="inline-flex items-center gap-1 text-[#1a3a6b] font-medium hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs text-[#1a3a6b] font-medium hover:underline cursor-pointer"
               >
-                Open TVET Form
+                <Edit3 className="w-3 h-3" /> Fill Online
               </button>
-            </p>
+              <button
+                type="button"
+                onClick={() => useAppStore.getState().setCurrentPage('admissions')}
+                className="inline-flex items-center gap-1 text-xs text-[#1a3a6b] font-medium hover:underline cursor-pointer"
+              >
+                <Edit3 className="w-3 h-3" /> Fill Non-Formal Online
+              </button>
+            </div>
           </div>
 
           {/* Non-Formal Form */}

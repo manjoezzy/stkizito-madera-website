@@ -46,6 +46,7 @@ import {
   Upload,
   Search,
   Users,
+  Edit3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1219,16 +1220,33 @@ export default function AdmissionsPage() {
                       This is the official TVET admission form for government-recognised programmes
                       (2-year certificates and diplomas). Provided by the Ministry of Education &amp; Sports.
                     </p>
-                    <div className="mt-6">
-                      <a
-                        href={tvetFormUrl}
-                        download
-                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
-                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+                    <div className="mt-6 space-y-2">
+                      {tvetFormUrl ? (
+                        <a
+                          href={tvetFormUrl}
+                          download
+                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+                          style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+                        >
+                          <Download className="w-4 h-4" />
+                          Download TVET Form (PDF)
+                        </a>
+                      ) : (
+                        <div
+                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Form Not Yet Available
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => useAppStore.getState().setCurrentPage('tvet-form')}
+                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm border-2 border-[#1a3a6b] text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white transition-all"
                       >
-                        <Download className="w-4 h-4" />
-                        Download TVET Form (PDF)
-                      </a>
+                        <Edit3 className="w-4 h-4" />
+                        Fill TVET Form Online
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -1259,7 +1277,7 @@ export default function AdmissionsPage() {
                       This form is for short courses (3–6 months) and vocational skills programmes.
                       Provided by St. Kizito&apos;s Technical Institute - Madera.
                     </p>
-                    <div className="mt-6">
+                    <div className="mt-6 space-y-2">
                       {nonFormalFormUrl ? (
                         <a
                           href={nonFormalFormUrl}
@@ -1278,6 +1296,15 @@ export default function AdmissionsPage() {
                           Form Not Yet Available
                         </div>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('online-application')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm border-2 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white transition-all"
+                        style={{ borderColor: '#f5c518' }}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Fill Non-Formal Form Online
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
