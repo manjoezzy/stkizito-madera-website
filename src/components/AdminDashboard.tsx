@@ -40,6 +40,8 @@ import {
   Download,
   Copy,
   FileCheck,
+  Globe,
+  Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,6 +72,9 @@ import {
 import { formatCurrency } from '@/lib/schoolpay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import AdminWebsiteSettings from '@/components/admin/AdminWebsiteSettings';
+import AdminGraduationSection from '@/components/admin/AdminGraduationSection';
+import AdminAlumniSection from '@/components/admin/AdminAlumniSection';
 
 // ===================== TYPES =====================
 
@@ -81,6 +86,9 @@ type Section =
   | 'events'
   | 'gallery'
   | 'messages'
+  | 'alumni'
+  | 'graduation'
+  | 'website'
   | 'settings';
 
 interface DashboardStats {
@@ -211,6 +219,9 @@ const NAV_ITEMS: { section: Section; label: string; icon: React.ElementType }[] 
   { section: 'events', label: 'Events', icon: Calendar },
   { section: 'gallery', label: 'Gallery', icon: ImageIcon },
   { section: 'messages', label: 'Messages', icon: MessageSquare },
+  { section: 'alumni', label: 'Alumni', icon: Users },
+  { section: 'graduation', label: 'Graduation', icon: GraduationCap },
+  { section: 'website', label: 'Website', icon: Globe },
   { section: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -709,7 +720,7 @@ export default function AdminDashboard() {
   // ===================== RENDER =====================
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex items-start">
       {/* ===== MOBILE SIDEBAR OVERLAY ===== */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -726,10 +737,10 @@ export default function AdminDashboard() {
       {/* ===== SIDEBAR ===== */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-full w-64 flex-shrink-0
+          fixed top-0 left-0 z-50 h-screen w-64 flex-shrink-0
           bg-gradient-to-b from-[#0f2347] to-[#1a3a6b]
           transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:static lg:z-auto
+          lg:translate-x-0 lg:sticky lg:top-0 lg:z-auto
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -758,7 +769,7 @@ export default function AdminDashboard() {
             <p className="text-white/30 text-xs uppercase tracking-wider px-3 mb-2 font-semibold">
               Main Menu
             </p>
-            {NAV_ITEMS.map((item) => {
+            {NAV_ITEMS.slice(0, 7).map((item) => {
               const isActive = activeSection === item.section;
               const Icon = item.icon;
               return (
@@ -781,6 +792,30 @@ export default function AdminDashboard() {
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
+                </button>
+              );
+            })}
+            <p className="text-white/30 text-xs uppercase tracking-wider px-3 mb-2 mt-5 font-semibold">
+              Content
+            </p>
+            {NAV_ITEMS.slice(7).map((item) => {
+              const isActive = activeSection === item.section;
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.section}
+                  onClick={() => navigateTo(item.section)}
+                  className={`
+                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 mb-0.5
+                    ${
+                      isActive
+                        ? 'bg-white/10 text-[#f5c518] border-l-[3px] border-[#f5c518]'
+                        : 'text-white/60 hover:text-white hover:bg-white/5 border-l-[3px] border-transparent'
+                    }
+                  `}
+                >
+                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -817,7 +852,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <div className="flex-1 min-h-screen flex flex-col lg:ml-0">
+      <div className="flex-1 min-h-screen flex flex-col">
         {/* Top Bar */}
         <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
           <div className="flex items-center justify-between px-4 sm:px-6 py-3">
@@ -938,6 +973,12 @@ export default function AdminDashboard() {
                   onExpand={setExpandedMessage}
                   formatDate={formatDate}
                 />
+              ) : activeSection === 'alumni' ? (
+                <AdminAlumniSection />
+              ) : activeSection === 'graduation' ? (
+                <AdminGraduationSection />
+              ) : activeSection === 'website' ? (
+                <AdminWebsiteSettings />
               ) : activeSection === 'settings' ? (
                 <SettingsSection />
               ) : null}

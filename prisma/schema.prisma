@@ -165,3 +165,34 @@ model SiteSetting {
   value String
   updatedAt DateTime @updatedAt
 }
+
+model Alumni {
+  id            String   @id @default(cuid())
+  fullName      String
+  email         String?
+  phone         String?
+  graduationYear String?
+  programme     String?
+  occupation    String?
+  employer      String?
+  district      String?
+  biography     String?
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model GraduationItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  itemType    String   @default("photo") // photo, video
+  mediaUrl    String
+  thumbnailUrl String?
+  ceremonyYear String
+  ceremonyName String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

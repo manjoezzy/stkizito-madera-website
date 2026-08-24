@@ -1,0 +1,1553 @@
+     1→▲ Next.js 16.1.3 (Turbopack)
+     2→- Local:         http://localhost:3000
+     3→- Network:       http://21.0.8.209:3000
+     4→- Environments: .env
+     5→
+     6→✓ Starting...
+     7→Attention: Next.js now collects completely anonymous telemetry regarding usage.
+     8→This information is used to shape Next.js' roadmap and prioritize features.
+     9→You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+    10→https://nextjs.org/telemetry
+    11→
+    12→✓ Ready in 831ms
+    13→○ Compiling / ...
+    14→⨯ ./src/components/AdminDashboard.tsx:1226:7
+    15→Parsing ecmascript source code failed
+    16→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+    17→ [90m 1225 |[39m
+    18→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+    19→ [90m      |[39m       [31m[1m^[22m[39m
+    20→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+    21→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+    22→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+    23→
+    24→Expected '</', got '{'
+    25→
+    26→Import traces:
+    27→  Client Component Browser:
+    28→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+    29→    ./src/app/page.tsx [Client Component Browser]
+    30→    ./src/app/page.tsx [Server Component]
+    31→
+    32→  Client Component SSR:
+    33→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+    34→    ./src/app/page.tsx [Client Component SSR]
+    35→    ./src/app/page.tsx [Server Component]
+    36→
+    37→
+    38→⨯ ./src/components/AdminDashboard.tsx:1226:7
+    39→Parsing ecmascript source code failed
+    40→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+    41→ [90m 1225 |[39m
+    42→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+    43→ [90m      |[39m       [31m[1m^[22m[39m
+    44→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+    45→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+    46→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+    47→
+    48→Expected '</', got '{'
+    49→
+    50→Import traces:
+    51→  Client Component Browser:
+    52→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+    53→    ./src/app/page.tsx [Client Component Browser]
+    54→    ./src/app/page.tsx [Server Component]
+    55→
+    56→  Client Component SSR:
+    57→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+    58→    ./src/app/page.tsx [Client Component SSR]
+    59→    ./src/app/page.tsx [Server Component]
+    60→
+    61→
+    62→⨯ ./src/components/AdminDashboard.tsx:1226:7
+    63→Parsing ecmascript source code failed
+    64→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+    65→ [90m 1225 |[39m
+    66→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+    67→ [90m      |[39m       [31m[1m^[22m[39m
+    68→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+    69→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+    70→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+    71→
+    72→Expected '</', got '{'
+    73→
+    74→Import traces:
+    75→  Client Component Browser:
+    76→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+    77→    ./src/app/page.tsx [Client Component Browser]
+    78→    ./src/app/page.tsx [Server Component]
+    79→
+    80→  Client Component SSR:
+    81→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+    82→    ./src/app/page.tsx [Client Component SSR]
+    83→    ./src/app/page.tsx [Server Component]
+    84→
+    85→
+    86→⨯ ./src/components/AdminDashboard.tsx:1226:7
+    87→Parsing ecmascript source code failed
+    88→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+    89→ [90m 1225 |[39m
+    90→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+    91→ [90m      |[39m       [31m[1m^[22m[39m
+    92→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+    93→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+    94→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+    95→
+    96→Expected '</', got '{'
+    97→
+    98→Import traces:
+    99→  Client Component Browser:
+   100→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   101→    ./src/app/page.tsx [Client Component Browser]
+   102→    ./src/app/page.tsx [Server Component]
+   103→
+   104→  Client Component SSR:
+   105→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   106→    ./src/app/page.tsx [Client Component SSR]
+   107→    ./src/app/page.tsx [Server Component]
+   108→
+   109→
+   110→ GET / 500 in 4.5s (compile: 4.3s, render: 116ms)
+   111→ GET / 500 in 10.3s (compile: 10.3s, render: 41ms)
+   112→ GET / 500 in 10.3s (compile: 10.3s, render: 25ms)
+   113→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   114→Parsing ecmascript source code failed
+   115→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   116→ [90m 1225 |[39m
+   117→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   118→ [90m      |[39m       [31m[1m^[22m[39m
+   119→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   120→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   121→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   122→
+   123→Expected '</', got '{'
+   124→
+   125→Import traces:
+   126→  Client Component Browser:
+   127→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   128→    ./src/app/page.tsx [Client Component Browser]
+   129→    ./src/app/page.tsx [Server Component]
+   130→
+   131→  Client Component SSR:
+   132→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   133→    ./src/app/page.tsx [Client Component SSR]
+   134→    ./src/app/page.tsx [Server Component]
+   135→
+   136→
+   137→ GET / 500 in 104ms (compile: 98ms, render: 6ms)
+   138→⚠ Cross origin request detected from preview-chat-d6520677-0bba-4911-bac4-31cb35f2aa44.space-z.ai to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+   139→Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+   140→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   141→Parsing ecmascript source code failed
+   142→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   143→ [90m 1225 |[39m
+   144→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   145→ [90m      |[39m       [31m[1m^[22m[39m
+   146→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   147→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   148→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   149→
+   150→Expected '</', got '{'
+   151→
+   152→Import traces:
+   153→  Client Component Browser:
+   154→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   155→    ./src/app/page.tsx [Client Component Browser]
+   156→    ./src/app/page.tsx [Server Component]
+   157→
+   158→  Client Component SSR:
+   159→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   160→    ./src/app/page.tsx [Client Component SSR]
+   161→    ./src/app/page.tsx [Server Component]
+   162→
+   163→
+   164→ GET / 500 in 66ms (compile: 58ms, render: 8ms)
+   165→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   166→Parsing ecmascript source code failed
+   167→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   168→ [90m 1225 |[39m
+   169→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   170→ [90m      |[39m       [31m[1m^[22m[39m
+   171→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   172→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   173→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   174→
+   175→Expected '</', got '{'
+   176→
+   177→Import traces:
+   178→  Client Component Browser:
+   179→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   180→    ./src/app/page.tsx [Client Component Browser]
+   181→    ./src/app/page.tsx [Server Component]
+   182→
+   183→  Client Component SSR:
+   184→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   185→    ./src/app/page.tsx [Client Component SSR]
+   186→    ./src/app/page.tsx [Server Component]
+   187→
+   188→
+   189→ GET / 500 in 61ms (compile: 54ms, render: 6ms)
+   190→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   191→Parsing ecmascript source code failed
+   192→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   193→ [90m 1225 |[39m
+   194→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   195→ [90m      |[39m       [31m[1m^[22m[39m
+   196→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   197→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   198→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   199→
+   200→Expected '</', got '{'
+   201→
+   202→Import traces:
+   203→  Client Component Browser:
+   204→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   205→    ./src/app/page.tsx [Client Component Browser]
+   206→    ./src/app/page.tsx [Server Component]
+   207→
+   208→  Client Component SSR:
+   209→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   210→    ./src/app/page.tsx [Client Component SSR]
+   211→    ./src/app/page.tsx [Server Component]
+   212→
+   213→
+   214→ GET / 500 in 66ms (compile: 59ms, render: 7ms)
+   215→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   216→Parsing ecmascript source code failed
+   217→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   218→ [90m 1225 |[39m
+   219→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   220→ [90m      |[39m       [31m[1m^[22m[39m
+   221→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   222→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   223→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   224→
+   225→Expected '</', got '{'
+   226→
+   227→Import traces:
+   228→  Client Component Browser:
+   229→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   230→    ./src/app/page.tsx [Client Component Browser]
+   231→    ./src/app/page.tsx [Server Component]
+   232→
+   233→  Client Component SSR:
+   234→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   235→    ./src/app/page.tsx [Client Component SSR]
+   236→    ./src/app/page.tsx [Server Component]
+   237→
+   238→
+   239→ GET / 500 in 56ms (compile: 50ms, render: 6ms)
+   240→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   241→Parsing ecmascript source code failed
+   242→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   243→ [90m 1225 |[39m
+   244→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   245→ [90m      |[39m       [31m[1m^[22m[39m
+   246→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   247→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   248→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   249→
+   250→Expected '</', got '{'
+   251→
+   252→Import traces:
+   253→  Client Component Browser:
+   254→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   255→    ./src/app/page.tsx [Client Component Browser]
+   256→    ./src/app/page.tsx [Server Component]
+   257→
+   258→  Client Component SSR:
+   259→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   260→    ./src/app/page.tsx [Client Component SSR]
+   261→    ./src/app/page.tsx [Server Component]
+   262→
+   263→
+   264→ GET / 500 in 105ms (compile: 71ms, render: 33ms)
+   265→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   266→Parsing ecmascript source code failed
+   267→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   268→ [90m 1225 |[39m
+   269→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   270→ [90m      |[39m       [31m[1m^[22m[39m
+   271→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   272→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   273→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   274→
+   275→Expected '</', got '{'
+   276→
+   277→Import traces:
+   278→  Client Component Browser:
+   279→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   280→    ./src/app/page.tsx [Client Component Browser]
+   281→    ./src/app/page.tsx [Server Component]
+   282→
+   283→  Client Component SSR:
+   284→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   285→    ./src/app/page.tsx [Client Component SSR]
+   286→    ./src/app/page.tsx [Server Component]
+   287→
+   288→
+   289→ GET / 500 in 65ms (compile: 58ms, render: 6ms)
+   290→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   291→Parsing ecmascript source code failed
+   292→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   293→ [90m 1225 |[39m
+   294→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   295→ [90m      |[39m       [31m[1m^[22m[39m
+   296→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   297→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   298→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   299→
+   300→Expected '</', got '{'
+   301→
+   302→Import traces:
+   303→  Client Component Browser:
+   304→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   305→    ./src/app/page.tsx [Client Component Browser]
+   306→    ./src/app/page.tsx [Server Component]
+   307→
+   308→  Client Component SSR:
+   309→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   310→    ./src/app/page.tsx [Client Component SSR]
+   311→    ./src/app/page.tsx [Server Component]
+   312→
+   313→
+   314→ GET / 500 in 78ms (compile: 71ms, render: 7ms)
+   315→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   316→Parsing ecmascript source code failed
+   317→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   318→ [90m 1225 |[39m
+   319→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   320→ [90m      |[39m       [31m[1m^[22m[39m
+   321→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   322→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   323→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   324→
+   325→Expected '</', got '{'
+   326→
+   327→Import traces:
+   328→  Client Component Browser:
+   329→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   330→    ./src/app/page.tsx [Client Component Browser]
+   331→    ./src/app/page.tsx [Server Component]
+   332→
+   333→  Client Component SSR:
+   334→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   335→    ./src/app/page.tsx [Client Component SSR]
+   336→    ./src/app/page.tsx [Server Component]
+   337→
+   338→
+   339→ GET / 500 in 58ms (compile: 52ms, render: 6ms)
+   340→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   341→Parsing ecmascript source code failed
+   342→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   343→ [90m 1225 |[39m
+   344→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   345→ [90m      |[39m       [31m[1m^[22m[39m
+   346→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   347→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   348→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   349→
+   350→Expected '</', got '{'
+   351→
+   352→Import traces:
+   353→  Client Component Browser:
+   354→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   355→    ./src/app/page.tsx [Client Component Browser]
+   356→    ./src/app/page.tsx [Server Component]
+   357→
+   358→  Client Component SSR:
+   359→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   360→    ./src/app/page.tsx [Client Component SSR]
+   361→    ./src/app/page.tsx [Server Component]
+   362→
+   363→
+   364→ GET / 500 in 68ms (compile: 54ms, render: 13ms)
+   365→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   366→Parsing ecmascript source code failed
+   367→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   368→ [90m 1225 |[39m
+   369→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   370→ [90m      |[39m       [31m[1m^[22m[39m
+   371→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   372→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   373→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   374→
+   375→Expected '</', got '{'
+   376→
+   377→Import traces:
+   378→  Client Component Browser:
+   379→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   380→    ./src/app/page.tsx [Client Component Browser]
+   381→    ./src/app/page.tsx [Server Component]
+   382→
+   383→  Client Component SSR:
+   384→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   385→    ./src/app/page.tsx [Client Component SSR]
+   386→    ./src/app/page.tsx [Server Component]
+   387→
+   388→
+   389→ GET / 500 in 69ms (compile: 63ms, render: 6ms)
+   390→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   391→Parsing ecmascript source code failed
+   392→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   393→ [90m 1225 |[39m
+   394→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   395→ [90m      |[39m       [31m[1m^[22m[39m
+   396→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   397→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   398→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   399→
+   400→Expected '</', got '{'
+   401→
+   402→Import traces:
+   403→  Client Component Browser:
+   404→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   405→    ./src/app/page.tsx [Client Component Browser]
+   406→    ./src/app/page.tsx [Server Component]
+   407→
+   408→  Client Component SSR:
+   409→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   410→    ./src/app/page.tsx [Client Component SSR]
+   411→    ./src/app/page.tsx [Server Component]
+   412→
+   413→
+   414→ GET / 500 in 85ms (compile: 70ms, render: 16ms)
+   415→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   416→Parsing ecmascript source code failed
+   417→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   418→ [90m 1225 |[39m
+   419→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   420→ [90m      |[39m       [31m[1m^[22m[39m
+   421→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   422→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   423→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   424→
+   425→Expected '</', got '{'
+   426→
+   427→Import traces:
+   428→  Client Component Browser:
+   429→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   430→    ./src/app/page.tsx [Client Component Browser]
+   431→    ./src/app/page.tsx [Server Component]
+   432→
+   433→  Client Component SSR:
+   434→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   435→    ./src/app/page.tsx [Client Component SSR]
+   436→    ./src/app/page.tsx [Server Component]
+   437→
+   438→
+   439→ GET / 500 in 109ms (compile: 88ms, render: 21ms)
+   440→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   441→Parsing ecmascript source code failed
+   442→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   443→ [90m 1225 |[39m
+   444→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   445→ [90m      |[39m       [31m[1m^[22m[39m
+   446→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   447→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   448→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   449→
+   450→Expected '</', got '{'
+   451→
+   452→Import traces:
+   453→  Client Component Browser:
+   454→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   455→    ./src/app/page.tsx [Client Component Browser]
+   456→    ./src/app/page.tsx [Server Component]
+   457→
+   458→  Client Component SSR:
+   459→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   460→    ./src/app/page.tsx [Client Component SSR]
+   461→    ./src/app/page.tsx [Server Component]
+   462→
+   463→
+   464→ GET / 500 in 69ms (compile: 63ms, render: 6ms)
+   465→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   466→Parsing ecmascript source code failed
+   467→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   468→ [90m 1225 |[39m
+   469→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   470→ [90m      |[39m       [31m[1m^[22m[39m
+   471→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   472→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   473→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   474→
+   475→Expected '</', got '{'
+   476→
+   477→Import traces:
+   478→  Client Component Browser:
+   479→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   480→    ./src/app/page.tsx [Client Component Browser]
+   481→    ./src/app/page.tsx [Server Component]
+   482→
+   483→  Client Component SSR:
+   484→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   485→    ./src/app/page.tsx [Client Component SSR]
+   486→    ./src/app/page.tsx [Server Component]
+   487→
+   488→
+   489→ GET / 500 in 82ms (compile: 76ms, render: 7ms)
+   490→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   491→Parsing ecmascript source code failed
+   492→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   493→ [90m 1225 |[39m
+   494→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   495→ [90m      |[39m       [31m[1m^[22m[39m
+   496→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   497→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   498→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   499→
+   500→Expected '</', got '{'
+   501→
+   502→Import traces:
+   503→  Client Component Browser:
+   504→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   505→    ./src/app/page.tsx [Client Component Browser]
+   506→    ./src/app/page.tsx [Server Component]
+   507→
+   508→  Client Component SSR:
+   509→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   510→    ./src/app/page.tsx [Client Component SSR]
+   511→    ./src/app/page.tsx [Server Component]
+   512→
+   513→
+   514→ GET / 500 in 95ms (compile: 88ms, render: 7ms)
+   515→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   516→Parsing ecmascript source code failed
+   517→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   518→ [90m 1225 |[39m
+   519→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   520→ [90m      |[39m       [31m[1m^[22m[39m
+   521→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   522→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   523→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   524→
+   525→Expected '</', got '{'
+   526→
+   527→Import traces:
+   528→  Client Component Browser:
+   529→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   530→    ./src/app/page.tsx [Client Component Browser]
+   531→    ./src/app/page.tsx [Server Component]
+   532→
+   533→  Client Component SSR:
+   534→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   535→    ./src/app/page.tsx [Client Component SSR]
+   536→    ./src/app/page.tsx [Server Component]
+   537→
+   538→
+   539→ GET / 500 in 61ms (compile: 53ms, render: 8ms)
+   540→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   541→Parsing ecmascript source code failed
+   542→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   543→ [90m 1225 |[39m
+   544→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   545→ [90m      |[39m       [31m[1m^[22m[39m
+   546→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   547→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   548→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   549→
+   550→Expected '</', got '{'
+   551→
+   552→Import traces:
+   553→  Client Component Browser:
+   554→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   555→    ./src/app/page.tsx [Client Component Browser]
+   556→    ./src/app/page.tsx [Server Component]
+   557→
+   558→  Client Component SSR:
+   559→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   560→    ./src/app/page.tsx [Client Component SSR]
+   561→    ./src/app/page.tsx [Server Component]
+   562→
+   563→
+   564→ GET / 500 in 114ms (compile: 105ms, render: 9ms)
+   565→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   566→Parsing ecmascript source code failed
+   567→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   568→ [90m 1225 |[39m
+   569→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   570→ [90m      |[39m       [31m[1m^[22m[39m
+   571→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   572→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   573→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   574→
+   575→Expected '</', got '{'
+   576→
+   577→Import traces:
+   578→  Client Component Browser:
+   579→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   580→    ./src/app/page.tsx [Client Component Browser]
+   581→    ./src/app/page.tsx [Server Component]
+   582→
+   583→  Client Component SSR:
+   584→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   585→    ./src/app/page.tsx [Client Component SSR]
+   586→    ./src/app/page.tsx [Server Component]
+   587→
+   588→
+   589→ GET / 500 in 72ms (compile: 58ms, render: 14ms)
+   590→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   591→Parsing ecmascript source code failed
+   592→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   593→ [90m 1225 |[39m
+   594→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   595→ [90m      |[39m       [31m[1m^[22m[39m
+   596→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   597→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   598→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   599→
+   600→Expected '</', got '{'
+   601→
+   602→Import traces:
+   603→  Client Component Browser:
+   604→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   605→    ./src/app/page.tsx [Client Component Browser]
+   606→    ./src/app/page.tsx [Server Component]
+   607→
+   608→  Client Component SSR:
+   609→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   610→    ./src/app/page.tsx [Client Component SSR]
+   611→    ./src/app/page.tsx [Server Component]
+   612→
+   613→
+   614→ GET / 500 in 73ms (compile: 67ms, render: 6ms)
+   615→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   616→Parsing ecmascript source code failed
+   617→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   618→ [90m 1225 |[39m
+   619→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   620→ [90m      |[39m       [31m[1m^[22m[39m
+   621→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   622→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   623→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   624→
+   625→Expected '</', got '{'
+   626→
+   627→Import traces:
+   628→  Client Component Browser:
+   629→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   630→    ./src/app/page.tsx [Client Component Browser]
+   631→    ./src/app/page.tsx [Server Component]
+   632→
+   633→  Client Component SSR:
+   634→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   635→    ./src/app/page.tsx [Client Component SSR]
+   636→    ./src/app/page.tsx [Server Component]
+   637→
+   638→
+   639→ GET / 500 in 69ms (compile: 63ms, render: 6ms)
+   640→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   641→Parsing ecmascript source code failed
+   642→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   643→ [90m 1225 |[39m
+   644→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   645→ [90m      |[39m       [31m[1m^[22m[39m
+   646→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   647→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   648→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   649→
+   650→Expected '</', got '{'
+   651→
+   652→Import traces:
+   653→  Client Component Browser:
+   654→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   655→    ./src/app/page.tsx [Client Component Browser]
+   656→    ./src/app/page.tsx [Server Component]
+   657→
+   658→  Client Component SSR:
+   659→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   660→    ./src/app/page.tsx [Client Component SSR]
+   661→    ./src/app/page.tsx [Server Component]
+   662→
+   663→
+   664→ GET / 500 in 73ms (compile: 66ms, render: 6ms)
+   665→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   666→Parsing ecmascript source code failed
+   667→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   668→ [90m 1225 |[39m
+   669→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   670→ [90m      |[39m       [31m[1m^[22m[39m
+   671→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   672→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   673→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   674→
+   675→Expected '</', got '{'
+   676→
+   677→Import traces:
+   678→  Client Component Browser:
+   679→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   680→    ./src/app/page.tsx [Client Component Browser]
+   681→    ./src/app/page.tsx [Server Component]
+   682→
+   683→  Client Component SSR:
+   684→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   685→    ./src/app/page.tsx [Client Component SSR]
+   686→    ./src/app/page.tsx [Server Component]
+   687→
+   688→
+   689→ GET / 500 in 62ms (compile: 57ms, render: 5ms)
+   690→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   691→Parsing ecmascript source code failed
+   692→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   693→ [90m 1225 |[39m
+   694→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   695→ [90m      |[39m       [31m[1m^[22m[39m
+   696→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   697→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   698→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   699→
+   700→Expected '</', got '{'
+   701→
+   702→Import traces:
+   703→  Client Component Browser:
+   704→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   705→    ./src/app/page.tsx [Client Component Browser]
+   706→    ./src/app/page.tsx [Server Component]
+   707→
+   708→  Client Component SSR:
+   709→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   710→    ./src/app/page.tsx [Client Component SSR]
+   711→    ./src/app/page.tsx [Server Component]
+   712→
+   713→
+   714→ GET / 500 in 64ms (compile: 57ms, render: 7ms)
+   715→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   716→Parsing ecmascript source code failed
+   717→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   718→ [90m 1225 |[39m
+   719→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   720→ [90m      |[39m       [31m[1m^[22m[39m
+   721→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   722→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   723→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   724→
+   725→Expected '</', got '{'
+   726→
+   727→Import traces:
+   728→  Client Component Browser:
+   729→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   730→    ./src/app/page.tsx [Client Component Browser]
+   731→    ./src/app/page.tsx [Server Component]
+   732→
+   733→  Client Component SSR:
+   734→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   735→    ./src/app/page.tsx [Client Component SSR]
+   736→    ./src/app/page.tsx [Server Component]
+   737→
+   738→
+   739→ GET / 500 in 104ms (compile: 94ms, render: 10ms)
+   740→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   741→Parsing ecmascript source code failed
+   742→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   743→ [90m 1225 |[39m
+   744→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   745→ [90m      |[39m       [31m[1m^[22m[39m
+   746→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   747→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   748→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   749→
+   750→Expected '</', got '{'
+   751→
+   752→Import traces:
+   753→  Client Component Browser:
+   754→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   755→    ./src/app/page.tsx [Client Component Browser]
+   756→    ./src/app/page.tsx [Server Component]
+   757→
+   758→  Client Component SSR:
+   759→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   760→    ./src/app/page.tsx [Client Component SSR]
+   761→    ./src/app/page.tsx [Server Component]
+   762→
+   763→
+   764→ GET / 500 in 94ms (compile: 76ms, render: 18ms)
+   765→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   766→Parsing ecmascript source code failed
+   767→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   768→ [90m 1225 |[39m
+   769→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   770→ [90m      |[39m       [31m[1m^[22m[39m
+   771→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   772→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   773→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   774→
+   775→Expected '</', got '{'
+   776→
+   777→Import traces:
+   778→  Client Component Browser:
+   779→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   780→    ./src/app/page.tsx [Client Component Browser]
+   781→    ./src/app/page.tsx [Server Component]
+   782→
+   783→  Client Component SSR:
+   784→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   785→    ./src/app/page.tsx [Client Component SSR]
+   786→    ./src/app/page.tsx [Server Component]
+   787→
+   788→
+   789→ GET / 500 in 63ms (compile: 58ms, render: 6ms)
+   790→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   791→Parsing ecmascript source code failed
+   792→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   793→ [90m 1225 |[39m
+   794→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   795→ [90m      |[39m       [31m[1m^[22m[39m
+   796→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   797→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   798→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   799→
+   800→Expected '</', got '{'
+   801→
+   802→Import traces:
+   803→  Client Component Browser:
+   804→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   805→    ./src/app/page.tsx [Client Component Browser]
+   806→    ./src/app/page.tsx [Server Component]
+   807→
+   808→  Client Component SSR:
+   809→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   810→    ./src/app/page.tsx [Client Component SSR]
+   811→    ./src/app/page.tsx [Server Component]
+   812→
+   813→
+   814→ GET / 500 in 85ms (compile: 72ms, render: 13ms)
+   815→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   816→Parsing ecmascript source code failed
+   817→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   818→ [90m 1225 |[39m
+   819→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   820→ [90m      |[39m       [31m[1m^[22m[39m
+   821→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   822→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   823→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   824→
+   825→Expected '</', got '{'
+   826→
+   827→Import traces:
+   828→  Client Component Browser:
+   829→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   830→    ./src/app/page.tsx [Client Component Browser]
+   831→    ./src/app/page.tsx [Server Component]
+   832→
+   833→  Client Component SSR:
+   834→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   835→    ./src/app/page.tsx [Client Component SSR]
+   836→    ./src/app/page.tsx [Server Component]
+   837→
+   838→
+   839→ GET / 500 in 105ms (compile: 81ms, render: 24ms)
+   840→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   841→Parsing ecmascript source code failed
+   842→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   843→ [90m 1225 |[39m
+   844→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   845→ [90m      |[39m       [31m[1m^[22m[39m
+   846→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   847→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   848→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   849→
+   850→Expected '</', got '{'
+   851→
+   852→Import traces:
+   853→  Client Component Browser:
+   854→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   855→    ./src/app/page.tsx [Client Component Browser]
+   856→    ./src/app/page.tsx [Server Component]
+   857→
+   858→  Client Component SSR:
+   859→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   860→    ./src/app/page.tsx [Client Component SSR]
+   861→    ./src/app/page.tsx [Server Component]
+   862→
+   863→
+   864→ GET / 500 in 69ms (compile: 63ms, render: 6ms)
+   865→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   866→Parsing ecmascript source code failed
+   867→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   868→ [90m 1225 |[39m
+   869→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   870→ [90m      |[39m       [31m[1m^[22m[39m
+   871→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   872→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   873→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   874→
+   875→Expected '</', got '{'
+   876→
+   877→Import traces:
+   878→  Client Component Browser:
+   879→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   880→    ./src/app/page.tsx [Client Component Browser]
+   881→    ./src/app/page.tsx [Server Component]
+   882→
+   883→  Client Component SSR:
+   884→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   885→    ./src/app/page.tsx [Client Component SSR]
+   886→    ./src/app/page.tsx [Server Component]
+   887→
+   888→
+   889→ GET / 500 in 83ms (compile: 75ms, render: 7ms)
+   890→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   891→Parsing ecmascript source code failed
+   892→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   893→ [90m 1225 |[39m
+   894→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   895→ [90m      |[39m       [31m[1m^[22m[39m
+   896→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   897→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   898→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   899→
+   900→Expected '</', got '{'
+   901→
+   902→Import traces:
+   903→  Client Component Browser:
+   904→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   905→    ./src/app/page.tsx [Client Component Browser]
+   906→    ./src/app/page.tsx [Server Component]
+   907→
+   908→  Client Component SSR:
+   909→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   910→    ./src/app/page.tsx [Client Component SSR]
+   911→    ./src/app/page.tsx [Server Component]
+   912→
+   913→
+   914→ GET / 500 in 85ms (compile: 75ms, render: 10ms)
+   915→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   916→Parsing ecmascript source code failed
+   917→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   918→ [90m 1225 |[39m
+   919→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   920→ [90m      |[39m       [31m[1m^[22m[39m
+   921→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   922→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   923→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   924→
+   925→Expected '</', got '{'
+   926→
+   927→Import traces:
+   928→  Client Component Browser:
+   929→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   930→    ./src/app/page.tsx [Client Component Browser]
+   931→    ./src/app/page.tsx [Server Component]
+   932→
+   933→  Client Component SSR:
+   934→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   935→    ./src/app/page.tsx [Client Component SSR]
+   936→    ./src/app/page.tsx [Server Component]
+   937→
+   938→
+   939→ GET / 500 in 95ms (compile: 83ms, render: 12ms)
+   940→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   941→Parsing ecmascript source code failed
+   942→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   943→ [90m 1225 |[39m
+   944→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   945→ [90m      |[39m       [31m[1m^[22m[39m
+   946→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   947→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   948→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   949→
+   950→Expected '</', got '{'
+   951→
+   952→Import traces:
+   953→  Client Component Browser:
+   954→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   955→    ./src/app/page.tsx [Client Component Browser]
+   956→    ./src/app/page.tsx [Server Component]
+   957→
+   958→  Client Component SSR:
+   959→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   960→    ./src/app/page.tsx [Client Component SSR]
+   961→    ./src/app/page.tsx [Server Component]
+   962→
+   963→
+   964→ GET / 500 in 55ms (compile: 51ms, render: 5ms)
+   965→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   966→Parsing ecmascript source code failed
+   967→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   968→ [90m 1225 |[39m
+   969→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   970→ [90m      |[39m       [31m[1m^[22m[39m
+   971→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   972→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   973→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   974→
+   975→Expected '</', got '{'
+   976→
+   977→Import traces:
+   978→  Client Component Browser:
+   979→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+   980→    ./src/app/page.tsx [Client Component Browser]
+   981→    ./src/app/page.tsx [Server Component]
+   982→
+   983→  Client Component SSR:
+   984→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+   985→    ./src/app/page.tsx [Client Component SSR]
+   986→    ./src/app/page.tsx [Server Component]
+   987→
+   988→
+   989→ GET / 500 in 97ms (compile: 83ms, render: 13ms)
+   990→⨯ ./src/components/AdminDashboard.tsx:1226:7
+   991→Parsing ecmascript source code failed
+   992→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+   993→ [90m 1225 |[39m
+   994→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+   995→ [90m      |[39m       [31m[1m^[22m[39m
+   996→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+   997→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+   998→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+   999→
+  1000→Expected '</', got '{'
+  1001→
+  1002→Import traces:
+  1003→  Client Component Browser:
+  1004→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1005→    ./src/app/page.tsx [Client Component Browser]
+  1006→    ./src/app/page.tsx [Server Component]
+  1007→
+  1008→  Client Component SSR:
+  1009→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1010→    ./src/app/page.tsx [Client Component SSR]
+  1011→    ./src/app/page.tsx [Server Component]
+  1012→
+  1013→
+  1014→ GET / 500 in 75ms (compile: 69ms, render: 6ms)
+  1015→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1016→Parsing ecmascript source code failed
+  1017→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1018→ [90m 1225 |[39m
+  1019→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1020→ [90m      |[39m       [31m[1m^[22m[39m
+  1021→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1022→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1023→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1024→
+  1025→Expected '</', got '{'
+  1026→
+  1027→Import traces:
+  1028→  Client Component Browser:
+  1029→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1030→    ./src/app/page.tsx [Client Component Browser]
+  1031→    ./src/app/page.tsx [Server Component]
+  1032→
+  1033→  Client Component SSR:
+  1034→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1035→    ./src/app/page.tsx [Client Component SSR]
+  1036→    ./src/app/page.tsx [Server Component]
+  1037→
+  1038→
+  1039→ GET / 500 in 90ms (compile: 75ms, render: 15ms)
+  1040→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1041→Parsing ecmascript source code failed
+  1042→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1043→ [90m 1225 |[39m
+  1044→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1045→ [90m      |[39m       [31m[1m^[22m[39m
+  1046→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1047→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1048→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1049→
+  1050→Expected '</', got '{'
+  1051→
+  1052→Import traces:
+  1053→  Client Component Browser:
+  1054→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1055→    ./src/app/page.tsx [Client Component Browser]
+  1056→    ./src/app/page.tsx [Server Component]
+  1057→
+  1058→  Client Component SSR:
+  1059→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1060→    ./src/app/page.tsx [Client Component SSR]
+  1061→    ./src/app/page.tsx [Server Component]
+  1062→
+  1063→
+  1064→ GET / 500 in 68ms (compile: 62ms, render: 6ms)
+  1065→⨯ ./src/components/AdminDashboard.tsx:1226:15
+  1066→Parsing ecmascript source code failed
+  1067→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1068→ [90m 1225 |[39m
+  1069→[31m[1m>[22m[39m[90m 1226 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1070→ [90m      |[39m               [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+  1071→ [90m 1227 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1072→ [90m 1228 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m
+  1073→ [90m 1229 |[39m             [33m<[39m[33mDialogTitle[39m className[33m=[39m[32m"text-lg font-bold text-[#1a3a6b]"[39m[33m>[39m[33mCreate[39m [33mNew[39m [33mEvent[39m[33m<[39m[33m/[39m[33mDialogTitle[39m[33m>[39m[0m
+  1074→
+  1075→Expected '</', got 'open'
+  1076→
+  1077→Import traces:
+  1078→  Client Component Browser:
+  1079→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1080→    ./src/app/page.tsx [Client Component Browser]
+  1081→    ./src/app/page.tsx [Server Component]
+  1082→
+  1083→  Client Component SSR:
+  1084→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1085→    ./src/app/page.tsx [Client Component SSR]
+  1086→    ./src/app/page.tsx [Server Component]
+  1087→
+  1088→
+  1089→ GET / 500 in 68ms (compile: 62ms, render: 6ms)
+  1090→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1091→Parsing ecmascript source code failed
+  1092→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1093→ [90m 1225 |[39m
+  1094→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1095→ [90m      |[39m       [31m[1m^[22m[39m
+  1096→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1097→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1098→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1099→
+  1100→Expected '</', got '{'
+  1101→
+  1102→Import traces:
+  1103→  Client Component Browser:
+  1104→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1105→    ./src/app/page.tsx [Client Component Browser]
+  1106→    ./src/app/page.tsx [Server Component]
+  1107→
+  1108→  Client Component SSR:
+  1109→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1110→    ./src/app/page.tsx [Client Component SSR]
+  1111→    ./src/app/page.tsx [Server Component]
+  1112→
+  1113→
+  1114→ GET / 500 in 85ms (compile: 79ms, render: 6ms)
+  1115→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1116→Parsing ecmascript source code failed
+  1117→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1118→ [90m 1225 |[39m
+  1119→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1120→ [90m      |[39m       [31m[1m^[22m[39m
+  1121→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1122→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1123→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1124→
+  1125→Expected '</', got '{'
+  1126→
+  1127→Import traces:
+  1128→  Client Component Browser:
+  1129→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1130→    ./src/app/page.tsx [Client Component Browser]
+  1131→    ./src/app/page.tsx [Server Component]
+  1132→
+  1133→  Client Component SSR:
+  1134→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1135→    ./src/app/page.tsx [Client Component SSR]
+  1136→    ./src/app/page.tsx [Server Component]
+  1137→
+  1138→
+  1139→ GET / 500 in 52ms (compile: 47ms, render: 5ms)
+  1140→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1141→Parsing ecmascript source code failed
+  1142→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1143→ [90m 1225 |[39m
+  1144→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1145→ [90m      |[39m       [31m[1m^[22m[39m
+  1146→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1147→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1148→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1149→
+  1150→Expected '</', got '{'
+  1151→
+  1152→Import traces:
+  1153→  Client Component Browser:
+  1154→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1155→    ./src/app/page.tsx [Client Component Browser]
+  1156→    ./src/app/page.tsx [Server Component]
+  1157→
+  1158→  Client Component SSR:
+  1159→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1160→    ./src/app/page.tsx [Client Component SSR]
+  1161→    ./src/app/page.tsx [Server Component]
+  1162→
+  1163→
+  1164→ GET / 500 in 85ms (compile: 77ms, render: 8ms)
+  1165→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1166→Parsing ecmascript source code failed
+  1167→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1168→ [90m 1225 |[39m
+  1169→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1170→ [90m      |[39m       [31m[1m^[22m[39m
+  1171→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1172→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1173→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1174→
+  1175→Expected '</', got '{'
+  1176→
+  1177→Import traces:
+  1178→  Client Component Browser:
+  1179→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1180→    ./src/app/page.tsx [Client Component Browser]
+  1181→    ./src/app/page.tsx [Server Component]
+  1182→
+  1183→  Client Component SSR:
+  1184→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1185→    ./src/app/page.tsx [Client Component SSR]
+  1186→    ./src/app/page.tsx [Server Component]
+  1187→
+  1188→
+  1189→ GET / 500 in 69ms (compile: 63ms, render: 6ms)
+  1190→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1191→Parsing ecmascript source code failed
+  1192→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1193→ [90m 1225 |[39m
+  1194→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1195→ [90m      |[39m       [31m[1m^[22m[39m
+  1196→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1197→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1198→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1199→
+  1200→Expected '</', got '{'
+  1201→
+  1202→Import traces:
+  1203→  Client Component Browser:
+  1204→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1205→    ./src/app/page.tsx [Client Component Browser]
+  1206→    ./src/app/page.tsx [Server Component]
+  1207→
+  1208→  Client Component SSR:
+  1209→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1210→    ./src/app/page.tsx [Client Component SSR]
+  1211→    ./src/app/page.tsx [Server Component]
+  1212→
+  1213→
+  1214→ GET / 500 in 87ms (compile: 76ms, render: 11ms)
+  1215→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1216→Parsing ecmascript source code failed
+  1217→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1218→ [90m 1225 |[39m
+  1219→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1220→ [90m      |[39m       [31m[1m^[22m[39m
+  1221→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1222→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1223→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1224→
+  1225→Expected '</', got '{'
+  1226→
+  1227→Import traces:
+  1228→  Client Component Browser:
+  1229→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1230→    ./src/app/page.tsx [Client Component Browser]
+  1231→    ./src/app/page.tsx [Server Component]
+  1232→
+  1233→  Client Component SSR:
+  1234→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1235→    ./src/app/page.tsx [Client Component SSR]
+  1236→    ./src/app/page.tsx [Server Component]
+  1237→
+  1238→
+  1239→ GET / 500 in 59ms (compile: 54ms, render: 5ms)
+  1240→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1241→Parsing ecmascript source code failed
+  1242→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1243→ [90m 1225 |[39m
+  1244→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1245→ [90m      |[39m       [31m[1m^[22m[39m
+  1246→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1247→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1248→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1249→
+  1250→Expected '</', got '{'
+  1251→
+  1252→Import traces:
+  1253→  Client Component Browser:
+  1254→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1255→    ./src/app/page.tsx [Client Component Browser]
+  1256→    ./src/app/page.tsx [Server Component]
+  1257→
+  1258→  Client Component SSR:
+  1259→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1260→    ./src/app/page.tsx [Client Component SSR]
+  1261→    ./src/app/page.tsx [Server Component]
+  1262→
+  1263→
+  1264→ GET / 500 in 63ms (compile: 58ms, render: 5ms)
+  1265→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1266→Parsing ecmascript source code failed
+  1267→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1268→ [90m 1225 |[39m
+  1269→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1270→ [90m      |[39m       [31m[1m^[22m[39m
+  1271→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1272→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1273→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1274→
+  1275→Expected '</', got '{'
+  1276→
+  1277→Import traces:
+  1278→  Client Component Browser:
+  1279→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1280→    ./src/app/page.tsx [Client Component Browser]
+  1281→    ./src/app/page.tsx [Server Component]
+  1282→
+  1283→  Client Component SSR:
+  1284→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1285→    ./src/app/page.tsx [Client Component SSR]
+  1286→    ./src/app/page.tsx [Server Component]
+  1287→
+  1288→
+  1289→ GET / 500 in 73ms (compile: 68ms, render: 5ms)
+  1290→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1291→Parsing ecmascript source code failed
+  1292→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1293→ [90m 1225 |[39m
+  1294→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1295→ [90m      |[39m       [31m[1m^[22m[39m
+  1296→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1297→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1298→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1299→
+  1300→Expected '</', got '{'
+  1301→
+  1302→Import traces:
+  1303→  Client Component Browser:
+  1304→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1305→    ./src/app/page.tsx [Client Component Browser]
+  1306→    ./src/app/page.tsx [Server Component]
+  1307→
+  1308→  Client Component SSR:
+  1309→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1310→    ./src/app/page.tsx [Client Component SSR]
+  1311→    ./src/app/page.tsx [Server Component]
+  1312→
+  1313→
+  1314→ GET / 500 in 77ms (compile: 67ms, render: 10ms)
+  1315→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1316→Parsing ecmascript source code failed
+  1317→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1318→ [90m 1225 |[39m
+  1319→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1320→ [90m      |[39m       [31m[1m^[22m[39m
+  1321→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1322→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1323→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1324→
+  1325→Expected '</', got '{'
+  1326→
+  1327→Import traces:
+  1328→  Client Component Browser:
+  1329→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1330→    ./src/app/page.tsx [Client Component Browser]
+  1331→    ./src/app/page.tsx [Server Component]
+  1332→
+  1333→  Client Component SSR:
+  1334→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1335→    ./src/app/page.tsx [Client Component SSR]
+  1336→    ./src/app/page.tsx [Server Component]
+  1337→
+  1338→
+  1339→ GET / 500 in 63ms (compile: 58ms, render: 5ms)
+  1340→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1341→Parsing ecmascript source code failed
+  1342→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1343→ [90m 1225 |[39m
+  1344→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1345→ [90m      |[39m       [31m[1m^[22m[39m
+  1346→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1347→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1348→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1349→
+  1350→Expected '</', got '{'
+  1351→
+  1352→Import traces:
+  1353→  Client Component Browser:
+  1354→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1355→    ./src/app/page.tsx [Client Component Browser]
+  1356→    ./src/app/page.tsx [Server Component]
+  1357→
+  1358→  Client Component SSR:
+  1359→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1360→    ./src/app/page.tsx [Client Component SSR]
+  1361→    ./src/app/page.tsx [Server Component]
+  1362→
+  1363→
+  1364→ GET / 500 in 69ms (compile: 64ms, render: 6ms)
+  1365→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1366→Parsing ecmascript source code failed
+  1367→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1368→ [90m 1225 |[39m
+  1369→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1370→ [90m      |[39m       [31m[1m^[22m[39m
+  1371→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1372→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1373→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1374→
+  1375→Expected '</', got '{'
+  1376→
+  1377→Import traces:
+  1378→  Client Component Browser:
+  1379→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1380→    ./src/app/page.tsx [Client Component Browser]
+  1381→    ./src/app/page.tsx [Server Component]
+  1382→
+  1383→  Client Component SSR:
+  1384→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1385→    ./src/app/page.tsx [Client Component SSR]
+  1386→    ./src/app/page.tsx [Server Component]
+  1387→
+  1388→
+  1389→ GET / 500 in 84ms (compile: 69ms, render: 15ms)
+  1390→⨯ ./src/components/AdminDashboard.tsx:1226:7
+  1391→Parsing ecmascript source code failed
+  1392→[0m [90m 1224 |[39m       [33m<[39m[33m/[39m[33mDialog[39m[33m>[39m
+  1393→ [90m 1225 |[39m
+  1394→[31m[1m>[22m[39m[90m 1226 |[39m       {[90m/* ===== CREATE EVENT DIALOG ===== */[39m}
+  1395→ [90m      |[39m       [31m[1m^[22m[39m
+  1396→ [90m 1227 |[39m       [33m<[39m[33mDialog[39m open[33m=[39m{eventDialogOpen} onOpenChange[33m=[39m{setEventDialogOpen}[33m>[39m
+  1397→ [90m 1228 |[39m         [33m<[39m[33mDialogContent[39m className[33m=[39m[32m"sm:max-w-lg"[39m[33m>[39m
+  1398→ [90m 1229 |[39m           [33m<[39m[33mDialogHeader[39m[33m>[39m[0m
+  1399→
+  1400→Expected '</', got '{'
+  1401→
+  1402→Import traces:
+  1403→  Client Component Browser:
+  1404→    ./src/components/AdminDashboard.tsx [Client Component Browser]
+  1405→    ./src/app/page.tsx [Client Component Browser]
+  1406→    ./src/app/page.tsx [Server Component]
+  1407→
+  1408→  Client Component SSR:
+  1409→    ./src/components/AdminDashboard.tsx [Client Component SSR]
+  1410→    ./src/app/page.tsx [Client Component SSR]
+  1411→    ./src/app/page.tsx [Server Component]
+  1412→
+  1413→
+  1414→ GET / 500 in 57ms (compile: 52ms, render: 5ms)
+  1415→✓ Compiled in 366ms
+  1416→ GET / 200 in 602ms (compile: 333ms, render: 268ms)
+  1417→ GET / 200 in 80ms (compile: 3ms, render: 77ms)
+  1418→ GET / 200 in 293ms (compile: 5ms, render: 288ms)
+  1419→ GET / 200 in 103ms (compile: 4ms, render: 99ms)
+  1420→ GET / 200 in 81ms (compile: 3ms, render: 78ms)
+  1421→ GET / 200 in 78ms (compile: 3ms, render: 75ms)
+  1422→✓ Compiled in 248ms
+  1423→ GET / 200 in 72ms (compile: 46ms, render: 26ms)
+  1424→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1425→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1426→ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+  1427→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1428→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1429→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1430→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1431→ GET / 200 in 23ms (compile: 3ms, render: 20ms)
+  1432→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1433→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1434→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1435→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1436→ GET / 200 in 20ms (compile: 3ms, render: 17ms)
+  1437→ GET / 200 in 13ms (compile: 3ms, render: 11ms)
+  1438→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1439→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1440→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1441→ GET / 200 in 23ms (compile: 3ms, render: 19ms)
+  1442→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1443→ GET / 200 in 14ms (compile: 3ms, render: 12ms)
+  1444→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1445→✓ Compiled in 158ms
+  1446→✓ Compiled in 297ms
+  1447→✓ Compiled in 339ms
+  1448→✓ Compiled in 319ms
+  1449→✓ Compiled in 461ms
+  1450→ GET / 200 in 82ms (compile: 52ms, render: 30ms)
+  1451→✓ Compiled in 319ms
+  1452→ GET / 200 in 396ms (compile: 52ms, render: 344ms)
+  1453→ GET / 200 in 83ms (compile: 3ms, render: 80ms)
+  1454→ GET / 200 in 559ms (compile: 213ms, render: 346ms)
+  1455→ GET / 200 in 533ms (compile: 150ms, render: 383ms)
+  1456→ GET / 200 in 148ms (compile: 4ms, render: 144ms)
+  1457→ GET / 200 in 70ms (compile: 3ms, render: 67ms)
+  1458→ GET / 200 in 112ms (compile: 14ms, render: 98ms)
+  1459→ GET / 200 in 69ms (compile: 3ms, render: 66ms)
+  1460→ GET / 200 in 65ms (compile: 3ms, render: 62ms)
+  1461→ GET / 200 in 73ms (compile: 4ms, render: 70ms)
+  1462→ GET / 200 in 62ms (compile: 3ms, render: 59ms)
+  1463→✓ Compiled in 182ms
+  1464→✓ Compiled in 167ms
+  1465→✓ Compiled in 180ms
+  1466→✓ Compiled in 153ms
+  1467→✓ Compiled in 158ms
+  1468→✓ Compiled in 291ms
+  1469→✓ Compiled in 134ms
+  1470→✓ Compiled in 221ms
+  1471→✓ Compiled in 185ms
+  1472→ GET / 200 in 69ms (compile: 45ms, render: 24ms)
+  1473→ GET / 200 in 21ms (compile: 3ms, render: 18ms)
+  1474→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1475→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1476→ GET / 200 in 21ms (compile: 3ms, render: 18ms)
+  1477→ GET / 200 in 14ms (compile: 3ms, render: 11ms)
+  1478→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1479→ GET / 200 in 20ms (compile: 3ms, render: 17ms)
+  1480→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1481→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1482→ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+  1483→ GET / 200 in 23ms (compile: 9ms, render: 14ms)
+  1484→ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+  1485→ GET / 200 in 29ms (compile: 3ms, render: 26ms)
+  1486→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1487→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1488→ GET / 200 in 14ms (compile: 3ms, render: 11ms)
+  1489→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1490→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1491→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1492→ GET / 200 in 14ms (compile: 3ms, render: 12ms)
+  1493→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1494→ GET / 200 in 14ms (compile: 3ms, render: 12ms)
+  1495→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1496→ GET / 200 in 71ms (compile: 45ms, render: 26ms)
+  1497→ GET / 200 in 19ms (compile: 5ms, render: 14ms)
+  1498→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1499→ GET / 200 in 24ms (compile: 3ms, render: 21ms)
+  1500→ GET / 200 in 18ms (compile: 3ms, render: 14ms)
+  1501→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1502→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1503→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1504→ GET / 200 in 33ms (compile: 3ms, render: 30ms)
+  1505→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1506→ GET / 200 in 16ms (compile: 3ms, render: 12ms)
+  1507→ GET / 200 in 16ms (compile: 3ms, render: 14ms)
+  1508→ GET / 200 in 14ms (compile: 3ms, render: 12ms)
+  1509→ GET / 200 in 14ms (compile: 3ms, render: 11ms)
+  1510→ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+  1511→ GET / 200 in 28ms (compile: 5ms, render: 23ms)
+  1512→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1513→ GET / 200 in 22ms (compile: 3ms, render: 19ms)
+  1514→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1515→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1516→ GET / 200 in 28ms (compile: 4ms, render: 24ms)
+  1517→ GET / 200 in 16ms (compile: 4ms, render: 13ms)
+  1518→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1519→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1520→ GET / 200 in 69ms (compile: 46ms, render: 24ms)
+  1521→ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+  1522→ GET / 200 in 19ms (compile: 4ms, render: 15ms)
+  1523→ GET / 200 in 19ms (compile: 4ms, render: 15ms)
+  1524→ GET / 200 in 34ms (compile: 6ms, render: 28ms)
+  1525→ GET / 200 in 27ms (compile: 3ms, render: 23ms)
+  1526→ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+  1527→ GET / 200 in 23ms (compile: 3ms, render: 20ms)
+  1528→ GET / 200 in 19ms (compile: 4ms, render: 15ms)
+  1529→ GET / 200 in 24ms (compile: 3ms, render: 21ms)
+  1530→ GET / 200 in 20ms (compile: 3ms, render: 17ms)
+  1531→ GET / 200 in 33ms (compile: 8ms, render: 25ms)
+  1532→ GET / 200 in 67ms (compile: 3ms, render: 64ms)
+  1533→ GET / 200 in 63ms (compile: 4ms, render: 59ms)
+  1534→ GET / 200 in 69ms (compile: 4ms, render: 65ms)
+  1535→ GET / 200 in 62ms (compile: 27ms, render: 35ms)
+  1536→ GET / 200 in 28ms (compile: 3ms, render: 25ms)
+  1537→ GET / 200 in 25ms (compile: 3ms, render: 22ms)
+  1538→ GET / 200 in 24ms (compile: 3ms, render: 21ms)
+  1539→ GET / 200 in 30ms (compile: 3ms, render: 26ms)
+  1540→ GET / 200 in 33ms (compile: 3ms, render: 30ms)
+  1541→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1542→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1543→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1544→ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+  1545→ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+  1546→ GET / 200 in 25ms (compile: 4ms, render: 21ms)
+  1547→ GET / 200 in 33ms (compile: 3ms, render: 30ms)
+  1548→ GET / 200 in 16ms (compile: 3ms, render: 13ms)
+  1549→ GET / 200 in 17ms (compile: 3ms, render: 13ms)
+  1550→✓ Compiled in 316ms
+  1551→✓ Compiled in 300ms
+  1552→✓ Compiled in 304ms
+  1553→

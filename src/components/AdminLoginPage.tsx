@@ -3,7 +3,6 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, Info } from 'lucide-react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -52,7 +51,7 @@ export default function AdminLoginPage() {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center px-4 relative overflow-hidden"
+      className="fixed inset-0 flex items-center justify-center relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, #1e4d8a 100%)`,
       }}
@@ -74,14 +73,14 @@ export default function AdminLoginPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="relative z-10 w-full max-w-[420px]"
       >
-        <Card className="border-0 shadow-2xl overflow-hidden max-h-[96dvh] flex flex-col">
+        <Card className="border-0 shadow-2xl overflow-hidden w-full">
           {/* Top accent bar */}
           <div
             className="h-1.5 shrink-0"
             style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${GOLD}, ${PRIMARY})` }}
           />
 
-          <CardContent className="p-4 sm:p-5 overflow-y-auto">
+          <CardContent className="p-5 sm:p-6">
             {/* School Badge */}
             <div className="text-center mb-4">
               <motion.div
@@ -225,9 +224,8 @@ export default function AdminLoginPage() {
         </Card>
 
         {/* Footer branding */}
-        <p className="text-center text-[10px] text-white/50 mt-3">
-          <Image src="/images/institute-logo.jpg" alt="SKTM" width={14} height={14} className="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />
-          St. Kizito&apos;s Technical Institute — Madera
+        <p className="text-center text-[10px] text-white/40 mt-4">
+          St. Kizito&apos;s Technical Institute &mdash; Madera
         </p>
       </motion.div>
     </div>

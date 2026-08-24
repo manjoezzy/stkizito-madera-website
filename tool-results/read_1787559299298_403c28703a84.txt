@@ -1,0 +1,791 @@
+    80→
+    81→interface FieldSaveState {
+    82→  [key: string]: 'idle' | 'saving' | 'saved' | 'error';
+    83→}
+    84→
+    85→// ===================== SETTINGS CONFIGURATION =====================
+    86→
+    87→const SETTINGS_SECTIONS: SectionConfig[] = [
+    88→  {
+    89→    id: 'identity',
+    90→    title: 'School Identity',
+    91→    description: 'Core institution information displayed across the website',
+    92→    icon: Building2,
+    93→    fields: [
+    94→      { key: 'site_name', label: 'Institution Name', type: 'text', placeholder: 'St. Kizito\'s Technical Institute - Madera', defaultValue: "St. Kizito's Technical Institute - Madera" },
+    95→      { key: 'site_short_name', label: 'Short Name / Acronym', type: 'text', placeholder: 'SKTIM', defaultValue: 'SKTIM' },
+    96→      { key: 'site_motto', label: 'School Motto', type: 'text', placeholder: 'Education for Service', defaultValue: 'Education for Service' },
+    97→      { key: 'site_tagline', label: 'Tagline', type: 'text', placeholder: 'Empowering Youth Through Practical Skills', description: 'Brief tagline shown below the school name in the header.' },
+    98→      { key: 'site_logo_url', label: 'Logo URL', type: 'url', placeholder: '/images/institute-logo.jpg', description: 'Path or URL to the school logo image.' },
+    99→      { key: 'site_favicon_url', label: 'Favicon URL', type: 'url', placeholder: '/favicon.ico' },
+   100→    ],
+   101→  },
+   102→  {
+   103→    id: 'contact',
+   104→    title: 'Contact Information',
+   105→    description: 'Contact details shown on the website footer and contact page',
+   106→    icon: Phone,
+   107→    fields: [
+   108→      { key: 'contact_phone', label: 'Primary Phone', type: 'phone', placeholder: '+256 414 123 456', defaultValue: '+256 414 123 456' },
+   109→      { key: 'contact_phone_2', label: 'Secondary Phone', type: 'phone', placeholder: '+256 772 123 456' },
+   110→      { key: 'contact_email', label: 'Email Address', type: 'email', placeholder: 'info@sktim.ac.ug', defaultValue: 'info@sktim.ac.ug' },
+   111→      { key: 'contact_address', label: 'Physical Address', type: 'text', placeholder: 'Madera, Soroti City', defaultValue: 'Madera, Soroti City, Uganda' },
+   112→      { key: 'contact_pobox', label: 'P.O. Box', type: 'text', placeholder: 'P.O. Box 123, Soroti' },
+   113→      { key: 'contact_district', label: 'District / Region', type: 'text', placeholder: 'Soroti District', defaultValue: 'Soroti District' },
+   114→      { key: 'contact_map_embed', label: 'Google Maps Embed URL', type: 'url', placeholder: 'https://www.google.com/maps/embed?...', description: 'Full embed URL for the location map on the contact page.' },
+   115→      { key: 'contact_whatsapp', label: 'WhatsApp Number', type: 'phone', placeholder: '+256772123456', description: 'WhatsApp number for the chat widget (include country code).' },
+   116→    ],
+   117→  },
+   118→  {
+   119→    id: 'social',
+   120→    title: 'Social Media',
+   121→    description: 'Social media profile links displayed in the footer and contact section',
+   122→    icon: Link2,
+   123→    fields: [
+   124→      { key: 'social_facebook', label: 'Facebook', type: 'url', placeholder: 'https://facebook.com/sktimadera' },
+   125→      { key: 'social_twitter', label: 'X (Twitter)', type: 'url', placeholder: 'https://x.com/sktimadera' },
+   126→      { key: 'social_instagram', label: 'Instagram', type: 'url', placeholder: 'https://instagram.com/sktimadera' },
+   127→      { key: 'social_youtube', label: 'YouTube', type: 'url', placeholder: 'https://youtube.com/@sktimadera' },
+   128→      { key: 'social_linkedin', label: 'LinkedIn', type: 'url', placeholder: 'https://linkedin.com/company/sktimadera' },
+   129→      { key: 'social_tiktok', label: 'TikTok', type: 'url', placeholder: 'https://tiktok.com/@sktimadera' },
+   130→    ],
+   131→  },
+   132→  {
+   133→    id: 'hero',
+   134→    title: 'Hero Section',
+   135→    description: 'Main banner content displayed on the homepage',
+   136→    icon: Camera,
+   137→    fields: [
+   138→      { key: 'hero_headline', label: 'Headline', type: 'text', placeholder: 'Building Skills, Shaping Futures', defaultValue: 'Building Skills, Shaping Futures', maxLength: 80 },
+   139→      { key: 'hero_subheadline', label: 'Sub-headline', type: 'text', placeholder: 'Empowering youth through quality technical and vocational education in Soroti, Uganda.', maxLength: 160 },
+   140→      { key: 'hero_cta_text', label: 'Primary CTA Text', type: 'text', placeholder: 'Apply Now', defaultValue: 'Apply Now', maxLength: 30 },
+   141→      { key: 'hero_cta_link', label: 'Primary CTA Link', type: 'url', placeholder: '#admissions', defaultValue: '#admissions' },
+   142→      { key: 'hero_cta2_text', label: 'Secondary CTA Text', type: 'text', placeholder: 'Explore Programs', maxLength: 30 },
+   143→      { key: 'hero_cta2_link', label: 'Secondary CTA Link', type: 'url', placeholder: '#programs' },
+   144→      { key: 'hero_bg_image', label: 'Background Image URL', type: 'url', placeholder: '/images/hero-bg.png', description: 'Large background image for the hero banner.' },
+   145→      { key: 'hero_show', label: 'Show Hero Section', type: 'switch', defaultValue: 'true', description: 'Toggle to show or hide the hero banner on the homepage.' },
+   146→    ],
+   147→  },
+   148→  {
+   149→    id: 'about',
+   150→    title: 'About Content',
+   151→    description: 'Information displayed on the About page',
+   152→    icon: BookOpen,
+   153→    fields: [
+   154→      { key: 'about_mission', label: 'Mission Statement', type: 'textarea', placeholder: 'To provide quality technical and vocational education...', rows: 3, description: 'The institution\'s mission statement.' },
+   155→      { key: 'about_vision', label: 'Vision Statement', type: 'textarea', placeholder: 'To be a centre of excellence in technical education...', rows: 3, description: 'The institution\'s vision statement.' },
+   156→      { key: 'about_brief', label: 'Brief Description', type: 'textarea', placeholder: 'St. Kizito\'s Technical Institute - Madera is a leading...', rows: 5, description: 'A short paragraph about the institution shown on the homepage and about page.' },
+   157→      { key: 'about_history', label: 'History', type: 'textarea', placeholder: 'Founded in 1970, the institute has served...', rows: 6, description: 'Detailed history of the institution.' },
+   158→      { key: 'about_core_values', label: 'Core Values', type: 'textarea', placeholder: 'Excellence, Integrity, Innovation, Service, Teamwork', rows: 2, description: 'Comma-separated list of core values.' },
+   159→      { key: 'about_principal_message', label: 'Principal\'s Welcome Message', type: 'textarea', placeholder: 'Welcome to St. Kizito\'s Technical Institute...', rows: 6, description: 'Message from the principal displayed on the about page.' },
+   160→      { key: 'about_principal_name', label: 'Principal\'s Name', type: 'text', placeholder: 'Br. John Mary Ocura' },
+   161→      { key: 'about_principal_title', label: 'Principal\'s Title', type: 'text', placeholder: 'Principal', defaultValue: 'Principal' },
+   162→      { key: 'about_principal_photo', label: 'Principal\'s Photo URL', type: 'url', placeholder: '/images/principal.jpg' },
+   163→    ],
+   164→  },
+   165→  {
+   166→    id: 'admissions',
+   167→    title: 'Admissions',
+   168→    description: 'Admissions-related content and configuration',
+   169→    icon: GraduationCap,
+   170→    fields: [
+   171→      { key: 'admissions_intake_year', label: 'Current Intake Year', type: 'text', placeholder: '2025/2026', defaultValue: '2025/2026' },
+   172→      { key: 'admissions_open_date', label: 'Application Open Date', type: 'text', placeholder: '2025-01-15', description: 'Date when applications open (YYYY-MM-DD).' },
+   173→      { key: 'admissions_deadline', label: 'Application Deadline', type: 'text', placeholder: '2025-08-30', description: 'Application closing date (YYYY-MM-DD).' },
+   174→      { key: 'admissions_fee', label: 'Application Fee (UGX)', type: 'number', placeholder: '50000', defaultValue: '50000', description: 'Non-refundable application fee paid via SchoolPay.' },
+   175→      { key: 'admissions_instructions', label: 'Application Instructions', type: 'textarea', placeholder: 'Step 1: Fill the online form...', rows: 5, description: 'Step-by-step instructions shown to applicants.' },
+   176→      { key: 'admissions_requirements', label: 'Entry Requirements', type: 'textarea', placeholder: 'UCE certificate, UACE certificate...', rows: 4, description: 'General entry requirements listed on the admissions page.' },
+   177→      { key: 'admissions_status_text', label: 'Status Banner Text', type: 'text', placeholder: 'Applications are now open for 2025/2026!', description: 'Custom banner text shown on the admissions page.' },
+   178→    ],
+   179→  },
+   180→  {
+   181→    id: 'programs',
+   182→    title: 'Programmes',
+   183→    description: 'Programme page configuration and descriptions',
+   184→    icon: Briefcase,
+   185→    fields: [
+   186→      { key: 'programs_intro', label: 'Programmes Introduction', type: 'textarea', placeholder: 'We offer a range of certificate and diploma programmes...', rows: 4, description: 'Introduction paragraph for the programmes page.' },
+   187→      { key: 'programs_exam_body', label: 'Examination Body', type: 'text', placeholder: 'UBTEB', defaultValue: 'UBTEB', description: 'Name of the examination body (e.g., UBTEB, DIT).' },
+   188→      { key: 'programs_cert_duration', label: 'Certificate Duration', type: 'text', placeholder: '2 years', defaultValue: '2 years' },
+   189→      { key: 'programs_diploma_duration', label: 'Diploma Duration', type: 'text', placeholder: '3 years', defaultValue: '3 years' },
+   190→    ],
+   191→  },
+   192→  {
+   193→    id: 'seo',
+   194→    title: 'SEO & Meta',
+   195→    description: 'Search engine optimization and social sharing settings',
+   196→    icon: Search,
+   197→    fields: [
+   198→      { key: 'seo_title', label: 'Page Title', type: 'text', placeholder: 'St. Kizito\'s Technical Institute - Madera', maxLength: 70, description: 'Browser tab title. Keep under 70 characters for best SEO.' },
+   199→      { key: 'seo_description', label: 'Meta Description', type: 'textarea', placeholder: 'Official website of St. Kizito\'s Technical Institute - Madera, Soroti, Uganda. Apply for certificate and diploma programmes in technical and vocational education.', rows: 3, maxLength: 160, description: 'Search engine result snippet. Keep under 160 characters.' },
+   200→      { key: 'seo_keywords', label: 'Keywords', type: 'textarea', placeholder: 'technical institute, vocational education, Soroti, Uganda, TVET, UBTEB', rows: 2, description: 'Comma-separated keywords for SEO (less important for modern search engines).' },
+   201→      { key: 'seo_og_image', label: 'Open Graph Image', type: 'url', placeholder: '/images/og-image.png', description: 'Image shown when the site is shared on social media (1200x630px recommended).' },
+   202→    ],
+   203→  },
+   204→  {
+   205→    id: 'footer',
+   206→    title: 'Footer',
+   207→    description: 'Footer content displayed at the bottom of every page',
+   208→    icon: Layers,
+   209→    fields: [
+   210→      { key: 'footer_copyright', label: 'Copyright Text', type: 'text', placeholder: '© 2025 St. Kizito\'s Technical Institute - Madera. All rights reserved.', defaultValue: '© 2025 St. Kizito\'s Technical Institute - Madera. All rights reserved.' },
+   211→      { key: 'footer_tagline', label: 'Footer Tagline', type: 'text', placeholder: 'Empowering Youth Through Practical Skills' },
+   212→      { key: 'footer_extra_link_1_text', label: 'Extra Link 1 — Text', type: 'text', placeholder: 'Ministry of Education' },
+   213→      { key: 'footer_extra_link_1_url', label: 'Extra Link 1 — URL', type: 'url', placeholder: 'https://www.education.go.ug' },
+   214→      { key: 'footer_extra_link_2_text', label: 'Extra Link 2 — Text', type: 'text', placeholder: 'UBTEB' },
+   215→      { key: 'footer_extra_link_2_url', label: 'Extra Link 2 — URL', type: 'url', placeholder: 'https://www.ubteb.go.ug' },
+   216→      { key: 'footer_extra_link_3_text', label: 'Extra Link 3 — Text', type: 'text', placeholder: 'DIT Uganda' },
+   217→      { key: 'footer_extra_link_3_url', label: 'Extra Link 3 — URL', type: 'url', placeholder: 'https://www.dit.go.ug' },
+   218→    ],
+   219→  },
+   220→  {
+   221→    id: 'features',
+   222→    title: 'Feature Toggles',
+   223→    description: 'Enable or disable website sections and functionality',
+   224→    icon: ToggleLeft,
+   225→    accentColor: '#f5c518',
+   226→    fields: [
+   227→      { key: 'feature_gallery', label: 'Photo Gallery', type: 'switch', defaultValue: 'true', description: 'Show the photo gallery page and link in navigation.' },
+   228→      { key: 'feature_events', label: 'Events Page', type: 'switch', defaultValue: 'true', description: 'Show the events page and upcoming events.' },
+   229→      { key: 'feature_alumni', label: 'Alumni Page', type: 'switch', defaultValue: 'true', description: 'Show the alumni directory page.' },
+   230→      { key: 'feature_graduation', label: 'Graduation Page', type: 'switch', defaultValue: 'true', description: 'Show the graduation photos page.' },
+   231→      { key: 'feature_online_learning', label: 'Online Learning', type: 'switch', defaultValue: 'false', description: 'Enable the online learning portal link.' },
+   232→      { key: 'feature_student_portal', label: 'Student Portal', type: 'switch', defaultValue: 'true', description: 'Enable the student self-service portal.' },
+   233→      { key: 'feature_admissions', label: 'Online Admissions', type: 'switch', defaultValue: 'true', description: 'Enable online application submissions.' },
+   234→      { key: 'feature_maintenance', label: 'Maintenance Mode', type: 'switch', defaultValue: 'false', description: '⚠️ Show a maintenance page to visitors. Admin access remains available.' },
+   235→      { key: 'feature_contact_form', label: 'Contact Form', type: 'switch', defaultValue: 'true', description: 'Allow visitors to submit messages via the contact form.' },
+   236→      { key: 'feature_whatsapp_widget', label: 'WhatsApp Chat Widget', type: 'switch', defaultValue: 'false', description: 'Show a floating WhatsApp chat button on the website.' },
+   237→    ],
+   238→  },
+   239→];
+   240→
+   241→// ===================== HELPERS =====================
+   242→
+   243→/** Collect all setting keys from all sections */
+   244→function getAllKeys(): string[] {
+   245→  return SETTINGS_SECTIONS.flatMap((s) => s.fields.map((f) => f.key));
+   246→}
+   247→
+   248→// ===================== SUB-COMPONENTS =====================
+   249→
+   250→/** Small per-field save indicator */
+   251→function FieldIndicator({ state }: { state: 'idle' | 'saving' | 'saved' | 'error' }) {
+   252→  return (
+   253→    <AnimatePresence mode="wait">
+   254→      {state !== 'idle' && (
+   255→        <motion.span
+   256→          key={state}
+   257→          initial={{ opacity: 0, scale: 0.7, y: -4 }}
+   258→          animate={{ opacity: 1, scale: 1, y: 0 }}
+   259→          exit={{ opacity: 0, scale: 0.7, y: 4 }}
+   260→          transition={{ duration: 0.2 }}
+   261→          className="inline-flex items-center gap-1 text-xs font-medium shrink-0"
+   262→        >
+   263→          {state === 'saving' && (
+   264→            <>
+   265→              <Loader2 className="w-3 h-3 animate-spin text-[#1a3a6b]" />
+   266→              <span className="text-[#1a3a6b]">Saving…</span>
+   267→            </>
+   268→          )}
+   269→          {state === 'saved' && (
+   270→            <>
+   271→              <Check className="w-3 h-3 text-emerald-500" />
+   272→              <span className="text-emerald-600">Saved</span>
+   273→            </>
+   274→          )}
+   275→          {state === 'error' && (
+   276→            <>
+   277→              <AlertCircle className="w-3 h-3 text-red-500" />
+   278→              <span className="text-red-500">Failed</span>
+   279→            </>
+   280→          )}
+   281→        </motion.span>
+   282→      )}
+   283→    </AnimatePresence>
+   284→  );
+   285→}
+   286→
+   287→/** Loading skeleton for a section */
+   288→function SectionSkeleton() {
+   289→  return (
+   290→    <Card className="border-0 shadow-sm">
+   291→      <CardHeader className="pb-3">
+   292→        <div className="flex items-center gap-3">
+   293→          <Skeleton className="w-8 h-8 rounded-lg" />
+   294→          <div className="space-y-2 flex-1">
+   295→            <Skeleton className="h-5 w-40" />
+   296→            <Skeleton className="h-3 w-64" />
+   297→          </div>
+   298→        </div>
+   299→      </CardHeader>
+   300→      <CardContent className="space-y-4">
+   301→        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   302→          {[1, 2, 3, 4].map((i) => (
+   303→            <div key={i} className="space-y-2">
+   304→              <Skeleton className="h-4 w-24" />
+   305→              <Skeleton className="h-10 w-full rounded-lg" />
+   306→            </div>
+   307→          ))}
+   308→        </div>
+   309→      </CardContent>
+   310→    </Card>
+   311→  );
+   312→}
+   313→
+   314→/** Collapsible section card */
+   315→function SettingsSectionCard({
+   316→  section,
+   317→  values,
+   318→  saveStates,
+   319→  onValueChange,
+   320→  onSaveField,
+   321→}: {
+   322→  section: SectionConfig;
+   323→  values: Record<string, string>;
+   324→  saveStates: FieldSaveState;
+   325→  onValueChange: (key: string, value: string) => void;
+   326→  onSaveField: (key: string) => void;
+   327→}) {
+   328→  const [collapsed, setCollapsed] = useState(false);
+   329→  const Icon = section.icon;
+   330→
+   331→  return (
+   332→    <motion.div
+   333→      initial={{ opacity: 0, y: 16 }}
+   334→      animate={{ opacity: 1, y: 0 }}
+   335→      transition={{ duration: 0.3, ease: 'easeOut' }}
+   336→    >
+   337→      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+   338→        <CardHeader
+   339→          className="pb-3 cursor-pointer select-none"
+   340→          onClick={() => setCollapsed(!collapsed)}
+   341→        >
+   342→          <div className="flex items-center justify-between">
+   343→            <div className="flex items-center gap-3">
+   344→              <div
+   345→                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   346→                style={{ backgroundColor: `${section.accentColor || '#1a3a6b'}14` }}
+   347→              >
+   348→                <Icon
+   349→                  className="w-4.5 h-4.5"
+   350→                  style={{ color: section.accentColor || '#1a3a6b' }}
+   351→                />
+   352→              </div>
+   353→              <div>
+   354→                <CardTitle className="text-base font-semibold text-slate-800">
+   355→                  {section.title}
+   356→                </CardTitle>
+   357→                <p className="text-xs text-slate-400 mt-0.5">{section.description}</p>
+   358→              </div>
+   359→            </div>
+   360→            <motion.div
+   361→              animate={{ rotate: collapsed ? 180 : 0 }}
+   362→              transition={{ duration: 0.2 }}
+   363→            >
+   364→              <ChevronUp className="w-4 h-4 text-slate-400" />
+   365→            </motion.div>
+   366→          </div>
+   367→        </CardHeader>
+   368→
+   369→        <AnimatePresence initial={false}>
+   370→          {!collapsed && (
+   371→            <motion.div
+   372→              initial={{ height: 0, opacity: 0 }}
+   373→              animate={{ height: 'auto', opacity: 1 }}
+   374→              exit={{ height: 0, opacity: 0 }}
+   375→              transition={{ duration: 0.25, ease: 'easeInOut' }}
+   376→              className="overflow-hidden"
+   377→            >
+   378→              <Separator className="mb-4" />
+   379→              <CardContent className="pt-0">
+   380→                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+   381→                  {section.fields.map((field) => (
+   382→                    <FieldRow
+   383→                      key={field.key}
+   384→                      field={field}
+   385→                      value={values[field.key] ?? field.defaultValue ?? ''}
+   386→                      saveState={saveStates[field.key] ?? 'idle'}
+   387→                      onChange={(v) => onValueChange(field.key, v)}
+   388→                      onBlur={() => {
+   389→                        if (field.type !== 'switch') onSaveField(field.key);
+   390→                      }}
+   391→                      onToggle={() => onSaveField(field.key)}
+   392→                      spanFull={field.type === 'textarea' && (field.rows ?? 3) >= 5}
+   393→                    />
+   394→                  ))}
+   395→                </div>
+   396→              </CardContent>
+   397→            </motion.div>
+   398→          )}
+   399→        </AnimatePresence>
+   400→      </Card>
+   401→    </motion.div>
+   402→  );
+   403→}
+   404→
+   405→/** Individual field row */
+   406→function FieldRow({
+   407→  field,
+   408→  value,
+   409→  saveState,
+   410→  onChange,
+   411→  onBlur,
+   412→  onToggle,
+   413→  spanFull,
+   414→}: {
+   415→  field: FieldConfig;
+   416→  value: string;
+   417→  saveState: 'idle' | 'saving' | 'saved' | 'error';
+   418→  onChange: (value: string) => void;
+   419→  onBlur: () => void;
+   420→  onToggle: () => void;
+   421→  spanFull?: boolean;
+   422→}) {
+   423→  const isSwitch = field.type === 'switch';
+   424→  const isChecked = value === 'true';
+   425→
+   426→  return (
+   427→    <div className={`${spanFull ? 'md:col-span-2' : ''}`}>
+   428→      <div className="flex items-start justify-between gap-3 mb-1.5">
+   429→        <div className="flex items-center gap-2 min-w-0">
+   430→          <Label
+   431→            htmlFor={field.key}
+   432→            className="text-sm font-medium text-slate-700 truncate"
+   433→          >
+   434→            {field.label}
+   435→          </Label>
+   436→          {field.maxLength && (
+   437→            <span className="text-[10px] text-slate-300 font-mono shrink-0">
+   438→              {value.length}/{field.maxLength}
+   439→            </span>
+   440→          )}
+   441→        </div>
+   442→        {!isSwitch && <FieldIndicator state={saveState} />}
+   443→      </div>
+   444→
+   445→      {field.description && (
+   446→        <p className="text-xs text-slate-400 mb-2 leading-relaxed">{field.description}</p>
+   447→      )}
+   448→
+   449→      {isSwitch ? (
+   450→        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50/80 border border-slate-100">
+   451→          <span className="text-sm text-slate-600">{field.description || field.label}</span>
+   452→          <div className="flex items-center gap-2">
+   453→            <FieldIndicator state={saveState} />
+   454→            <Switch
+   455→              id={field.key}
+   456→              checked={isChecked}
+   457→              onCheckedChange={() => {
+   458→                onChange(isChecked ? 'false' : 'true');
+   459→                onToggle();
+   460→              }}
+   461→              className="data-[state=checked]:bg-[#1a3a6b]"
+   462→            />
+   463→          </div>
+   464→        </div>
+   465→      ) : field.type === 'textarea' ? (
+   466→        <Textarea
+   467→          id={field.key}
+   468→          value={value}
+   469→          onChange={(e) => onChange(e.target.value.slice(0, field.maxLength ?? 9999))}
+   470→          onBlur={onBlur}
+   471→          placeholder={field.placeholder}
+   472→          rows={field.rows ?? 3}
+   473→          className="resize-y min-h-[80px] text-sm border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   474→        />
+   475→      ) : (
+   476→        <Input
+   477→          id={field.key}
+   478→          type={field.type === 'url' || field.type === 'email' || field.type === 'phone' || field.type === 'number' ? 'text' : 'text'}
+   479→          value={value}
+   480→          onChange={(e) => onChange(e.target.value.slice(0, field.maxLength ?? 200))}
+   481→          onBlur={onBlur}
+   482→          placeholder={field.placeholder}
+   483→          inputMode={field.type === 'number' ? 'numeric' : field.type === 'phone' ? 'tel' : field.type === 'url' ? 'url' : field.type === 'email' ? 'email' : undefined}
+   484→          className="text-sm border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   485→        />
+   486→      )}
+   487→    </div>
+   488→  );
+   489→}
+   490→
+   491→// ===================== MAIN COMPONENT =====================
+   492→
+   493→export default function AdminWebsiteSettings() {
+   494→  const [values, setValues] = useState<Record<string, string>>({});
+   495→  const [saveStates, setSaveStates] = useState<FieldSaveState>({});
+   496→  const [loading, setLoading] = useState(true);
+   497→  const [globalSaving, setGlobalSaving] = useState(false);
+   498→  const [globalSaved, setGlobalSaved] = useState(false);
+   499→  const [activeSection, setActiveSection] = useState<string | null>(null);
+   500→  const [searchQuery, setSearchQuery] = useState('');
+   501→  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+   502→  const allKeysRef = useRef<string[]>(getAllKeys());
+   503→
+   504→  // ── Load all settings on mount ──
+   505→  useEffect(() => {
+   506→    const keys = allKeysRef.current;
+   507→    fetch(`/api/settings/bulk?keys=${keys.join(',')}`)
+   508→      .then((r) => r.json())
+   509→      .then((data) => {
+   510→        const fetched: Record<string, string> = data.settings || {};
+   511→        // Merge with defaults
+   512→        const merged: Record<string, string> = {};
+   513→        for (const section of SETTINGS_SECTIONS) {
+   514→          for (const field of section.fields) {
+   515→            merged[field.key] =
+   516→              fetched[field.key] !== null && fetched[field.key] !== undefined
+   517→                ? fetched[field.key]
+   518→                : field.defaultValue || '';
+   519→          }
+   520→        }
+   521→        setValues(merged);
+   522→        setLoading(false);
+   523→      })
+   524→      .catch(() => {
+   525→        // Fallback to defaults
+   526→        const defaults: Record<string, string> = {};
+   527→        for (const section of SETTINGS_SECTIONS) {
+   528→          for (const field of section.fields) {
+   529→            defaults[field.key] = field.defaultValue || '';
+   530→          }
+   531→        }
+   532→        setValues(defaults);
+   533→        setLoading(false);
+   534→      });
+   535→  }, []);
+   536→
+   537→  // ── Cleanup debounce timers on unmount ──
+   538→  useEffect(() => {
+   539→    return () => {
+   540→      Object.values(debounceTimers.current).forEach(clearTimeout);
+   541→    };
+   542→  }, []);
+   543→
+   544→  // ── Save a single setting (PUT /api/settings) ──
+   545→  const saveField = useCallback(
+   546→    async (key: string) => {
+   547→      // Clear any existing debounce timer for this key
+   548→      if (debounceTimers.current[key]) {
+   549→        clearTimeout(debounceTimers.current[key]);
+   550→      }
+   551→
+   552→      // Debounce: wait 800ms before saving (in case user is still typing)
+   553→      debounceTimers.current[key] = setTimeout(async () => {
+   554→        setSaveStates((prev) => ({ ...prev, [key]: 'saving' }));
+   555→        try {
+   556→          const res = await fetch('/api/settings', {
+   557→            method: 'PUT',
+   558→            headers: { 'Content-Type': 'application/json' },
+   559→            body: JSON.stringify({ key, value: values[key] }),
+   560→          });
+   561→          if (res.ok) {
+   562→            setSaveStates((prev) => ({ ...prev, [key]: 'saved' }));
+   563→            // Reset to idle after 3 seconds
+   564→            setTimeout(() => {
+   565→              setSaveStates((prev) => ({ ...prev, [key]: 'idle' }));
+   566→            }, 3000);
+   567→          } else {
+   568→            setSaveStates((prev) => ({ ...prev, [key]: 'error' }));
+   569→            setTimeout(() => {
+   570→              setSaveStates((prev) => ({ ...prev, [key]: 'idle' }));
+   571→            }, 5000);
+   572→          }
+   573→        } catch {
+   574→          setSaveStates((prev) => ({ ...prev, [key]: 'error' }));
+   575→          setTimeout(() => {
+   576→            setSaveStates((prev) => ({ ...prev, [key]: 'idle' }));
+   577→          }, 5000);
+   578→        }
+   579→      }, 800);
+   580→    },
+   581→    [values]
+   582→  );
+   583→
+   584→  // ── Save all settings at once (PUT /api/settings/bulk) ──
+   585→  const saveAll = useCallback(async () => {
+   586→    setGlobalSaving(true);
+   587→    setGlobalSaved(false);
+   588→    try {
+   589→      const res = await fetch('/api/settings/bulk', {
+   590→        method: 'PUT',
+   591→        headers: { 'Content-Type': 'application/json' },
+   592→        body: JSON.stringify({ settings: values }),
+   593→      });
+   594→      if (res.ok) {
+   595→        setGlobalSaved(true);
+   596→        // Mark all fields as saved
+   597→        const allSaved: FieldSaveState = {};
+   598→        for (const key of allKeysRef.current) {
+   599→          allSaved[key] = 'saved';
+   600→        }
+   601→        setSaveStates(allSaved);
+   602→        setTimeout(() => {
+   603→          setGlobalSaved(false);
+   604→          setSaveStates({});
+   605→        }, 3000);
+   606→      }
+   607→    } catch {
+   608→      // silently fail
+   609→    } finally {
+   610→      setGlobalSaving(false);
+   611→    }
+   612→  }, [values]);
+   613→
+   614→  // ── Handle value change ──
+   615→  const handleValueChange = useCallback((key: string, value: string) => {
+   616→    setValues((prev) => ({ ...prev, [key]: value }));
+   617→    // Reset save state to idle when user starts editing
+   618→    setSaveStates((prev) => ({ ...prev, [key]: 'idle' }));
+   619→  }, []);
+   620→
+   621→  // ── Filter sections by search ──
+   622→  const filteredSections = searchQuery.trim()
+   623→    ? SETTINGS_SECTIONS.filter(
+   624→        (section) =>
+   625→          section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   626→          section.fields.some(
+   627→            (f) =>
+   628→              f.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   629→              (values[f.key] ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+   630→          )
+   631→      )
+   632→    : SETTINGS_SECTIONS;
+   633→
+   634→  // ── Count filled settings ──
+   635→  const filledCount = Object.values(values).filter((v) => v.trim() !== '').length;
+   636→  const totalCount = allKeysRef.current.length;
+   637→
+   638→  return (
+   639→    <div className="space-y-6">
+   640→      {/* ── Header ── */}
+   641→      <motion.div
+   642→        initial={{ opacity: 0, y: -8 }}
+   643→        animate={{ opacity: 1, y: 0 }}
+   644→        transition={{ duration: 0.3 }}
+   645→        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+   646→      >
+   647→        <div>
+   648→          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+   649→            <div className="w-8 h-8 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+   650→              <Globe className="w-4.5 h-4.5 text-[#1a3a6b]" />
+   651→            </div>
+   652→            Website Content Management
+   653→          </h2>
+   654→          <p className="text-sm text-slate-400 mt-1">
+   655→            Manage all website content, SEO, contact details, and feature toggles.
+   656→          </p>
+   657→        </div>
+   658→        <div className="flex items-center gap-3">
+   659→          <Badge
+   660→            variant="outline"
+   661→            className="text-xs font-normal text-slate-500 border-slate-200"
+   662→          >
+   663→            <Sparkles className="w-3 h-3 mr-1 text-[#f5c518]" />
+   664→            {filledCount}/{totalCount} configured
+   665→          </Badge>
+   666→          <Button
+   667→            onClick={saveAll}
+   668→            disabled={globalSaving || loading}
+   669→            style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+   670→            className="shrink-0 disabled:opacity-50 hover:opacity-90 font-semibold shadow-sm hover:shadow-md transition-all"
+   671→          >
+   672→            {globalSaving ? (
+   673→              <>
+   674→                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   675→                Saving All…
+   676→              </>
+   677→            ) : globalSaved ? (
+   678→              <>
+   679→                <Check className="w-4 h-4 mr-2" />
+   680→                All Saved!
+   681→              </>
+   682→            ) : (
+   683→              <>
+   684→                <Save className="w-4 h-4 mr-2" />
+   685→                Save All
+   686→              </>
+   687→            )}
+   688→          </Button>
+   689→        </div>
+   690→      </motion.div>
+   691→
+   692→      {/* ── Search & Section Nav ── */}
+   693→      <motion.div
+   694→        initial={{ opacity: 0, y: -4 }}
+   695→        animate={{ opacity: 1, y: 0 }}
+   696→        transition={{ duration: 0.3, delay: 0.1 }}
+   697→        className="space-y-4"
+   698→      >
+   699→        {/* Search */}
+   700→        <div className="relative">
+   701→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   702→          <Input
+   703→            value={searchQuery}
+   704→            onChange={(e) => setSearchQuery(e.target.value)}
+   705→            placeholder="Search settings…"
+   706→            className="pl-9 text-sm border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   707→          />
+   708→          {searchQuery && (
+   709→            <button
+   710→              onClick={() => setSearchQuery('')}
+   711→              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+   712→            >
+   713→              <span className="text-xs">Clear</span>
+   714→            </button>
+   715→          )}
+   716→        </div>
+   717→
+   718→        {/* Section quick-nav chips */}
+   719→        <div className="flex flex-wrap gap-2">
+   720→          {SETTINGS_SECTIONS.map((section) => {
+   721→            const Icon = section.icon;
+   722→            const isActive = activeSection === section.id;
+   723→            return (
+   724→              <button
+   725→                key={section.id}
+   726→                onClick={() =>
+   727→                  setActiveSection(isActive ? null : section.id)
+   728→                }
+   729→                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
+   730→                  isActive
+   731→                    ? 'bg-[#1a3a6b] text-white border-[#1a3a6b] shadow-sm'
+   732→                    : 'bg-white text-slate-600 border-slate-200 hover:border-[#1a3a6b] hover:text-[#1a3a6b]'
+   733→                }`}
+   734→              >
+   735→                <Icon className="w-3 h-3" />
+   736→                {section.title}
+   737→              </button>
+   738→            );
+   739→          })}
+   740→        </div>
+   741→      </motion.div>
+   742→
+   743→      {/* ── Auto-save notice ── */}
+   744→      <motion.div
+   745→        initial={{ opacity: 0 }}
+   746→        animate={{ opacity: 1 }}
+   747→        transition={{ delay: 0.3 }}
+   748→        className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#f5c518]/10 border border-[#f5c518]/20"
+   749→      >
+   750→        <Info className="w-4 h-4 text-[#f5c518] shrink-0" />
+   751→        <p className="text-xs text-amber-800/80">
+   752→          Text fields auto-save on blur (with debounce). Switches save immediately. You can also use{' '}
+   753→          <span className="font-semibold">Save All</span> to persist everything at once.
+   754→        </p>
+   755→      </motion.div>
+   756→
+   757→      {/* ── Loading State ── */}
+   758→      {loading && (
+   759→        <div className="space-y-4">
+   760→          <SectionSkeleton />
+   761→          <SectionSkeleton />
+   762→          <SectionSkeleton />
+   763→        </div>
+   764→      )}
+   765→
+   766→      {/* ── Settings Sections ── */}
+   767→      {!loading && (
+   768→        <div className="space-y-4">
+   769→          <AnimatePresence>
+   770→            {filteredSections
+   771→              .filter((section) => !activeSection || section.id === activeSection)
+   772→              .map((section) => (
+   773→                <SettingsSectionCard
+   774→                  key={section.id}
+   775→                  section={section}
+   776→                  values={values}
+   777→                  saveStates={saveStates}
+   778→                  onValueChange={handleValueChange}
+   779→                  onSaveField={saveField}
+   780→                />
+   781→              ))}
+   782→          </AnimatePresence>
+   783→
+   784→          {filteredSections.filter(
+   785→            (section) => !activeSection || section.id === activeSection
+   786→          ).length === 0 && (
+   787→            <motion.div
+   788→              initial={{ opacity: 0 }}
+   789→              animate={{ opacity: 1 }}
+   790→              className="text-center py-12"
+   791→            >
+   792→              <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+   793→              <p className="text-sm text-slate-400">No settings match &quot;{searchQuery}&quot;</p>
+   794→              <Button
+   795→                variant="link"
+   796→                size="sm"
+   797→                className="text-[#1a3a6b] mt-2"
+   798→                onClick={() => setSearchQuery('')}
+   799→              >
+   800→                Clear search
+   801→              </Button>
+   802→            </motion.div>
+   803→          )}
+   804→        </div>
+   805→      )}
+   806→
+   807→      {/* ── Bottom Action Bar ── */}
+   808→      {!loading && (
+   809→        <motion.div
+   810→          initial={{ opacity: 0, y: 8 }}
+   811→          animate={{ opacity: 1, y: 0 }}
+   812→          transition={{ delay: 0.2 }}
+   813→          className="sticky bottom-4 z-10"
+   814→        >
+   815→          <div className="flex items-center justify-between p-4 rounded-xl bg-white/90 backdrop-blur-sm border border-slate-200 shadow-lg">
+   816→            <div className="flex items-center gap-3">
+   817→              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+   818→              <span className="text-xs text-slate-500">
+   819→                {filledCount} of {totalCount} fields configured
+   820→              </span>
+   821→              <Separator orientation="vertical" className="h-4" />
+   822→              <span className="text-xs text-slate-400">
+   823→                Last auto-save: {new Date().toLocaleTimeString()}
+   824→              </span>
+   825→            </div>
+   826→            <div className="flex items-center gap-2">
+   827→              <Button
+   828→                variant="outline"
+   829→                size="sm"
+   830→                className="text-xs border-slate-200 text-slate-600 hover:border-[#1a3a6b] hover:text-[#1a3a6b]"
+   831→                onClick={() => {
+   832→                  // Reset to defaults
+   833→                  const defaults: Record<string, string> = {};
+   834→                  for (const section of SETTINGS_SECTIONS) {
+   835→                    for (const field of section.fields) {
+   836→                      defaults[field.key] = field.defaultValue || '';
+   837→                    }
+   838→                  }
+   839→                  setValues(defaults);
+   840→                }}
+   841→              >
+   842→                <RefreshCw className="w-3 h-3 mr-1" />
+   843→                Reset to Defaults
+   844→              </Button>
+   845→              <Button
+   846→                size="sm"
+   847→                onClick={saveAll}
+   848→                disabled={globalSaving}
+   849→                className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white text-xs font-semibold shadow-sm disabled:opacity-50"
+   850→              >
+   851→                {globalSaving ? (
+   852→                  <>
+   853→                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+   854→                    Saving…
+   855→                  </>
+   856→                ) : (
+   857→                  <>
+   858→                    <Save className="w-3 h-3 mr-1" />
+   859→                    Save All Changes
+   860→                  </>
+   861→                )}
+   862→              </Button>
+   863→            </div>
+   864→          </div>
+   865→        </motion.div>
+   866→      )}
+   867→    </div>
+   868→  );
+   869→}
+   870→
