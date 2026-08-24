@@ -1,3 +1,443 @@
+   120→  district: string;
+   121→  address: string;
+   122→  nextOfKin: string;
+   123→  nextOfKinPhone: string;
+   124→  lastSchool: string;
+   125→  yearCompleted: string;
+   126→  qualification: string;
+   127→  programme: string;
+   128→  intakeYear: string;
+   129→}
+   130→
+   131→const INITIAL_FORM: FormData = {
+   132→  fullName: '',
+   133→  dob: '',
+   134→  gender: '',
+   135→  nationality: 'Ugandan',
+   136→  religion: '',
+   137→  nin: '',
+   138→  phone: '',
+   139→  email: '',
+   140→  district: '',
+   141→  address: '',
+   142→  nextOfKin: '',
+   143→  nextOfKinPhone: '',
+   144→  lastSchool: '',
+   145→  yearCompleted: '',
+   146→  qualification: '',
+   147→  programme: '',
+   148→  intakeYear: '2025/2026',
+   149→};
+   150→
+   151→/* ──────────────── component ──────────────── */
+   152→
+   153→export default function AdmissionsPage() {
+   154→  const { addToast, setCurrentPage } = useAppStore();
+   155→
+   156→  const [nonFormalFormUrl, setNonFormalFormUrl] = useState<string | null>(null);
+   157→  const [tvetFormUrl, setTvetFormUrl] = useState<string>('/forms/tvet-admission-form.pdf');
+   158→  const [applicationFee, setApplicationFee] = useState<number>(50000); // default
+   159→  useEffect(() => {
+   160→    Promise.all([
+   161→      fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
+   162→      fetch('/api/settings?key=tvet_form_url').then((r) => r.json()),
+   163→      fetch('/api/settings?key=application_fee').then((r) => r.json()),
+   164→    ]).then(([nf, tf, af]) => {
+   165→      if (nf.value) setNonFormalFormUrl(nf.value);
+   166→      if (tf.value) setTvetFormUrl(tf.value);
+   167→      if (af.value) setApplicationFee(parseInt(af.value, 10) || 50000);
+   168→    }).catch(() => {});
+   169→  }, []);
+   170→
+   171→  const [currentStep, setCurrentStep] = useState(1);
+   172→  const [form, setForm] = useState<FormData>(INITIAL_FORM);
+   173→  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+   174→  const [submitting, setSubmitting] = useState(false);
+   175→  const [referenceNumber, setReferenceNumber] = useState('');
+   176→  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'initiating' | 'dialog' | 'verifying' | 'success' | 'failed'>('idle');
+   177→  const [transactionRef, setTransactionRef] = useState('');
+   178→  const [paymentError, setPaymentError] = useState('');
+   179→
+   180→  const updateField = (field: keyof FormData, value: string) => {
+   181→    setForm((prev) => ({ ...prev, [field]: value }));
+   182→    if (errors[field]) {
+   183→      setErrors((prev) => {
+   184→        const next = { ...prev };
+   185→        delete next[field];
+   186→        return next;
+   187→      });
+   188→    }
+   189→  };
+   190→
+   191→
+   192→  /* ──────── validation ──────── */
+   193→
+   194→  const validateStep = (step: number): boolean => {
+   195→    const e: Partial<Record<keyof FormData, string>> = {};
+   196→
+   197→    if (step === 1) {
+   198→      if (!form.fullName.trim()) e.fullName = 'Full name is required';
+   199→      if (!form.dob) e.dob = 'Date of birth is required';
+   200→      if (!form.gender) e.gender = 'Gender is required';
+   201→      if (!form.nationality.trim()) e.nationality = 'Nationality is required';
+   202→    }
+   203→
+   204→    if (step === 2) {
+   205→      if (!form.phone.trim()) e.phone = 'Phone number is required';
+   206→      else if (!/^\d{10}$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Enter a valid 10-digit phone number';
+   207→      if (!form.email.trim()) e.email = 'Email is required';
+   208→      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address';
+   209→    }
+   210→
+   211→    if (step === 3) {
+   212→      if (!form.qualification) e.qualification = 'Select your highest qualification';
+   213→    }
+   214→
+   215→    if (step === 4) {
+   216→      if (!form.programme) e.programme = 'Select a programme';
+   217→      if (!form.intakeYear) e.intakeYear = 'Select intake year';
+   218→    }
+   219→
+   220→    setErrors(e);
+   221→    return Object.keys(e).length === 0;
+   222→  };
+   223→
+   224→  const goNext = () => {
+   225→    if (!validateStep(currentStep)) return;
+   226→    if (currentStep === 4) {
+   227→      handleSubmitApplication();
+   228→    } else {
+   229→      setCurrentStep((s) => Math.min(s + 1, 5));
+   230→    }
+   231→  };
+   232→
+   233→  const goPrev = () => {
+   234→    setCurrentStep((s) => Math.max(s - 1, 1));
+   235→  };
+   236→
+   237→  /* ──────── submit application (step 4 → step 5) ──────── */
+   238→
+   239→  const handleSubmitApplication = async () => {
+   240→    setSubmitting(true);
+   241→    try {
+   242→      const res = await fetch('/api/admissions', {
+   243→        method: 'POST',
+   244→        headers: { 'Content-Type': 'application/json' },
+   245→        body: JSON.stringify(form),
+   246→      });
+   247→      const data = await res.json();
+   248→
+   249→      if (data.success) {
+   250→        setReferenceNumber(data.data.referenceNumber);
+   251→        setCurrentStep(5);
+   252→        addToast('Application submitted successfully!', 'success');
+   253→      } else {
+   254→        addToast(data.message || 'Failed to submit application', 'error');
+   255→      }
+   256→    } catch {
+   257→      addToast('Network error. Please try again.', 'error');
+   258→    } finally {
+   259→      setSubmitting(false);
+   260→    }
+   261→  };
+   262→
+   263→  /* ──────── SchoolPay payment ──────── */
+   264→
+   265→  const handleInitiatePayment = async () => {
+   266→    setPaymentError('');
+   267→    setPaymentStatus('initiating');
+   268→    try {
+   269→      const res = await fetch('/api/payments', {
+   270→        method: 'POST',
+   271→        headers: { 'Content-Type': 'application/json' },
+   272→        body: JSON.stringify({
+   273→          action: 'initiate',
+   274→          referenceNumber,
+   275→          fullName: form.fullName,
+   276→          phone: form.phone,
+   277→          email: form.email,
+   278→          amount: applicationFee,
+   279→          programme: form.programme,
+   280→          intakeYear: form.intakeYear,
+   281→        }),
+   282→      });
+   283→      const data = await res.json();
+   284→
+   285→      if (data.success) {
+   286→        setTransactionRef(data.data.transactionRef);
+   287→        setPaymentStatus('dialog');
+   288→      } else {
+   289→        setPaymentError(data.message || 'Payment initiation failed');
+   290→        setPaymentStatus('idle');
+   291→      }
+   292→    } catch {
+   293→      setPaymentError('Network error. Please try again.');
+   294→      setPaymentStatus('idle');
+   295→    }
+   296→  };
+   297→
+   298→  const handleSimulatePayment = async () => {
+   299→    setPaymentStatus('verifying');
+   300→    try {
+   301→      const res = await fetch('/api/payments', {
+   302→        method: 'POST',
+   303→        headers: { 'Content-Type': 'application/json' },
+   304→        body: JSON.stringify({
+   305→          action: 'verify',
+   306→          transactionRef,
+   307→          referenceNumber,
+   308→        }),
+   309→      });
+   310→      const data = await res.json();
+   311→
+   312→      if (data.success) {
+   313→        setPaymentStatus('success');
+   314→        addToast('Payment verified! Admission confirmed.', 'success');
+   315→      } else {
+   316→        setPaymentStatus('failed');
+   317→        setPaymentError(data.message || 'Payment verification failed.');
+   318→        addToast(data.message || 'Payment verification failed.', 'error');
+   319→      }
+   320→    } catch {
+   321→      setPaymentStatus('failed');
+   322→      setPaymentError('Network error during verification.');
+   323→    }
+   324→  };
+   325→
+   326→  /* ──────── form field renderer ──────── */
+   327→
+   328→  const fieldClass = 'w-full';
+   329→
+   330→  const renderField = (field: keyof FormData, label: string, type = 'text', placeholder = '') => (
+   331→    <div className="space-y-2">
+   332→      <Label htmlFor={field} className="text-sm font-medium text-gray-700">
+   333→        {label}
+   334→      </Label>
+   335→      <Input
+   336→        id={field}
+   337→        type={type}
+   338→        placeholder={placeholder}
+   339→        value={form[field]}
+   340→        onChange={(e) => updateField(field, e.target.value)}
+   341→        className={`${fieldClass} ${errors[field] ? 'border-red-400 focus-visible:ring-red-200' : ''}`}
+   342→      />
+   343→      {errors[field] && <p className="text-xs text-red-500 mt-1">{errors[field]}</p>}
+   344→    </div>
+   345→  );
+   346→
+   347→  /* ──────── step content ──────── */
+   348→
+   349→  const renderStepContent = () => {
+   350→    switch (currentStep) {
+   351→      case 1:
+   352→        return (
+   353→          <motion.div
+   354→            key="step1"
+   355→            initial={{ opacity: 0, x: 20 }}
+   356→            animate={{ opacity: 1, x: 0 }}
+   357→            exit={{ opacity: 0, x: -20 }}
+   358→            transition={{ duration: 0.3 }}
+   359→            className="space-y-6"
+   360→          >
+   361→            <div>
+   362→              <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
+   363→              <p className="text-sm text-gray-500 mt-1">Provide your personal details as they appear on your identification documents.</p>
+   364→            </div>
+   365→
+   366→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   367→              {renderField('fullName', 'Full Name *', 'text', 'e.g. Okello John Peter')}
+   368→              {renderField('dob', 'Date of Birth *', 'date')}
+   369→            </div>
+   370→
+   371→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   372→              <div className="space-y-2">
+   373→                <Label className="text-sm font-medium text-gray-700">Gender *</Label>
+   374→                <Select value={form.gender} onValueChange={(v) => updateField('gender', v)}>
+   375→                  <SelectTrigger className={`${fieldClass} ${errors.gender ? 'border-red-400' : ''}`}>
+   376→                    <SelectValue placeholder="Select gender" />
+   377→                  </SelectTrigger>
+   378→                  <SelectContent>
+   379→                    <SelectItem value="Male">Male</SelectItem>
+   380→                    <SelectItem value="Female">Female</SelectItem>
+   381→                  </SelectContent>
+   382→                </Select>
+   383→                {errors.gender && <p className="text-xs text-red-500 mt-1">{errors.gender}</p>}
+   384→              </div>
+   385→
+   386→              {renderField('nationality', 'Nationality *', 'text', 'e.g. Ugandan')}
+   387→            </div>
+   388→
+   389→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   390→              <div className="space-y-2">
+   391→                <Label className="text-sm font-medium text-gray-700">Religion</Label>
+   392→                <Select value={form.religion} onValueChange={(v) => updateField('religion', v)}>
+   393→                  <SelectTrigger className={fieldClass}>
+   394→                    <SelectValue placeholder="Select religion (optional)" />
+   395→                  </SelectTrigger>
+   396→                  <SelectContent>
+   397→                    <SelectItem value="Catholic">Catholic</SelectItem>
+   398→                    <SelectItem value="Anglican">Anglican</SelectItem>
+   399→                    <SelectItem value="Orthodox">Orthodox</SelectItem>
+   400→                    <SelectItem value="Pentecostal">Pentecostal</SelectItem>
+   401→                    <SelectItem value="Muslim">Muslim</SelectItem>
+   402→                    <SelectItem value="Seventh Day Adventist">Seventh Day Adventist</SelectItem>
+   403→                    <SelectItem value="Other">Other</SelectItem>
+   404→                  </SelectContent>
+   405→                </Select>
+   406→              </div>
+   407→
+   408→              {renderField('nin', 'National Identification Number (NIN)', 'text', 'e.g. CFXXXXXXXXXXXX')}
+   409→            </div>
+   410→          </motion.div>
+   411→        );
+   412→
+   413→      case 2:
+   414→        return (
+   415→          <motion.div
+   416→            key="step2"
+   417→            initial={{ opacity: 0, x: 20 }}
+   418→            animate={{ opacity: 1, x: 0 }}
+   419→            exit={{ opacity: 0, x: -20 }}
+   420→            transition={{ duration: 0.3 }}
+   421→            className="space-y-6"
+   422→          >
+   423→            <div>
+   424→              <h3 className="text-xl font-bold text-gray-900">Contact & Location</h3>
+   425→              <p className="text-sm text-gray-500 mt-1">How can we reach you? Provide accurate contact details.</p>
+   426→            </div>
+   427→
+   428→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   429→              {renderField('phone', 'Phone Number *', 'tel', 'e.g. 0771234567')}
+   430→              {renderField('email', 'Email Address *', 'email', 'e.g. okello@email.com')}
+   431→            </div>
+   432→
+   433→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   434→              <div className="space-y-2">
+   435→                <Label className="text-sm font-medium text-gray-700">District</Label>
+   436→                <Select value={form.district} onValueChange={(v) => updateField('district', v)}>
+   437→                  <SelectTrigger className={fieldClass}>
+   438→                    <SelectValue placeholder="Select district (optional)" />
+   439→                  </SelectTrigger>
+   440→                  <SelectContent>
+   441→                    <SelectItem value="Amuru">Amuru</SelectItem>
+   442→                    <SelectItem value="Gulu">Gulu</SelectItem>
+   443→                    <SelectItem value="Kitgum">Kitgum</SelectItem>
+   444→                    <SelectItem value="Lamwo">Lamwo</SelectItem>
+   445→                    <SelectItem value="Nwoya">Nwoya</SelectItem>
+   446→                    <SelectItem value="Omoro">Omoro</SelectItem>
+   447→                    <SelectItem value="Pader">Pader</SelectItem>
+   448→                    <SelectItem value="Agago">Agago</SelectItem>
+   449→                    <SelectItem value="Kampala">Kampala</SelectItem>
+   450→                    <SelectItem value="Other">Other</SelectItem>
+   451→                  </SelectContent>
+   452→                </Select>
+   453→              </div>
+   454→              {renderField('address', 'Physical Address', 'text', 'e.g. Pader Town Council')}
+   455→            </div>
+   456→
+   457→            <div className="pt-4 border-t border-gray-100">
+   458→              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+   459→                <UserCheck className="size-4" style={{ color: PRIMARY }} />
+   460→                Emergency Contact / Next of Kin
+   461→              </h4>
+   462→              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   463→                {renderField('nextOfKin', 'Next of Kin Name', 'text', 'e.g. Atoo Mary')}
+   464→                {renderField('nextOfKinPhone', 'Next of Kin Phone', 'tel', 'e.g. 0781234567')}
+   465→              </div>
+   466→            </div>
+   467→          </motion.div>
+   468→        );
+   469→
+   470→      case 3:
+   471→        return (
+   472→          <motion.div
+   473→            key="step3"
+   474→            initial={{ opacity: 0, x: 20 }}
+   475→            animate={{ opacity: 1, x: 0 }}
+   476→            exit={{ opacity: 0, x: -20 }}
+   477→            transition={{ duration: 0.3 }}
+   478→            className="space-y-6"
+   479→          >
+   480→            <div>
+   481→              <h3 className="text-xl font-bold text-gray-900">Academic Background</h3>
+   482→              <p className="text-sm text-gray-500 mt-1">Tell us about your education history.</p>
+   483→            </div>
+   484→
+   485→            {renderField('lastSchool', 'Last School Attended', 'text', 'e.g. St. Joseph\'s College Layibi')}
+   486→
+   487→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   488→              {renderField('yearCompleted', 'Year Completed', 'text', 'e.g. 2024')}
+   489→              <div className="space-y-2">
+   490→                <Label className="text-sm font-medium text-gray-700">Highest Qualification *</Label>
+   491→                <Select value={form.qualification} onValueChange={(v) => updateField('qualification', v)}>
+   492→                  <SelectTrigger className={`${fieldClass} ${errors.qualification ? 'border-red-400' : ''}`}>
+   493→                    <SelectValue placeholder="Select qualification" />
+   494→                  </SelectTrigger>
+   495→                  <SelectContent>
+   496→                    <SelectItem value="PLE">PLE (Primary Leaving Examination)</SelectItem>
+   497→                    <SelectItem value="UCE">UCE (Uganda Certificate of Education)</SelectItem>
+   498→                    <SelectItem value="UACE">UACE (Uganda Advanced Certificate of Education)</SelectItem>
+   499→                    <SelectItem value="Other">Other</SelectItem>
+   500→                  </SelectContent>
+   501→                </Select>
+   502→                {errors.qualification && <p className="text-xs text-red-500 mt-1">{errors.qualification}</p>}
+   503→              </div>
+   504→            </div>
+   505→          </motion.div>
+   506→        );
+   507→
+   508→      case 4:
+   509→        return (
+   510→          <motion.div
+   511→            key="step4"
+   512→            initial={{ opacity: 0, x: 20 }}
+   513→            animate={{ opacity: 1, x: 0 }}
+   514→            exit={{ opacity: 0, x: -20 }}
+   515→            transition={{ duration: 0.3 }}
+   516→            className="space-y-6"
+   517→          >
+   518→            <div>
+   519→              <h3 className="text-xl font-bold text-gray-900">Programme Selection</h3>
+   520→              <p className="text-sm text-gray-500 mt-1">Choose your desired programme of study.</p>
+   521→            </div>
+   522→
+   523→            <div className="space-y-2">
+   524→              <Label className="text-sm font-medium text-gray-700">Programme *</Label>
+   525→              <Select value={form.programme} onValueChange={(v) => updateField('programme', v)}>
+   526→                <SelectTrigger className={`w-full ${errors.programme ? 'border-red-400' : ''}`}>
+   527→                  <SelectValue placeholder="Select a programme" />
+   528→                </SelectTrigger>
+   529→                <SelectContent>
+   530→                  {PROGRAMME_OPTIONS.map((group) => (
+   531→                    <SelectGroup key={group.group}>
+   532→                      <SelectLabel className="font-semibold text-xs uppercase tracking-wider text-gray-500">
+   533→                        {group.group}
+   534→                      </SelectLabel>
+   535→                      {group.programmes.map((p) => (
+   536→                        <SelectItem key={p.value} value={p.value}>
+   537→                          {p.label}
+   538→                        </SelectItem>
+   539→                      ))}
+   540→                    </SelectGroup>
+   541→                  ))}
+   542→                </SelectContent>
+   543→              </Select>
+   544→              {errors.programme && <p className="text-xs text-red-500 mt-1">{errors.programme}</p>}
+   545→            </div>
+   546→
+   547→            {form.programme && (
+   548→              <motion.div
+   549→                initial={{ opacity: 0, y: 10 }}
+   550→                animate={{ opacity: 1, y: 0 }}
+   551→                className="rounded-lg border border-blue-200 bg-blue-50 p-4"
+   552→              >
+   553→                <div className="flex items-center justify-between">
+   554→                  <div>
+   555→                    <p className="text-sm font-medium text-blue-800">Selected Programme</p>
+   556→                    <p className="text-lg font-bold mt-1" style={{ color: PRIMARY }}>
+   557→                      {form.programme}
+   558→                    </p>
+   559→                  </div>
    560→                  <div className="text-right">
    561→                    <p className="text-xs text-blue-600">Application Fee</p>
    562→                    <p className="text-xl font-bold" style={{ color: GOLD }}>

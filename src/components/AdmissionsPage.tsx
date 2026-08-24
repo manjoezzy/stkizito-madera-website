@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList,
@@ -10,7 +10,6 @@ import {
   CreditCard,
   GraduationCap,
   CheckCircle,
-  CircleCheckBig,
   Award,
   ChevronRight,
   ChevronLeft,
@@ -26,7 +25,6 @@ import {
   BookOpen,
   Briefcase,
   Wallet,
-  ShieldCheck,
   BadgeCheck,
   CircleDot,
   Home,
@@ -43,6 +41,10 @@ import {
   FileText,
   Download,
   X,
+  Plus,
+  Copy,
+  Upload,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -80,8 +82,8 @@ const FORM_STEPS_META = [
   { id: 1, label: 'Personal Info', icon: User },
   { id: 2, label: 'Contact & Location', icon: Contact },
   { id: 3, label: 'Academic Background', icon: BookOpen },
-  { id: 4, label: 'Programme Selection', icon: Briefcase },
-  { id: 5, label: 'Payment', icon: Wallet },
+  { id: 4, label: 'Programme & Documents', icon: Briefcase },
+  { id: 5, label: 'SchoolPay Code', icon: Wallet },
 ];
 
 const PROGRAMME_OPTIONS = [
@@ -108,6 +110,26 @@ const PROGRAMME_OPTIONS = [
   },
 ];
 
+const GRADE_OPTIONS = [
+  'D1', 'D2', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'P7', 'P8', 'F9', 'U',
+  '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  'Distinction', 'Credit', 'Pass', 'Fail',
+];
+
+const INSTITUTION_LEVELS = [
+  'Primary',
+  'O-Level (UCE)',
+  'A-Level (UACE)',
+  'Tertiary/College',
+  'Other',
+];
+
+const DOCUMENT_TYPES = [
+  { key: 'national_id', label: 'National ID / Passport', required: true },
+  { key: 'academic_transcript', label: 'Academic Transcripts / Certificates', required: true },
+  { key: 'passport_photo', label: 'Passport Photo', required: true },
+] as const;
+
 interface FormData {
   fullName: string;
   dob: string;
@@ -124,6 +146,7 @@ interface FormData {
   lastSchool: string;
   yearCompleted: string;
   qualification: string;
+  institutionLevel: string;
   programme: string;
   intakeYear: string;
 }
@@ -144,9 +167,22 @@ const INITIAL_FORM: FormData = {
   lastSchool: '',
   yearCompleted: '',
   qualification: '',
+  institutionLevel: '',
   programme: '',
   intakeYear: '2025/2026',
 };
+
+interface GradeRow {
+  subject: string;
+  grade: string;
+}
+
+interface UploadedDoc {
+  key: string;
+  label: string;
+  file: File;
+  preview: string;
+}
 
 /* ──────────────── component ──────────────── */
 
@@ -155,7 +191,7 @@ export default function AdmissionsPage() {
 
   const [nonFormalFormUrl, setNonFormalFormUrl] = useState<string | null>(null);
   const [tvetFormUrl, setTvetFormUrl] = useState<string>('/forms/tvet-admission-form.pdf');
-  const [applicationFee, setApplicationFee] = useState<number>(50000); // default
+  const [applicationFee, setApplicationFee] = useState<number>(50000);
   useEffect(() => {
     Promise.all([
       fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
@@ -170,12 +206,14 @@ export default function AdmissionsPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [grades, setGrades] = useState<GradeRow[]>([{ subject: '', grade: '' }]);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData | string, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState('');
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'initiating' | 'dialog' | 'verifying' | 'success' | 'failed'>('idle');
-  const [transactionRef, setTransactionRef] = useState('');
-  const [paymentError, setPaymentError] = useState('');
+  const [schoolpayCode, setSchoolpayCode] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+  const [docErrors, setDocErrors] = useState<Record<string, string>>({});
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const updateField = (field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -188,11 +226,58 @@ export default function AdmissionsPage() {
     }
   };
 
+  /* ──────── grades management ──────── */
+
+  const addGradeRow = () => {
+    setGrades((prev) => [...prev, { subject: '', grade: '' }]);
+  };
+
+  const removeGradeRow = (index: number) => {
+    setGrades((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateGrade = (index: number, field: 'subject' | 'grade', value: string) => {
+    setGrades((prev) => prev.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
+  };
+
+  /* ──────── document management ──────── */
+
+  const handleFileSelect = (docType: string, label: string, file: File | null) => {
+    if (!file) return;
+
+    if (file.size > 1.5 * 1024 * 1024) {
+      addToast(`File too large. Maximum size is 1.5MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`, 'error');
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      addToast('Invalid file type. Upload images, PDFs, or Word documents only.', 'error');
+      return;
+    }
+
+    setUploadedDocs((prev) => {
+      const filtered = prev.filter((d) => d.key !== docType);
+      return [...filtered, { key: docType, label, file, preview: `${file.name} (${(file.size / 1024).toFixed(0)} KB)` }];
+    });
+    setDocErrors((prev) => {
+      const next = { ...prev };
+      delete next[docType];
+      return next;
+    });
+  };
+
+  const removeDoc = (docType: string) => {
+    setUploadedDocs((prev) => prev.filter((d) => d.key !== docType));
+    if (fileInputRefs.current[docType]) {
+      fileInputRefs.current[docType]!.value = '';
+    }
+  };
 
   /* ──────── validation ──────── */
 
   const validateStep = (step: number): boolean => {
-    const e: Partial<Record<keyof FormData, string>> = {};
+    const e: Partial<Record<keyof FormData | string, string>> = {};
 
     if (step === 1) {
       if (!form.fullName.trim()) e.fullName = 'Full name is required';
@@ -210,11 +295,24 @@ export default function AdmissionsPage() {
 
     if (step === 3) {
       if (!form.qualification) e.qualification = 'Select your highest qualification';
+      if (!form.institutionLevel) e.institutionLevel = 'Select institution level';
     }
 
     if (step === 4) {
       if (!form.programme) e.programme = 'Select a programme';
       if (!form.intakeYear) e.intakeYear = 'Select intake year';
+
+      // Validate documents
+      const de: Record<string, string> = {};
+      DOCUMENT_TYPES.forEach((dt) => {
+        if (!uploadedDocs.find((d) => d.key === dt.key)) {
+          de[dt.key] = `${dt.label} is required`;
+        }
+      });
+      setDocErrors(de);
+      if (Object.keys(de).length > 0) {
+        e._docs = 'Please upload all required documents';
+      }
     }
 
     setErrors(e);
@@ -239,88 +337,140 @@ export default function AdmissionsPage() {
   const handleSubmitApplication = async () => {
     setSubmitting(true);
     try {
+      // 1. Upload all files first
+      const uploadedUrls: Array<{ fileName: string; fileUrl: string; fileSize: number; documentType: string }> = [];
+
+      for (const doc of uploadedDocs) {
+        const formData = new FormData();
+        formData.append('file', doc.file);
+        formData.append('type', 'admission');
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(errData.error || `Failed to upload ${doc.label}`);
+        }
+
+        const uploadData = await uploadRes.json();
+        uploadedUrls.push({
+          fileName: uploadData.fileName,
+          fileUrl: uploadData.url,
+          fileSize: uploadData.fileSize,
+          documentType: doc.key,
+        });
+      }
+
+      // 2. Submit application with form data + grades + uploaded documents
       const res = await fetch('/api/admissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          grades: grades.filter((g) => g.subject.trim() && g.grade),
+          uploadedDocuments: uploadedUrls,
+        }),
       });
       const data = await res.json();
 
       if (data.success) {
         setReferenceNumber(data.data.referenceNumber);
+        setSchoolpayCode(data.data.schoolpayCode || '');
         setCurrentStep(5);
         addToast('Application submitted successfully!', 'success');
       } else {
         addToast(data.message || 'Failed to submit application', 'error');
       }
-    } catch {
-      addToast('Network error. Please try again.', 'error');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error. Please try again.';
+      addToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
-  /* ──────── SchoolPay payment ──────── */
+  /* ──────── temporary admission letter download ──────── */
 
-  const handleInitiatePayment = async () => {
-    setPaymentError('');
-    setPaymentStatus('initiating');
-    try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'initiate',
-          referenceNumber,
-          fullName: form.fullName,
-          phone: form.phone,
-          email: form.email,
-          amount: applicationFee,
-          programme: form.programme,
-          intakeYear: form.intakeYear,
-        }),
-      });
-      const data = await res.json();
+  const handleDownloadLetter = () => {
+    const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const letter = `
+═════════════════════════════════════════════════════
+                  ST. KIZITO'S TECHNICAL INSTITUTE - MADERA
+                     Soroti City, Uganda
+═════════════════════════════════════════════════════
 
-      if (data.success) {
-        setTransactionRef(data.data.transactionRef);
-        setPaymentStatus('dialog');
-      } else {
-        setPaymentError(data.message || 'Payment initiation failed');
-        setPaymentStatus('idle');
-      }
-    } catch {
-      setPaymentError('Network error. Please try again.');
-      setPaymentStatus('idle');
-    }
+
+                    TEMPORARY ADMISSION LETTER
+
+
+Reference Number:    ${referenceNumber}
+Applicant Name:      ${form.fullName}
+Programme:           ${form.programme}
+Intake Year:         ${form.intakeYear}
+Date of Issue:       ${dateStr}
+
+
+─────────────────────────────────────────────────────
+
+Dear ${form.fullName},
+
+Congratulations! Your application to St. Kizito's Technical Institute - Madera
+has been received and is being processed.
+
+
+REQUIREMENTS FOR VERIFICATION AND ENROLLMENT:
+
+1. Carry original documents for verification:
+   - National ID / Passport
+   - Academic Certificates / Transcripts
+   - Passport Photos
+
+2. At least 60% of tuition fees must be paid before reporting.
+
+3. Report on the date specified in the official admission letter.
+
+
+NOTE: This is a temporary admission letter. Your application is subject to
+verification of submitted documents and payment of required fees.
+
+
+SchoolPay Payment Code: ${schoolpayCode}
+Amount to Pay:          ${formatCurrency(applicationFee)}
+
+Dial *210# on MTN or *185# on Airtel, enter the code above, and follow the prompts.
+
+
+─────────────────────────────────────────────────────
+
+Issued by the Admissions Office,
+St. Kizito's Technical Institute - Madera
+Soroti City, Uganda
+
+`;
+
+    const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Temporary_Admission_Letter_${referenceNumber}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    addToast('Admission letter downloaded!', 'success');
   };
 
-  const handleSimulatePayment = async () => {
-    setPaymentStatus('verifying');
-    try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'verify',
-          transactionRef,
-          referenceNumber,
-        }),
-      });
-      const data = await res.json();
+  /* ──────── copy to clipboard ──────── */
 
-      if (data.success) {
-        setPaymentStatus('success');
-        addToast('Payment verified! Admission confirmed.', 'success');
-      } else {
-        setPaymentStatus('failed');
-        setPaymentError(data.message || 'Payment verification failed.');
-        addToast(data.message || 'Payment verification failed.', 'error');
-      }
-    } catch {
-      setPaymentStatus('failed');
-      setPaymentError('Network error during verification.');
-    }
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      addToast('Copied to clipboard!', 'success');
+    }).catch(() => {
+      addToast('Failed to copy', 'error');
+    });
   };
 
   /* ──────── form field renderer ──────── */
@@ -446,6 +596,7 @@ export default function AdmissionsPage() {
                     <SelectItem value="Omoro">Omoro</SelectItem>
                     <SelectItem value="Pader">Pader</SelectItem>
                     <SelectItem value="Agago">Agago</SelectItem>
+                    <SelectItem value="Soroti">Soroti</SelectItem>
                     <SelectItem value="Kampala">Kampala</SelectItem>
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
@@ -482,7 +633,7 @@ export default function AdmissionsPage() {
               <p className="text-sm text-gray-500 mt-1">Tell us about your education history.</p>
             </div>
 
-            {renderField('lastSchool', 'Last School Attended', 'text', 'e.g. St. Joseph\'s College Layibi')}
+            {renderField('lastSchool', 'Last School Attended', 'text', "e.g. St. Joseph's College Layibi")}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {renderField('yearCompleted', 'Year Completed', 'text', 'e.g. 2024')}
@@ -501,6 +652,86 @@ export default function AdmissionsPage() {
                 </Select>
                 {errors.qualification && <p className="text-xs text-red-500 mt-1">{errors.qualification}</p>}
               </div>
+            </div>
+
+            {/* ── Institution Level ── */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Institution Level *</Label>
+              <Select value={form.institutionLevel} onValueChange={(v) => updateField('institutionLevel', v)}>
+                <SelectTrigger className={`${fieldClass} ${errors.institutionLevel ? 'border-red-400' : ''}`}>
+                  <SelectValue placeholder="Select institution level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INSTITUTION_LEVELS.map((level) => (
+                    <SelectItem key={level} value={level}>{level}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.institutionLevel && <p className="text-xs text-red-500 mt-1">{errors.institutionLevel}</p>}
+            </div>
+
+            {/* ── Grades Table ── */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-gray-700">Grades / Results</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addGradeRow}
+                  className="cursor-pointer text-xs"
+                >
+                  <Plus className="size-3.5 mr-1" />
+                  Add Subject
+                </Button>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 overflow-hidden">
+                <div className="grid grid-cols-[1fr_140px_40px] gap-0 bg-gray-50 px-3 py-2 border-b border-gray-200">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subject</span>
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Grade</span>
+                  <span></span>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto">
+                  {grades.map((row, idx) => (
+                    <div key={idx} className="grid grid-cols-[1fr_140px_40px] gap-0 border-b border-gray-100 last:border-b-0">
+                      <div className="px-1 py-1">
+                        <Input
+                          placeholder="e.g. Mathematics"
+                          value={row.subject}
+                          onChange={(e) => updateGrade(idx, 'subject', e.target.value)}
+                          className="h-9 text-sm border-0 focus-visible:ring-1 shadow-none"
+                        />
+                      </div>
+                      <div className="px-1 py-1">
+                        <Select value={row.grade} onValueChange={(v) => updateGrade(idx, 'grade', v)}>
+                          <SelectTrigger className="h-9 text-sm border-0 shadow-none">
+                            <SelectValue placeholder="Grade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GRADE_OPTIONS.map((g) => (
+                              <SelectItem key={g} value={g}>{g}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        {grades.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeGradeRow(idx)}
+                            className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <X className="size-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">Add your subjects and corresponding grades. This is optional but helps us assess your application.</p>
             </div>
           </motion.div>
         );
@@ -580,6 +811,73 @@ export default function AdmissionsPage() {
               </Select>
               {errors.intakeYear && <p className="text-xs text-red-500 mt-1">{errors.intakeYear}</p>}
             </div>
+
+            {/* ── Document Upload Section ── */}
+            <div className="pt-4 border-t border-gray-100">
+              <h4 className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                <FileText className="size-4" style={{ color: PRIMARY }} />
+                Upload Required Documents
+              </h4>
+              <p className="text-xs text-gray-400 mb-4">Upload images, PDFs, or Word documents. Maximum 1.5MB per file.</p>
+
+              {errors._docs && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-4">
+                  {errors._docs}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {DOCUMENT_TYPES.map((dt) => {
+                  const existing = uploadedDocs.find((d) => d.key === dt.key);
+                  return (
+                    <div key={dt.key} className="space-y-1.5">
+                      <Label className="text-sm font-medium text-gray-700">
+                        {dt.label} {dt.required && <span className="text-red-500">*</span>}
+                      </Label>
+
+                      {existing ? (
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+                          <CheckCircle className="size-4 text-green-500 shrink-0" />
+                          <span className="text-sm text-green-800 flex-1 truncate">{existing.preview}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeDoc(dt.key)}
+                            className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <X className="size-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div
+                            className={`flex items-center gap-3 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${
+                              docErrors[dt.key] ? 'border-red-300 bg-red-50 hover:border-red-400' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
+                            }`}
+                            onClick={() => fileInputRefs.current[dt.key]?.click()}
+                          >
+                            <Upload className="size-5 text-gray-400" />
+                            <span className="text-sm text-gray-500">
+                              Click to upload {dt.label.toLowerCase()}
+                            </span>
+                            <input
+                              ref={(el) => { fileInputRefs.current[dt.key] = el; }}
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                handleFileSelect(dt.key, dt.label, file);
+                              }}
+                            />
+                          </div>
+                          {docErrors[dt.key] && <p className="text-xs text-red-500">{docErrors[dt.key]}</p>}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </motion.div>
         );
 
@@ -593,97 +891,131 @@ export default function AdmissionsPage() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            {paymentStatus === 'success' ? (
-              renderPaymentSuccess()
-            ) : (
-              <>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Pay Application Fee</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Pay the non-refundable application fee via SchoolPay to confirm your application.
+            {/* Success icon */}
+            <div className="text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+                className="mx-auto size-20 rounded-full flex items-center justify-center mb-4"
+                style={{ background: '#dcfce7' }}
+              >
+                <CheckCircle className="size-12 text-green-500" strokeWidth={2.5} />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-gray-900">Application Submitted!</h3>
+              <p className="text-gray-500 mt-2">
+                Your application has been received. Use the SchoolPay code below to pay the application fee.
+              </p>
+            </div>
+
+            {/* Reference Number */}
+            <div className="mx-auto max-w-md rounded-xl border-2 border-green-200 bg-green-50 p-6 text-center">
+              <p className="text-sm text-green-700 font-medium">Your Admission Reference</p>
+              <p className="text-3xl font-extrabold font-mono mt-2" style={{ color: PRIMARY }}>
+                {referenceNumber}
+              </p>
+              <p className="text-xs text-green-600 mt-2">
+                Save this reference number for all future correspondence.
+              </p>
+            </div>
+
+            {/* SchoolPay Code Card */}
+            <div
+              className="rounded-xl border-2 shadow-lg overflow-hidden"
+              style={{ borderColor: GOLD }}
+            >
+              <div className="px-6 py-4 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}>
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
+                    <CreditCard className="size-5" style={{ color: PRIMARY }} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">SchoolPay Payment Code</p>
+                    <p className="text-xs opacity-80">Complete payment to finalize your application</p>
+                  </div>
+                </div>
+              </div>
+
+              <CardContent className="p-6 space-y-4 bg-white">
+                {/* SchoolPay Code */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
+                  <div>
+                    <p className="text-xs text-amber-600 font-medium">Payment Code</p>
+                    <p className="text-2xl font-extrabold font-mono tracking-wider" style={{ color: PRIMARY }}>
+                      {schoolpayCode}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(schoolpayCode)}
+                    className="p-2 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer"
+                    title="Copy code"
+                  >
+                    <Copy className="size-5 text-amber-600" />
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-500">Applicant</span>
+                  <span className="font-medium text-sm text-gray-900">{form.fullName}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-500">Programme</span>
+                  <span className="font-medium text-sm text-gray-900">{form.programme}</span>
+                </div>
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-base font-bold text-gray-900">Amount to Pay</span>
+                  <span className="text-2xl font-extrabold" style={{ color: GOLD }}>
+                    {formatCurrency(applicationFee)}
+                  </span>
+                </div>
+
+                {/* Instructions */}
+                <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-blue-800">How to Pay:</p>
+                  <p className="text-sm text-blue-700">
+                    Dial <span className="font-bold font-mono">*210#</span> on MTN or <span className="font-bold font-mono">*185#</span> on Airtel, enter this code, and follow prompts.
                   </p>
                 </div>
 
-                <div className="rounded-xl border-2 shadow-lg overflow-hidden"
-                  style={{ borderColor: GOLD }}
-                >
-                  <div className="px-6 py-4 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}>
-                    <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
-                        <CreditCard className="size-5" style={{ color: PRIMARY }} />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">SchoolPay Payment</p>
-                        <p className="text-xs opacity-80">Secure payment powered by SchoolPay Uganda</p>
-                      </div>
-                      <Badge className="ml-auto bg-white/20 text-white border-0 text-xs">
-                        {form.intakeYear}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-6 space-y-4 bg-white">
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-500">Reference Number</span>
-                      <span className="font-mono font-bold text-sm" style={{ color: PRIMARY }}>{referenceNumber}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-500">Applicant</span>
-                      <span className="font-medium text-sm text-gray-900">{form.fullName}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-500">Programme</span>
-                      <span className="font-medium text-sm text-gray-900">{form.programme}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-500">Phone</span>
-                      <span className="font-medium text-sm text-gray-900">{form.phone}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-base font-bold text-gray-900">Application Fee <span className="text-xs font-normal text-gray-400">(Non-refundable)</span></span>
-                      <span className="text-2xl font-extrabold" style={{ color: GOLD }}>
-                        {formatCurrency(applicationFee)}
-                      </span>
-                    </div>
-
-                    {paymentError && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-                        {paymentError}
-                      </div>
-                    )}
-
-                    {paymentStatus === 'idle' && (
-                      <Button
-                        onClick={handleInitiatePayment}
-                        className="w-full h-12 text-base font-bold cursor-pointer"
-                        style={{ background: GOLD, color: PRIMARY }}
-                      >
-                        <CreditCard className="size-5 mr-2" />
-                        Pay with SchoolPay
-                      </Button>
-                    )}
-
-                    {paymentStatus === 'initiating' && (
-                      <div className="flex items-center justify-center gap-3 py-4">
-                        <Loader2 className="size-5 animate-spin" style={{ color: PRIMARY }} />
-                        <span className="text-sm font-medium text-gray-600">Initiating payment...</span>
-                      </div>
-                    )}
-
-                    {paymentStatus === 'failed' && (
-                      <Button
-                        onClick={handleInitiatePayment}
-                        variant="outline"
-                        className="w-full cursor-pointer"
-                      >
-                        <ArrowRight className="size-4 mr-2" />
-                        Retry Payment
-                      </Button>
-                    )}
-                  </CardContent>
+                <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+                  <p className="text-xs text-gray-600">
+                    <BadgeCheck className="size-3.5 inline-block mr-1 text-gray-400" />
+                    This code has been sent to your email. Complete payment to finalize your application.
+                  </p>
                 </div>
-              </>
-            )}
+              </CardContent>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={handleDownloadLetter}
+                variant="outline"
+                className="cursor-pointer"
+              >
+                <Download className="size-4 mr-2" />
+                Download Temporary Admission Letter
+              </Button>
+              <Button
+                onClick={() => setCurrentPage('track-application')}
+                style={{ background: PRIMARY }}
+                className="cursor-pointer"
+              >
+                <Search className="size-4 mr-2" />
+                Track Application
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <Button
+                onClick={() => setCurrentPage('home')}
+                variant="ghost"
+                className="cursor-pointer text-gray-500"
+              >
+                <Home className="size-4 mr-1" />
+                Back to Home
+              </Button>
+            </div>
           </motion.div>
         );
 
@@ -692,155 +1024,14 @@ export default function AdmissionsPage() {
     }
   };
 
-  const renderPaymentSuccess = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="text-center py-8 space-y-6"
-    >
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
-        className="mx-auto size-24 rounded-full flex items-center justify-center"
-        style={{ background: '#dcfce7' }}
-      >
-        <CheckCircle className="size-14 text-green-500" strokeWidth={2.5} />
-      </motion.div>
-
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900">Payment Successful!</h3>
-        <p className="text-gray-500 mt-2">
-          Your application fee has been received. Welcome to St. Kizito's Technical Institute - Madera!
-        </p>
-      </div>
-
-      <div className="mx-auto max-w-md rounded-xl border-2 border-green-200 bg-green-50 p-6">
-        <p className="text-sm text-green-700 font-medium">Your Admission Reference</p>
-        <p className="text-3xl font-extrabold font-mono mt-2" style={{ color: PRIMARY }}>
-          {referenceNumber}
-        </p>
-        <p className="text-xs text-green-600 mt-2">
-          Please save this reference number. You will need it for all future correspondence.
-        </p>
-      </div>
-
-      <Button
-        onClick={() => setCurrentPage('home')}
-        className="h-12 px-8 text-base font-semibold cursor-pointer"
-        style={{ background: PRIMARY }}
-      >
-        <Home className="size-5 mr-2" />
-        Back to Home
-      </Button>
-    </motion.div>
-  );
-
-  /* ──────── payment simulation dialog ──────── */
-
-  const renderPaymentDialog = () => {
-    if (paymentStatus !== 'dialog') return null;
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-        onClick={() => {}}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="px-6 py-4 flex items-center justify-between" style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}>
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
-                <ShieldCheck className="size-4" style={{ color: PRIMARY }} />
-              </div>
-              <div>
-                <p className="text-white font-bold text-sm">DEMO: SchoolPay Payment Gateway</p>
-                <p className="text-white/70 text-xs">Simulated payment environment</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setPaymentStatus('idle')}
-              className="text-white/60 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="size-5" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-5">
-            <div className="text-center space-y-1">
-              <p className="text-sm text-gray-500">Amount to Pay</p>
-              <p className="text-3xl font-extrabold" style={{ color: GOLD }}>
-                {formatCurrency(applicationFee)}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">Non-refundable application fee</p>
-            </div>
-
-            <div className="space-y-3 bg-gray-50 rounded-lg p-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Reference</span>
-                <span className="font-mono font-medium text-gray-900">{referenceNumber}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Transaction</span>
-                <span className="font-mono font-medium text-gray-900 text-xs">{transactionRef}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Phone Number</span>
-                <span className="font-medium text-gray-900">{form.phone}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Programme</span>
-                <span className="font-medium text-gray-900">{form.programme}</span>
-              </div>
-            </div>
-
-            <div className="border border-amber-200 bg-amber-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-amber-700">
-                <BadgeCheck className="size-4 inline-block mr-1" />
-                This is a demo. In production, you would be redirected to the SchoolPay gateway to complete payment via MTN MoMo, Airtel Money, or card.
-              </p>
-            </div>
-
-            <Button
-              onClick={handleSimulatePayment}
-              disabled={paymentStatus === 'verifying'}
-              className="w-full h-12 text-base font-bold cursor-pointer"
-              style={{ background: GOLD, color: PRIMARY }}
-            >
-              {paymentStatus === 'verifying' ? (
-                <>
-                  <Loader2 className="size-5 mr-2 animate-spin" />
-                  Verifying Payment...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="size-5 mr-2" />
-                  Simulate Successful Payment
-                </>
-              )}
-            </Button>
-          </div>
-        </motion.div>
-      </motion.div>
-    );
-  };
-
   /* ──────── completed step indicator for sidebar ──────── */
 
   const isStepCompleted = (step: number) => {
     if (step === 1) return !!(form.fullName && form.dob && form.gender);
     if (step === 2) return !!(form.phone && form.email);
-    if (step === 3) return !!form.qualification;
+    if (step === 3) return !!(form.qualification && form.institutionLevel);
     if (step === 4) return !!(form.programme && form.intakeYear);
-    if (step === 5) return paymentStatus === 'success';
+    if (step === 5) return !!referenceNumber;
     return false;
   };
 
@@ -920,9 +1111,6 @@ export default function AdmissionsPage() {
                       </span>
                     </div>
                     <p className="text-sm font-semibold text-gray-800 leading-tight">{step.label}</p>
-                    {i < PROCESS_STEPS.length - 1 && (
-                      <ChevronRight className="size-4 text-gray-300 mt-2 hidden lg:block absolute right-0 top-1/2 -translate-y-1/2" />
-                    )}
                   </motion.div>
                 );
               })}
@@ -1282,7 +1470,7 @@ export default function AdmissionsPage() {
                   </AnimatePresence>
 
                   {/* Navigation Buttons */}
-                  {paymentStatus !== 'success' && (
+                  {currentStep < 5 && (
                     <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
                       <Button
                         variant="outline"
@@ -1310,37 +1498,29 @@ export default function AdmissionsPage() {
                         ))}
                       </div>
 
-                      {currentStep < 5 && (
-                        <Button
-                          onClick={goNext}
-                          disabled={submitting}
-                          className="cursor-pointer"
-                          style={{ background: PRIMARY }}
-                        >
-                          {submitting ? (
-                            <>
-                              <Loader2 className="size-4 mr-2 animate-spin" />
-                              Submitting...
-                            </>
-                          ) : currentStep === 4 ? (
-                            <>
-                              Submit Application
-                              <ArrowRight className="size-4 ml-1" />
-                            </>
-                          ) : (
-                            <>
-                              Next
-                              <ChevronRight className="size-4 ml-1" />
-                            </>
-                          )}
-                        </Button>
-                      )}
-                      {currentStep === 5 && paymentStatus === 'idle' && (
-                        <div />
-                      )}
-                      {currentStep === 5 && (paymentStatus === 'failed' || paymentStatus === 'dialog') && (
-                        <div />
-                      )}
+                      <Button
+                        onClick={goNext}
+                        disabled={submitting}
+                        className="cursor-pointer"
+                        style={{ background: PRIMARY }}
+                      >
+                        {submitting ? (
+                          <>
+                            <Loader2 className="size-4 mr-2 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : currentStep === 4 ? (
+                          <>
+                            Submit Application
+                            <ArrowRight className="size-4 ml-1" />
+                          </>
+                        ) : (
+                          <>
+                            Next
+                            <ChevronRight className="size-4 ml-1" />
+                          </>
+                        )}
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -1399,11 +1579,6 @@ export default function AdmissionsPage() {
           </div>
         </section>
       </main>
-
-      {/* ═══════════ PAYMENT DIALOG OVERLAY ═══════════ */}
-      <AnimatePresence>
-        {renderPaymentDialog()}
-      </AnimatePresence>
     </div>
   );
 }

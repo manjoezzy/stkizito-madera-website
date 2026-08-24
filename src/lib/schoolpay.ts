@@ -89,6 +89,68 @@ export function generateAdmissionRef(): string {
   return `SKT-${year}-${seq}`;
 }
 
+// Generate a SchoolPay payment code from applicant info
+// This code is what the applicant uses on SchoolPay to pay the application fee
+export function generateSchoolPayCode(data: {
+  fullName: string;
+  phone: string;
+  email: string;
+  programme: string;
+  referenceNumber: string;
+}): string {
+  // In production, this would call the SchoolPay API to generate a real payment code.
+  // For now, we generate a deterministic code based on the reference number.
+  const prefix = 'SKTM';
+  const year = new Date().getFullYear().toString().slice(-2);
+  const hash = data.referenceNumber.replace(/[^A-Z0-9]/gi, '').slice(-6).toUpperCase();
+  return `${prefix}${year}${hash}`;
+}
+
+// Send SchoolPay code to applicant's email (demo implementation)
+export async function sendSchoolPayCodeEmail(data: {
+  email: string;
+  fullName: string;
+  schoolpayCode: string;
+  referenceNumber: string;
+  amount: number;
+  programme: string;
+}): Promise<{ success: boolean; message: string }> {
+  // In production, integrate with a real email service (SendGrid, Resend, etc.)
+  // For now, we log the email and return success
+  console.log(`
+═══════════════════════════════════════════
+  EMAIL TO: ${data.email}
+  SUBJECT: SchoolPay Payment Code - Application ${data.referenceNumber}
+  ─────────────────────────────────────────
+  Dear ${data.fullName},
+
+  Thank you for applying to St. Kizito's Technical Institute - Madera.
+
+  Your application reference is: ${data.referenceNumber}
+  Programme: ${data.programme}
+
+  To complete your application, please pay the application fee using:
+
+  SchoolPay Code: ${data.schoolpayCode}
+  Amount: ${formatCurrency(data.amount)}
+
+  How to pay:
+  1. Go to SchoolPay (schoolpay.co.ug or dial *210#)
+  2. Enter the payment code: ${data.schoolpayCode}
+  3. Follow the prompts to complete payment via MTN MoMo, Airtel Money, or card
+
+  After payment, your application will be processed automatically.
+
+  St. Kizito's Technical Institute - Madera
+═══════════════════════════════════════════
+  `);
+
+  return {
+    success: true,
+    message: `Payment code sent to ${data.email}. In production, this will be a real email.`,
+  };
+}
+
 /*
  * PRODUCTION SchoolPay API Integration
  * 

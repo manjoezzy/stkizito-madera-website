@@ -7,6 +7,7 @@ import Navigation from '@/components/Navigation';
 import HomePage from '@/components/HomePage';
 import ProgramsPage from '@/components/ProgramsPage';
 import AdmissionsPage from '@/components/AdmissionsPage';
+import TrackApplicationPage from '@/components/TrackApplicationPage';
 import AdminLoginPage from '@/components/AdminLoginPage';
 import AdminDashboard from '@/components/AdminDashboard';
 import StudentPortalPage from '@/components/StudentPortalPage';
@@ -23,6 +24,7 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   home: HomePage,
   programs: ProgramsPage,
   admissions: AdmissionsPage,
+  'track-application': TrackApplicationPage,
   'student-portal': StudentPortalPage,
   'student-login': StudentLoginPage,
   'online-learning': OnlineLearningPage,
@@ -40,6 +42,7 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
   home: { showNav: true, fullWidth: false },
   programs: { showNav: true, fullWidth: false },
   admissions: { showNav: true, fullWidth: false },
+  'track-application': { showNav: true, fullWidth: false },
   'student-portal': { showNav: true, fullWidth: false },
   'student-login': { showNav: true, fullWidth: false },
   'online-learning': { showNav: true, fullWidth: false },

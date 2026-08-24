@@ -42,7 +42,9 @@ model AdmissionApplication {
   lastSchool      String?
   yearCompleted   String?
   qualification   String?
-  
+  institutionLevel String? // primary, o_level, a_level, tertiary, other
+  grades           String? // JSON string: [{subject, grade}]
+
   // Program
   programme    String?
   intakeYear   String?
@@ -54,6 +56,10 @@ model AdmissionApplication {
   paymentMethod  String?  // schoolpay, manual
   paidAt         DateTime?
   
+  // SchoolPay
+  schoolpayCode   String?
+
+  documents   AdmissionDocument[]
   student    Student?
   
   createdAt DateTime @default(now())
@@ -102,14 +108,18 @@ model Payment {
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  category    String   @default("general") // academic, showcase, assessment, campus
-  eventDate   String?
-  eventTime   String?
-  location    String?
-  isPublished Boolean  @default(false)
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  category      String   @default("general") // academic, showcase, assessment, campus
+  eventDate     String?
+  eventTime     String?
+  location      String?
+  isBanner      Boolean  @default(false)
+  bannerUrl     String?
+  attachmentUrl String?
+  attachmentName String?
+  isPublished   Boolean  @default(false)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,6 +146,17 @@ model GalleryItem {
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AdmissionDocument {
+  id              String   @id @default(cuid())
+  applicationId   String
+  application     AdmissionApplication @relation(fields: [applicationId], references: [id])
+  fileName        String
+  fileUrl         String
+  fileSize        Int
+  documentType    String // national_id, academic_transcript, passport_photo, certificate, other
+  createdAt       DateTime @default(now())
 }
 
 model SiteSetting {

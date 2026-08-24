@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, FormEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import {
   GraduationCap,
@@ -209,7 +209,6 @@ function HeroImageSlider() {
 export default function HomePage() {
   const { currentPage, setCurrentPage, addToast } = useAppStore();
   const [statsVisible, setStatsVisible] = useState(false);
-  const [statsOverlayVisible, setStatsOverlayVisible] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
@@ -230,22 +229,18 @@ export default function HomePage() {
     }
   }, [currentPage]);
 
-  // Scroll-driven stats overlay on hero
-  const handleScroll = useCallback(() => {
-    const hero = document.getElementById('hero-section');
-    if (!hero) return;
-    const rect = hero.getBoundingClientRect();
-    const scrollProgress = -rect.top / (rect.height - window.innerHeight);
-    if (scrollProgress > 0.3 && !statsOverlayVisible) {
-      setStatsOverlayVisible(true);
-      setStatsVisible(true);
-    }
-  }, [statsOverlayVisible]);
-
+  // Trigger stats counter animation when stats section comes into view
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setStatsVisible(true);
+      },
+      { threshold: 0.3 }
+    );
+    const el = document.getElementById('stats-section');
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const stat0 = useCountUp(STATS[0].value, 2000, statsVisible);
   const stat1 = useCountUp(STATS[1].value, 2200, statsVisible);
@@ -399,39 +394,39 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
 
-          {/* ── SCROLL-ACTIVATED STATS OVERLAY ── */}
-          <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              animate={statsOverlayVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
-              className="max-w-6xl mx-auto px-4 pb-6 pointer-events-auto"
-            >
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {STATS.map((stat, i) => {
-                  const Icon = stat.icon;
-                  return (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={statsOverlayVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                      transition={{ duration: 0.5, delay: i * 0.1 }}
-                    >
-                      <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-xl shadow-black/10 p-4 md:p-5 text-center border border-white/50">
-                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#1a3a6b]/10 mb-2">
-                          <Icon className="h-5 w-5 text-[#1a3a6b]" />
-                        </div>
-                        <div className="text-2xl sm:text-3xl font-bold text-[#1a3a6b]">
-                          {counts[i]}
-                          <span className="text-[#f5c518]">{stat.suffix}</span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5 font-medium">{stat.label}</p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
+
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────
+          2. STATS SECTION
+          ───────────────────────────────────────────────── */}
+      <section id="stats-section" className="relative -mt-16 z-20 py-12 md:py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {STATS.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <div className="bg-white rounded-xl shadow-xl shadow-black/10 p-4 md:p-5 text-center border border-slate-100">
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#1a3a6b]/10 mb-2">
+                      <Icon className="h-5 w-5 text-[#1a3a6b]" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-[#1a3a6b]">
+                      {counts[i]}
+                      <span className="text-[#f5c518]">{stat.suffix}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 font-medium">{stat.label}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

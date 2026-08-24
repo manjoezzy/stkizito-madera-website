@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, GraduationCap, AlertCircle, Info } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
 
   return (
     <div
-      className="h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      className="fixed inset-0 flex items-center justify-center px-4 relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, #1e4d8a 100%)`,
       }}
@@ -62,49 +62,49 @@ export default function AdminLoginPage() {
         <div
           className="absolute top-20 left-20 w-72 h-72 rounded-full opacity-10"
           style={{ background: GOLD, filter: 'blur(100px)' }}
-        />
-        <div
+        />\n        <div
           className="absolute bottom-20 right-20 w-56 h-56 rounded-full opacity-10"
           style={{ background: GOLD, filter: 'blur(80px)' }}
-        />\n      </div>
+        />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative z-10 w-full max-w-md" style={{ maxHeight: '95vh', overflowY: 'auto' }}
+        className="relative z-10 w-full max-w-[420px]"
       >
-        <Card className="border-0 shadow-2xl overflow-hidden">
+        <Card className="border-0 shadow-2xl overflow-hidden max-h-[96dvh] flex flex-col">
           {/* Top accent bar */}
           <div
-            className="h-1.5"
+            className="h-1.5 shrink-0"
             style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${GOLD}, ${PRIMARY})` }}
           />
 
-          <CardContent className="p-5 sm:p-6">
+          <CardContent className="p-4 sm:p-5 overflow-y-auto">
             {/* School Badge */}
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"
+                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-3"
                 style={{
                   background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})`,
                   boxShadow: `0 4px 20px ${PRIMARY}40`,
                 }}
               >
-                <ShieldCheck className="w-8 h-8 text-white" />
+                <ShieldCheck className="w-6 h-6 text-white" />
               </motion.div>
 
-              <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <h1 className="text-xl font-bold text-gray-900">Admin Portal</h1>
+              <p className="text-xs text-gray-500 mt-0.5">
                 St. Kizito&apos;s Technical Institute — Madera
               </p>
 
               {/* Gold divider */}
               <div
-                className="mx-auto mt-4 mb-6 h-0.5 w-24 rounded-full"
+                className="mx-auto mt-3 mb-4 h-0.5 w-20 rounded-full"
                 style={{ backgroundColor: GOLD }}
               />
             </div>
@@ -114,17 +114,17 @@ export default function AdminLoginPage() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2"
+                className="mb-3 p-2.5 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2"
               >
                 <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-xs text-red-600">{error}</p>
               </motion.div>
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-email" className="text-sm font-medium text-gray-700">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-email" className="text-xs font-medium text-gray-700">
                   Email Address
                 </Label>
                 <div className="relative">
@@ -136,13 +136,13 @@ export default function AdminLoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-11"
+                    className="pl-10 h-10 text-sm"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="admin-password" className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-password" className="text-xs font-medium text-gray-700">
                   Password
                 </Label>
                 <div className="relative">
@@ -154,7 +154,7 @@ export default function AdminLoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 h-11"
+                    className="pl-10 h-10 text-sm"
                   />
                 </div>
               </div>
@@ -162,7 +162,7 @@ export default function AdminLoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full h-10 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
                 style={{
                   background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})`,
                 }}
@@ -178,35 +178,35 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            {/* Demo credentials */}
-            <div className="mt-6 p-3 rounded-lg bg-amber-50 border border-amber-200">
+            {/* Demo credentials - compact */}
+            <div className="mt-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200">
               <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <Info className="w-3.5 h-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-amber-700">Demo Credentials</p>
-                  <p className="text-xs text-amber-600 mt-0.5">
+                  <p className="text-[11px] font-semibold text-amber-700">Demo Credentials</p>
+                  <p className="text-[11px] text-amber-600 mt-0.5">
                     Email: <span className="font-mono font-medium">admin@stkizitos.edu</span>
                   </p>
-                  <p className="text-xs text-amber-600">
+                  <p className="text-[11px] text-amber-600">
                     Password: <span className="font-mono font-medium">admin123</span>
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Links */}
-            <div className="mt-6 pt-4 border-t border-gray-100 space-y-2">
+            {/* Links - compact */}
+            <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
               <button
                 onClick={() => setCurrentPage('home')}
-                className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors py-1.5"
+                className="w-full flex items-center justify-center gap-2 text-xs text-gray-500 hover:text-gray-700 transition-colors py-1"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 Back to Website
               </button>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={() => setCurrentPage('student-portal')}
-                  className="text-sm font-medium hover:underline transition-colors"
+                  className="text-xs font-medium hover:underline transition-colors"
                   style={{ color: PRIMARY }}
                 >
                   Student Portal
@@ -214,7 +214,7 @@ export default function AdminLoginPage() {
                 <span className="text-gray-300">|</span>
                 <button
                   onClick={() => setCurrentPage('admissions')}
-                  className="text-sm font-medium hover:underline transition-colors"
+                  className="text-xs font-medium hover:underline transition-colors"
                   style={{ color: PRIMARY }}
                 >
                   Admissions
@@ -225,8 +225,8 @@ export default function AdminLoginPage() {
         </Card>
 
         {/* Footer branding */}
-        <p className="text-center text-xs text-white/50 mt-6">
-          <Image src="/images/institute-logo.jpg" alt="SKTM" width={16} height={16} className="w-4 h-4 inline-block mr-1 -mt-0.5" />
+        <p className="text-center text-[10px] text-white/50 mt-3">
+          <Image src="/images/institute-logo.jpg" alt="SKTM" width={14} height={14} className="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" />
           St. Kizito&apos;s Technical Institute — Madera
         </p>
       </motion.div>

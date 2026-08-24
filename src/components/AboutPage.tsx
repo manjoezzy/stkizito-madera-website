@@ -430,9 +430,7 @@ function OrganogramContent() {
 
           {/* ── LEVEL 4: Heads of Department ── */}
           <VertLine />
-          <ArrowDownIcon />
           <OrgBox title="Heads of Department" icon={<Building size={16} />} variant="primary" />
-          <ArrowDownIcon />
           <VertLine short />
 
           {/* ── LEVEL 5: Under HODs ── */}
@@ -504,14 +502,10 @@ function OrgBox({ title, icon, variant }: { title: string; icon: React.ReactNode
 }
 
 function VertLine({ short }: { short?: boolean }) {
-  return <div className={`w-px ${short ? 'h-4' : 'h-6'} bg-[#1a3a6b]/25`} />;
-}
-
-function ArrowDownIcon() {
   return (
     <div className="flex flex-col items-center">
-      <div className="w-px h-1.5 bg-[#1a3a6b]/25" />
-      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#1a3a6b]/40" />
+      <div className={`w-px ${short ? 'h-3' : 'h-5'} bg-[#1a3a6b]/25`} />
+      <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a3a6b]/40" />
     </div>
   );
 }

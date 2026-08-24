@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { generateAdmissionRef, generateTransactionRef, getProgrammeFee } from '@/lib/schoolpay';
+import { generateAdmissionRef, generateTransactionRef, generateSchoolPayCode } from '@/lib/schoolpay';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const {
       fullName, dob, gender, nationality, religion, nin,
       phone, email, district, address, nextOfKin, nextOfKinPhone,
-      lastSchool, yearCompleted, qualification,
+      lastSchool, yearCompleted, qualification, institutionLevel, grades,
       programme, intakeYear,
     } = body;
 
@@ -20,11 +20,12 @@ export async function POST(request: NextRequest) {
     }
 
     const referenceNumber = generateAdmissionRef();
-    const fee = getProgrammeFee(programme);
+    const schoolpayCode = generateSchoolPayCode({ fullName, phone, email, programme, referenceNumber });
 
     const application = await db.admissionApplication.create({
       data: {
         referenceNumber,
+        schoolpayCode,
         fullName,
         dob: dob || null,
         gender: gender || null,
@@ -40,10 +41,12 @@ export async function POST(request: NextRequest) {
         lastSchool: lastSchool || null,
         yearCompleted: yearCompleted || null,
         qualification: qualification || null,
+        institutionLevel: institutionLevel || null,
+        grades: grades ? JSON.stringify(grades) : null,
         programme,
         intakeYear: intakeYear || new Date().getFullYear().toString(),
-        paymentAmount: fee,
       },
+      include: { documents: true },
     });
 
     return NextResponse.json({
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
       data: {
         id: application.id,
         referenceNumber: application.referenceNumber,
-        fee,
+        schoolpayCode: application.schoolpayCode,
         programme,
       },
     });
@@ -71,6 +74,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search');
+    const ref = searchParams.get('ref');
+
+    // Single application lookup by reference
+    if (ref) {
+      const app = await db.admissionApplication.findUnique({
+        where: { referenceNumber: ref },
+        include: { documents: true, student: true },
+      });
+      if (!app) {
+        return NextResponse.json({ success: false, message: 'Application not found' }, { status: 404 });
+      }
+      return NextResponse.json({ success: true, data: app });
+    }
 
     const where: Record<string, unknown> = {};
     if (status && status !== 'all') where.status = status;
@@ -87,6 +103,7 @@ export async function GET(request: NextRequest) {
       where: Object.keys(where).length > 0 ? where : undefined,
       orderBy: { createdAt: 'desc' },
       take: 100,
+      include: { documents: true },
     });
 
     const counts = {
@@ -123,6 +140,7 @@ export async function PATCH(request: NextRequest) {
     const application = await db.admissionApplication.update({
       where: { id },
       data: { status, ...updates, updatedAt: new Date() },
+      include: { documents: true },
     });
 
     // If approved and status is 'enrolled', create student record

@@ -1,0 +1,1241 @@
+     1→   170→
+     2→   171→  const [currentStep, setCurrentStep] = useState(1);
+     3→   172→  const [form, setForm] = useState<FormData>(INITIAL_FORM);
+     4→   173→  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+     5→   174→  const [submitting, setSubmitting] = useState(false);
+     6→   175→  const [referenceNumber, setReferenceNumber] = useState('');
+     7→   176→  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'initiating' | 'dialog' | 'verifying' | 'success' | 'failed'>('idle');
+     8→   177→  const [transactionRef, setTransactionRef] = useState('');
+     9→   178→  const [paymentError, setPaymentError] = useState('');
+    10→   179→
+    11→   180→  const updateField = (field: keyof FormData, value: string) => {
+    12→   181→    setForm((prev) => ({ ...prev, [field]: value }));
+    13→   182→    if (errors[field]) {
+    14→   183→      setErrors((prev) => {
+    15→   184→        const next = { ...prev };
+    16→   185→        delete next[field];
+    17→   186→        return next;
+    18→   187→      });
+    19→   188→    }
+    20→   189→  };
+    21→   190→
+    22→   191→
+    23→   192→  /* ──────── validation ──────── */
+    24→   193→
+    25→   194→  const validateStep = (step: number): boolean => {
+    26→   195→    const e: Partial<Record<keyof FormData, string>> = {};
+    27→   196→
+    28→   197→    if (step === 1) {
+    29→   198→      if (!form.fullName.trim()) e.fullName = 'Full name is required';
+    30→   199→      if (!form.dob) e.dob = 'Date of birth is required';
+    31→   200→      if (!form.gender) e.gender = 'Gender is required';
+    32→   201→      if (!form.nationality.trim()) e.nationality = 'Nationality is required';
+    33→   202→    }
+    34→   203→
+    35→   204→    if (step === 2) {
+    36→   205→      if (!form.phone.trim()) e.phone = 'Phone number is required';
+    37→   206→      else if (!/^\d{10}$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Enter a valid 10-digit phone number';
+    38→   207→      if (!form.email.trim()) e.email = 'Email is required';
+    39→   208→      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email address';
+    40→   209→    }
+    41→   210→
+    42→   211→    if (step === 3) {
+    43→   212→      if (!form.qualification) e.qualification = 'Select your highest qualification';
+    44→   213→    }
+    45→   214→
+    46→   215→    if (step === 4) {
+    47→   216→      if (!form.programme) e.programme = 'Select a programme';
+    48→   217→      if (!form.intakeYear) e.intakeYear = 'Select intake year';
+    49→   218→    }
+    50→   219→
+    51→   220→    setErrors(e);
+    52→   221→    return Object.keys(e).length === 0;
+    53→   222→  };
+    54→   223→
+    55→   224→  const goNext = () => {
+    56→   225→    if (!validateStep(currentStep)) return;
+    57→   226→    if (currentStep === 4) {
+    58→   227→      handleSubmitApplication();
+    59→   228→    } else {
+    60→   229→      setCurrentStep((s) => Math.min(s + 1, 5));
+    61→   230→    }
+    62→   231→  };
+    63→   232→
+    64→   233→  const goPrev = () => {
+    65→   234→    setCurrentStep((s) => Math.max(s - 1, 1));
+    66→   235→  };
+    67→   236→
+    68→   237→  /* ──────── submit application (step 4 → step 5) ──────── */
+    69→   238→
+    70→   239→  const handleSubmitApplication = async () => {
+    71→   240→    setSubmitting(true);
+    72→   241→    try {
+    73→   242→      const res = await fetch('/api/admissions', {
+    74→   243→        method: 'POST',
+    75→   244→        headers: { 'Content-Type': 'application/json' },
+    76→   245→        body: JSON.stringify(form),
+    77→   246→      });
+    78→   247→      const data = await res.json();
+    79→   248→
+    80→   249→      if (data.success) {
+    81→   250→        setReferenceNumber(data.data.referenceNumber);
+    82→   251→        setCurrentStep(5);
+    83→   252→        addToast('Application submitted successfully!', 'success');
+    84→   253→      } else {
+    85→   254→        addToast(data.message || 'Failed to submit application', 'error');
+    86→   255→      }
+    87→   256→    } catch {
+    88→   257→      addToast('Network error. Please try again.', 'error');
+    89→   258→    } finally {
+    90→   259→      setSubmitting(false);
+    91→   260→    }
+    92→   261→  };
+    93→   262→
+    94→   263→  /* ──────── SchoolPay payment ──────── */
+    95→   264→
+    96→   265→  const handleInitiatePayment = async () => {
+    97→   266→    setPaymentError('');
+    98→   267→    setPaymentStatus('initiating');
+    99→   268→    try {
+   100→   269→      const res = await fetch('/api/payments', {
+   101→   270→        method: 'POST',
+   102→   271→        headers: { 'Content-Type': 'application/json' },
+   103→   272→        body: JSON.stringify({
+   104→   273→          action: 'initiate',
+   105→   274→          referenceNumber,
+   106→   275→          fullName: form.fullName,
+   107→   276→          phone: form.phone,
+   108→   277→          email: form.email,
+   109→   278→          amount: applicationFee,
+   110→   279→          programme: form.programme,
+   111→   280→          intakeYear: form.intakeYear,
+   112→   281→        }),
+   113→   282→      });
+   114→   283→      const data = await res.json();
+   115→   284→
+   116→   285→      if (data.success) {
+   117→   286→        setTransactionRef(data.data.transactionRef);
+   118→   287→        setPaymentStatus('dialog');
+   119→   288→      } else {
+   120→   289→        setPaymentError(data.message || 'Payment initiation failed');
+   121→   290→        setPaymentStatus('idle');
+   122→   291→      }
+   123→   292→    } catch {
+   124→   293→      setPaymentError('Network error. Please try again.');
+   125→   294→      setPaymentStatus('idle');
+   126→   295→    }
+   127→   296→  };
+   128→   297→
+   129→   298→  const handleSimulatePayment = async () => {
+   130→   299→    setPaymentStatus('verifying');
+   131→   300→    try {
+   132→   301→      const res = await fetch('/api/payments', {
+   133→   302→        method: 'POST',
+   134→   303→        headers: { 'Content-Type': 'application/json' },
+   135→   304→        body: JSON.stringify({
+   136→   305→          action: 'verify',
+   137→   306→          transactionRef,
+   138→   307→          referenceNumber,
+   139→   308→        }),
+   140→   309→      });
+   141→   310→      const data = await res.json();
+   142→   311→
+   143→   312→      if (data.success) {
+   144→   313→        setPaymentStatus('success');
+   145→   314→        addToast('Payment verified! Admission confirmed.', 'success');
+   146→   315→      } else {
+   147→   316→        setPaymentStatus('failed');
+   148→   317→        setPaymentError(data.message || 'Payment verification failed.');
+   149→   318→        addToast(data.message || 'Payment verification failed.', 'error');
+   150→   319→      }
+   151→   320→    } catch {
+   152→   321→      setPaymentStatus('failed');
+   153→   322→      setPaymentError('Network error during verification.');
+   154→   323→    }
+   155→   324→  };
+   156→   325→
+   157→   326→  /* ──────── form field renderer ──────── */
+   158→   327→
+   159→   328→  const fieldClass = 'w-full';
+   160→   329→
+   161→   330→  const renderField = (field: keyof FormData, label: string, type = 'text', placeholder = '') => (
+   162→   331→    <div className="space-y-2">
+   163→   332→      <Label htmlFor={field} className="text-sm font-medium text-gray-700">
+   164→   333→        {label}
+   165→   334→      </Label>
+   166→   335→      <Input
+   167→   336→        id={field}
+   168→   337→        type={type}
+   169→   338→        placeholder={placeholder}
+   170→   339→        value={form[field]}
+   171→   340→        onChange={(e) => updateField(field, e.target.value)}
+   172→   341→        className={`${fieldClass} ${errors[field] ? 'border-red-400 focus-visible:ring-red-200' : ''}`}
+   173→   342→      />
+   174→   343→      {errors[field] && <p className="text-xs text-red-500 mt-1">{errors[field]}</p>}
+   175→   344→    </div>
+   176→   345→  );
+   177→   346→
+   178→   347→  /* ──────── step content ──────── */
+   179→   348→
+   180→   349→  const renderStepContent = () => {
+   181→   350→    switch (currentStep) {
+   182→   351→      case 1:
+   183→   352→        return (
+   184→   353→          <motion.div
+   185→   354→            key="step1"
+   186→   355→            initial={{ opacity: 0, x: 20 }}
+   187→   356→            animate={{ opacity: 1, x: 0 }}
+   188→   357→            exit={{ opacity: 0, x: -20 }}
+   189→   358→            transition={{ duration: 0.3 }}
+   190→   359→            className="space-y-6"
+   191→   360→          >
+   192→   361→            <div>
+   193→   362→              <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
+   194→   363→              <p className="text-sm text-gray-500 mt-1">Provide your personal details as they appear on your identification documents.</p>
+   195→   364→            </div>
+   196→   365→
+   197→   366→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   198→   367→              {renderField('fullName', 'Full Name *', 'text', 'e.g. Okello John Peter')}
+   199→   368→              {renderField('dob', 'Date of Birth *', 'date')}
+   200→   369→            </div>
+   201→   370→
+   202→   371→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   203→   372→              <div className="space-y-2">
+   204→   373→                <Label className="text-sm font-medium text-gray-700">Gender *</Label>
+   205→   374→                <Select value={form.gender} onValueChange={(v) => updateField('gender', v)}>
+   206→   375→                  <SelectTrigger className={`${fieldClass} ${errors.gender ? 'border-red-400' : ''}`}>
+   207→   376→                    <SelectValue placeholder="Select gender" />
+   208→   377→                  </SelectTrigger>
+   209→   378→                  <SelectContent>
+   210→   379→                    <SelectItem value="Male">Male</SelectItem>
+   211→   380→                    <SelectItem value="Female">Female</SelectItem>
+   212→   381→                  </SelectContent>
+   213→   382→                </Select>
+   214→   383→                {errors.gender && <p className="text-xs text-red-500 mt-1">{errors.gender}</p>}
+   215→   384→              </div>
+   216→   385→
+   217→   386→              {renderField('nationality', 'Nationality *', 'text', 'e.g. Ugandan')}
+   218→   387→            </div>
+   219→   388→
+   220→   389→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   221→   390→              <div className="space-y-2">
+   222→   391→                <Label className="text-sm font-medium text-gray-700">Religion</Label>
+   223→   392→                <Select value={form.religion} onValueChange={(v) => updateField('religion', v)}>
+   224→   393→                  <SelectTrigger className={fieldClass}>
+   225→   394→                    <SelectValue placeholder="Select religion (optional)" />
+   226→   395→                  </SelectTrigger>
+   227→   396→                  <SelectContent>
+   228→   397→                    <SelectItem value="Catholic">Catholic</SelectItem>
+   229→   398→                    <SelectItem value="Anglican">Anglican</SelectItem>
+   230→   399→                    <SelectItem value="Orthodox">Orthodox</SelectItem>
+   231→   400→                    <SelectItem value="Pentecostal">Pentecostal</SelectItem>
+   232→   401→                    <SelectItem value="Muslim">Muslim</SelectItem>
+   233→   402→                    <SelectItem value="Seventh Day Adventist">Seventh Day Adventist</SelectItem>
+   234→   403→                    <SelectItem value="Other">Other</SelectItem>
+   235→   404→                  </SelectContent>
+   236→   405→                </Select>
+   237→   406→              </div>
+   238→   407→
+   239→   408→              {renderField('nin', 'National Identification Number (NIN)', 'text', 'e.g. CFXXXXXXXXXXXX')}
+   240→   409→            </div>
+   241→   410→          </motion.div>
+   242→   411→        );
+   243→   412→
+   244→   413→      case 2:
+   245→   414→        return (
+   246→   415→          <motion.div
+   247→   416→            key="step2"
+   248→   417→            initial={{ opacity: 0, x: 20 }}
+   249→   418→            animate={{ opacity: 1, x: 0 }}
+   250→   419→            exit={{ opacity: 0, x: -20 }}
+   251→   420→            transition={{ duration: 0.3 }}
+   252→   421→            className="space-y-6"
+   253→   422→          >
+   254→   423→            <div>
+   255→   424→              <h3 className="text-xl font-bold text-gray-900">Contact & Location</h3>
+   256→   425→              <p className="text-sm text-gray-500 mt-1">How can we reach you? Provide accurate contact details.</p>
+   257→   426→            </div>
+   258→   427→
+   259→   428→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   260→   429→              {renderField('phone', 'Phone Number *', 'tel', 'e.g. 0771234567')}
+   261→   430→              {renderField('email', 'Email Address *', 'email', 'e.g. okello@email.com')}
+   262→   431→            </div>
+   263→   432→
+   264→   433→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   265→   434→              <div className="space-y-2">
+   266→   435→                <Label className="text-sm font-medium text-gray-700">District</Label>
+   267→   436→                <Select value={form.district} onValueChange={(v) => updateField('district', v)}>
+   268→   437→                  <SelectTrigger className={fieldClass}>
+   269→   438→                    <SelectValue placeholder="Select district (optional)" />
+   270→   439→                  </SelectTrigger>
+   271→   440→                  <SelectContent>
+   272→   441→                    <SelectItem value="Amuru">Amuru</SelectItem>
+   273→   442→                    <SelectItem value="Gulu">Gulu</SelectItem>
+   274→   443→                    <SelectItem value="Kitgum">Kitgum</SelectItem>
+   275→   444→                    <SelectItem value="Lamwo">Lamwo</SelectItem>
+   276→   445→                    <SelectItem value="Nwoya">Nwoya</SelectItem>
+   277→   446→                    <SelectItem value="Omoro">Omoro</SelectItem>
+   278→   447→                    <SelectItem value="Pader">Pader</SelectItem>
+   279→   448→                    <SelectItem value="Agago">Agago</SelectItem>
+   280→   449→                    <SelectItem value="Kampala">Kampala</SelectItem>
+   281→   450→                    <SelectItem value="Other">Other</SelectItem>
+   282→   451→                  </SelectContent>
+   283→   452→                </Select>
+   284→   453→              </div>
+   285→   454→              {renderField('address', 'Physical Address', 'text', 'e.g. Pader Town Council')}
+   286→   455→            </div>
+   287→   456→
+   288→   457→            <div className="pt-4 border-t border-gray-100">
+   289→   458→              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+   290→   459→                <UserCheck className="size-4" style={{ color: PRIMARY }} />
+   291→   460→                Emergency Contact / Next of Kin
+   292→   461→              </h4>
+   293→   462→              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   294→   463→                {renderField('nextOfKin', 'Next of Kin Name', 'text', 'e.g. Atoo Mary')}
+   295→   464→                {renderField('nextOfKinPhone', 'Next of Kin Phone', 'tel', 'e.g. 0781234567')}
+   296→   465→              </div>
+   297→   466→            </div>
+   298→   467→          </motion.div>
+   299→   468→        );
+   300→   469→
+   301→   470→      case 3:
+   302→   471→        return (
+   303→   472→          <motion.div
+   304→   473→            key="step3"
+   305→   474→            initial={{ opacity: 0, x: 20 }}
+   306→   475→            animate={{ opacity: 1, x: 0 }}
+   307→   476→            exit={{ opacity: 0, x: -20 }}
+   308→   477→            transition={{ duration: 0.3 }}
+   309→   478→            className="space-y-6"
+   310→   479→          >
+   311→   480→            <div>
+   312→   481→              <h3 className="text-xl font-bold text-gray-900">Academic Background</h3>
+   313→   482→              <p className="text-sm text-gray-500 mt-1">Tell us about your education history.</p>
+   314→   483→            </div>
+   315→   484→
+   316→   485→            {renderField('lastSchool', 'Last School Attended', 'text', 'e.g. St. Joseph\'s College Layibi')}
+   317→   486→
+   318→   487→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   319→   488→              {renderField('yearCompleted', 'Year Completed', 'text', 'e.g. 2024')}
+   320→   489→              <div className="space-y-2">
+   321→   490→                <Label className="text-sm font-medium text-gray-700">Highest Qualification *</Label>
+   322→   491→                <Select value={form.qualification} onValueChange={(v) => updateField('qualification', v)}>
+   323→   492→                  <SelectTrigger className={`${fieldClass} ${errors.qualification ? 'border-red-400' : ''}`}>
+   324→   493→                    <SelectValue placeholder="Select qualification" />
+   325→   494→                  </SelectTrigger>
+   326→   495→                  <SelectContent>
+   327→   496→                    <SelectItem value="PLE">PLE (Primary Leaving Examination)</SelectItem>
+   328→   497→                    <SelectItem value="UCE">UCE (Uganda Certificate of Education)</SelectItem>
+   329→   498→                    <SelectItem value="UACE">UACE (Uganda Advanced Certificate of Education)</SelectItem>
+   330→   499→                    <SelectItem value="Other">Other</SelectItem>
+   331→   500→                  </SelectContent>
+   332→   501→                </Select>
+   333→   502→                {errors.qualification && <p className="text-xs text-red-500 mt-1">{errors.qualification}</p>}
+   334→   503→              </div>
+   335→   504→            </div>
+   336→   505→          </motion.div>
+   337→   506→        );
+   338→   507→
+   339→   508→      case 4:
+   340→   509→        return (
+   341→   510→          <motion.div
+   342→   511→            key="step4"
+   343→   512→            initial={{ opacity: 0, x: 20 }}
+   344→   513→            animate={{ opacity: 1, x: 0 }}
+   345→   514→            exit={{ opacity: 0, x: -20 }}
+   346→   515→            transition={{ duration: 0.3 }}
+   347→   516→            className="space-y-6"
+   348→   517→          >
+   349→   518→            <div>
+   350→   519→              <h3 className="text-xl font-bold text-gray-900">Programme Selection</h3>
+   351→   520→              <p className="text-sm text-gray-500 mt-1">Choose your desired programme of study.</p>
+   352→   521→            </div>
+   353→   522→
+   354→   523→            <div className="space-y-2">
+   355→   524→              <Label className="text-sm font-medium text-gray-700">Programme *</Label>
+   356→   525→              <Select value={form.programme} onValueChange={(v) => updateField('programme', v)}>
+   357→   526→                <SelectTrigger className={`w-full ${errors.programme ? 'border-red-400' : ''}`}>
+   358→   527→                  <SelectValue placeholder="Select a programme" />
+   359→   528→                </SelectTrigger>
+   360→   529→                <SelectContent>
+   361→   530→                  {PROGRAMME_OPTIONS.map((group) => (
+   362→   531→                    <SelectGroup key={group.group}>
+   363→   532→                      <SelectLabel className="font-semibold text-xs uppercase tracking-wider text-gray-500">
+   364→   533→                        {group.group}
+   365→   534→                      </SelectLabel>
+   366→   535→                      {group.programmes.map((p) => (
+   367→   536→                        <SelectItem key={p.value} value={p.value}>
+   368→   537→                          {p.label}
+   369→   538→                        </SelectItem>
+   370→   539→                      ))}
+   371→   540→                    </SelectGroup>
+   372→   541→                  ))}
+   373→   542→                </SelectContent>
+   374→   543→              </Select>
+   375→   544→              {errors.programme && <p className="text-xs text-red-500 mt-1">{errors.programme}</p>}
+   376→   545→            </div>
+   377→   546→
+   378→   547→            {form.programme && (
+   379→   548→              <motion.div
+   380→   549→                initial={{ opacity: 0, y: 10 }}
+   381→   550→                animate={{ opacity: 1, y: 0 }}
+   382→   551→                className="rounded-lg border border-blue-200 bg-blue-50 p-4"
+   383→   552→              >
+   384→   553→                <div className="flex items-center justify-between">
+   385→   554→                  <div>
+   386→   555→                    <p className="text-sm font-medium text-blue-800">Selected Programme</p>
+   387→   556→                    <p className="text-lg font-bold mt-1" style={{ color: PRIMARY }}>
+   388→   557→                      {form.programme}
+   389→   558→                    </p>
+   390→   559→                  </div>
+   391→   560→                  <div className="text-right">
+   392→   561→                    <p className="text-xs text-blue-600">Application Fee</p>
+   393→   562→                    <p className="text-xl font-bold" style={{ color: GOLD }}>
+   394→   563→                      {formatCurrency(applicationFee)}
+   395→   564→                    </p>
+   396→   565→                    <p className="text-[10px] text-blue-500 mt-0.5">Non-refundable</p>
+   397→   566→                  </div>
+   398→   567→                </div>
+   399→   568→              </motion.div>
+   400→   569→            )}
+   401→   570→
+   402→   571→            <div className="space-y-2">
+   403→   572→              <Label className="text-sm font-medium text-gray-700">Intake Year *</Label>
+   404→   573→              <Select value={form.intakeYear} onValueChange={(v) => updateField('intakeYear', v)}>
+   405→   574→                <SelectTrigger className={`w-full ${errors.intakeYear ? 'border-red-400' : ''}`}>
+   406→   575→                  <SelectValue placeholder="Select intake year" />
+   407→   576→                </SelectTrigger>
+   408→   577→                <SelectContent>
+   409→   578→                  <SelectItem value="2025/2026">2025/2026</SelectItem>
+   410→   579→                </SelectContent>
+   411→   580→              </Select>
+   412→   581→              {errors.intakeYear && <p className="text-xs text-red-500 mt-1">{errors.intakeYear}</p>}
+   413→   582→            </div>
+   414→   583→          </motion.div>
+   415→   584→        );
+   416→   585→
+   417→   586→      case 5:
+   418→   587→        return (
+   419→   588→          <motion.div
+   420→   589→            key="step5"
+   421→   590→            initial={{ opacity: 0, x: 20 }}
+   422→   591→            animate={{ opacity: 1, x: 0 }}
+   423→   592→            exit={{ opacity: 0, x: -20 }}
+   424→   593→            transition={{ duration: 0.3 }}
+   425→   594→            className="space-y-6"
+   426→   595→          >
+   427→   596→            {paymentStatus === 'success' ? (
+   428→   597→              renderPaymentSuccess()
+   429→   598→            ) : (
+   430→   599→              <>
+   431→   600→                <div>
+   432→   601→                  <h3 className="text-xl font-bold text-gray-900">Pay Application Fee</h3>
+   433→   602→                  <p className="text-sm text-gray-500 mt-1">
+   434→   603→                    Pay the non-refundable application fee via SchoolPay to confirm your application.
+   435→   604→                  </p>
+   436→   605→                </div>
+   437→   606→
+   438→   607→                <div className="rounded-xl border-2 shadow-lg overflow-hidden"
+   439→   608→                  style={{ borderColor: GOLD }}
+   440→   609→                >
+   441→   610→                  <div className="px-6 py-4 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}>
+   442→   611→                    <div className="flex items-center gap-3">
+   443→   612→                      <div className="size-10 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
+   444→   613→                        <CreditCard className="size-5" style={{ color: PRIMARY }} />
+   445→   614→                      </div>
+   446→   615→                      <div>
+   447→   616→                        <p className="font-semibold text-sm">SchoolPay Payment</p>
+   448→   617→                        <p className="text-xs opacity-80">Secure payment powered by SchoolPay Uganda</p>
+   449→   618→                      </div>
+   450→   619→                      <Badge className="ml-auto bg-white/20 text-white border-0 text-xs">
+   451→   620→                        {form.intakeYear}
+   452→   621→                      </Badge>
+   453→   622→                    </div>
+   454→   623→                  </div>
+   455→   624→
+   456→   625→                  <CardContent className="p-6 space-y-4 bg-white">
+   457→   626→                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+   458→   627→                      <span className="text-sm text-gray-500">Reference Number</span>
+   459→   628→                      <span className="font-mono font-bold text-sm" style={{ color: PRIMARY }}>{referenceNumber}</span>
+   460→   629→                    </div>
+   461→   630→                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+   462→   631→                      <span className="text-sm text-gray-500">Applicant</span>
+   463→   632→                      <span className="font-medium text-sm text-gray-900">{form.fullName}</span>
+   464→   633→                    </div>
+   465→   634→                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+   466→   635→                      <span className="text-sm text-gray-500">Programme</span>
+   467→   636→                      <span className="font-medium text-sm text-gray-900">{form.programme}</span>
+   468→   637→                    </div>
+   469→   638→                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+   470→   639→                      <span className="text-sm text-gray-500">Phone</span>
+   471→   640→                      <span className="font-medium text-sm text-gray-900">{form.phone}</span>
+   472→   641→                    </div>
+   473→   642→                    <div className="flex justify-between items-center py-3">
+   474→   643→                      <span className="text-base font-bold text-gray-900">Application Fee <span className="text-xs font-normal text-gray-400">(Non-refundable)</span></span>
+   475→   644→                      <span className="text-2xl font-extrabold" style={{ color: GOLD }}>
+   476→   645→                        {formatCurrency(applicationFee)}
+   477→   646→                      </span>
+   478→   647→                    </div>
+   479→   648→
+   480→   649→                    {paymentError && (
+   481→   650→                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+   482→   651→                        {paymentError}
+   483→   652→                      </div>
+   484→   653→                    )}
+   485→   654→
+   486→   655→                    {paymentStatus === 'idle' && (
+   487→   656→                      <Button
+   488→   657→                        onClick={handleInitiatePayment}
+   489→   658→                        className="w-full h-12 text-base font-bold cursor-pointer"
+   490→   659→                        style={{ background: GOLD, color: PRIMARY }}
+   491→   660→                      >
+   492→   661→                        <CreditCard className="size-5 mr-2" />
+   493→   662→                        Pay with SchoolPay
+   494→   663→                      </Button>
+   495→   664→                    )}
+   496→   665→
+   497→   666→                    {paymentStatus === 'initiating' && (
+   498→   667→                      <div className="flex items-center justify-center gap-3 py-4">
+   499→   668→                        <Loader2 className="size-5 animate-spin" style={{ color: PRIMARY }} />
+   500→   669→                        <span className="text-sm font-medium text-gray-600">Initiating payment...</span>
+   501→   670→                      </div>
+   502→   671→                    )}
+   503→   672→
+   504→   673→                    {paymentStatus === 'failed' && (
+   505→   674→                      <Button
+   506→   675→                        onClick={handleInitiatePayment}
+   507→   676→                        variant="outline"
+   508→   677→                        className="w-full cursor-pointer"
+   509→   678→                      >
+   510→   679→                        <ArrowRight className="size-4 mr-2" />
+   511→   680→                        Retry Payment
+   512→   681→                      </Button>
+   513→   682→                    )}
+   514→   683→                  </CardContent>
+   515→   684→                </div>
+   516→   685→              </>
+   517→   686→            )}
+   518→   687→          </motion.div>
+   519→   688→        );
+   520→   689→
+   521→   690→      default:
+   522→   691→        return null;
+   523→   692→    }
+   524→   693→  };
+   525→   694→
+   526→   695→  const renderPaymentSuccess = () => (
+   527→   696→    <motion.div
+   528→   697→      initial={{ opacity: 0, scale: 0.9 }}
+   529→   698→      animate={{ opacity: 1, scale: 1 }}
+   530→   699→      className="text-center py-8 space-y-6"
+   531→   700→    >
+   532→   701→      <motion.div
+   533→   702→        initial={{ scale: 0 }}
+   534→   703→        animate={{ scale: 1 }}
+   535→   704→        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+   536→   705→        className="mx-auto size-24 rounded-full flex items-center justify-center"
+   537→   706→        style={{ background: '#dcfce7' }}
+   538→   707→      >
+   539→   708→        <CheckCircle className="size-14 text-green-500" strokeWidth={2.5} />
+   540→   709→      </motion.div>
+   541→   710→
+   542→   711→      <div>
+   543→   712→        <h3 className="text-2xl font-bold text-gray-900">Payment Successful!</h3>
+   544→   713→        <p className="text-gray-500 mt-2">
+   545→   714→          Your application fee has been received. Welcome to St. Kizito's Technical Institute - Madera!
+   546→   715→        </p>
+   547→   716→      </div>
+   548→   717→
+   549→   718→      <div className="mx-auto max-w-md rounded-xl border-2 border-green-200 bg-green-50 p-6">
+   550→   719→        <p className="text-sm text-green-700 font-medium">Your Admission Reference</p>
+   551→   720→        <p className="text-3xl font-extrabold font-mono mt-2" style={{ color: PRIMARY }}>
+   552→   721→          {referenceNumber}
+   553→   722→        </p>
+   554→   723→        <p className="text-xs text-green-600 mt-2">
+   555→   724→          Please save this reference number. You will need it for all future correspondence.
+   556→   725→        </p>
+   557→   726→      </div>
+   558→   727→
+   559→   728→      <Button
+   560→   729→        onClick={() => setCurrentPage('home')}
+   561→   730→        className="h-12 px-8 text-base font-semibold cursor-pointer"
+   562→   731→        style={{ background: PRIMARY }}
+   563→   732→      >
+   564→   733→        <Home className="size-5 mr-2" />
+   565→   734→        Back to Home
+   566→   735→      </Button>
+   567→   736→    </motion.div>
+   568→   737→  );
+   569→   738→
+   570→   739→  /* ──────── payment simulation dialog ──────── */
+   571→   740→
+   572→   741→  const renderPaymentDialog = () => {
+   573→   742→    if (paymentStatus !== 'dialog') return null;
+   574→   743→    return (
+   575→   744→      <motion.div
+   576→   745→        initial={{ opacity: 0 }}
+   577→   746→        animate={{ opacity: 1 }}
+   578→   747→        exit={{ opacity: 0 }}
+   579→   748→        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+   580→   749→        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+   581→   750→        onClick={() => {}}
+   582→   751→      >
+   583→   752→        <motion.div
+   584→   753→          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+   585→   754→          animate={{ opacity: 1, scale: 1, y: 0 }}
+   586→   755→          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+   587→   756→          className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+   588→   757→          onClick={(e) => e.stopPropagation()}
+   589→   758→        >
+   590→   759→          <div className="px-6 py-4 flex items-center justify-between" style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}>
+   591→   760→            <div className="flex items-center gap-3">
+   592→   761→              <div className="size-8 rounded-full flex items-center justify-center" style={{ background: GOLD }}>
+   593→   762→                <ShieldCheck className="size-4" style={{ color: PRIMARY }} />
+   594→   763→              </div>
+   595→   764→              <div>
+   596→   765→                <p className="text-white font-bold text-sm">DEMO: SchoolPay Payment Gateway</p>
+   597→   766→                <p className="text-white/70 text-xs">Simulated payment environment</p>
+   598→   767→              </div>
+   599→   768→            </div>
+   600→   769→            <button
+   601→   770→              onClick={() => setPaymentStatus('idle')}
+   602→   771→              className="text-white/60 hover:text-white transition-colors cursor-pointer"
+   603→   772→            >
+   604→   773→              <X className="size-5" />
+   605→   774→            </button>
+   606→   775→          </div>
+   607→   776→
+   608→   777→          <div className="p-6 space-y-5">
+   609→   778→            <div className="text-center space-y-1">
+   610→   779→              <p className="text-sm text-gray-500">Amount to Pay</p>
+   611→   780→              <p className="text-3xl font-extrabold" style={{ color: GOLD }}>
+   612→   781→                {formatCurrency(applicationFee)}
+   613→   782→              </p>
+   614→   783→              <p className="text-xs text-gray-400 mt-1">Non-refundable application fee</p>
+   615→   784→            </div>
+   616→   785→
+   617→   786→            <div className="space-y-3 bg-gray-50 rounded-lg p-4">
+   618→   787→              <div className="flex justify-between text-sm">
+   619→   788→                <span className="text-gray-500">Reference</span>
+   620→   789→                <span className="font-mono font-medium text-gray-900">{referenceNumber}</span>
+   621→   790→              </div>
+   622→   791→              <div className="flex justify-between text-sm">
+   623→   792→                <span className="text-gray-500">Transaction</span>
+   624→   793→                <span className="font-mono font-medium text-gray-900 text-xs">{transactionRef}</span>
+   625→   794→              </div>
+   626→   795→              <div className="flex justify-between text-sm">
+   627→   796→                <span className="text-gray-500">Phone Number</span>
+   628→   797→                <span className="font-medium text-gray-900">{form.phone}</span>
+   629→   798→              </div>
+   630→   799→              <div className="flex justify-between text-sm">
+   631→   800→                <span className="text-gray-500">Programme</span>
+   632→   801→                <span className="font-medium text-gray-900">{form.programme}</span>
+   633→   802→              </div>
+   634→   803→            </div>
+   635→   804→
+   636→   805→            <div className="border border-amber-200 bg-amber-50 rounded-lg p-3 text-center">
+   637→   806→              <p className="text-xs text-amber-700">
+   638→   807→                <BadgeCheck className="size-4 inline-block mr-1" />
+   639→   808→                This is a demo. In production, you would be redirected to the SchoolPay gateway to complete payment via MTN MoMo, Airtel Money, or card.
+   640→   809→              </p>
+   641→   810→            </div>
+   642→   811→
+   643→   812→            <Button
+   644→   813→              onClick={handleSimulatePayment}
+   645→   814→              disabled={paymentStatus === 'verifying'}
+   646→   815→              className="w-full h-12 text-base font-bold cursor-pointer"
+   647→   816→              style={{ background: GOLD, color: PRIMARY }}
+   648→   817→            >
+   649→   818→              {paymentStatus === 'verifying' ? (
+   650→   819→                <>
+   651→   820→                  <Loader2 className="size-5 mr-2 animate-spin" />
+   652→   821→                  Verifying Payment...
+   653→   822→                </>
+   654→   823→              ) : (
+   655→   824→                <>
+   656→   825→                  <CheckCircle className="size-5 mr-2" />
+   657→   826→                  Simulate Successful Payment
+   658→   827→                </>
+   659→   828→              )}
+   660→   829→            </Button>
+   661→   830→          </div>
+   662→   831→        </motion.div>
+   663→   832→      </motion.div>
+   664→   833→    );
+   665→   834→  };
+   666→   835→
+   667→   836→  /* ──────── completed step indicator for sidebar ──────── */
+   668→   837→
+   669→   838→  const isStepCompleted = (step: number) => {
+   670→   839→    if (step === 1) return !!(form.fullName && form.dob && form.gender);
+   671→   840→    if (step === 2) return !!(form.phone && form.email);
+   672→   841→    if (step === 3) return !!form.qualification;
+   673→   842→    if (step === 4) return !!(form.programme && form.intakeYear);
+   674→   843→    if (step === 5) return paymentStatus === 'success';
+   675→   844→    return false;
+   676→   845→  };
+   677→   846→
+   678→   847→  /* ──────── main render ──────── */
+   679→   848→
+   680→   849→  return (
+   681→   850→    <div className="min-h-screen flex flex-col">
+   682→   851→      {/* ═══════════ PAGE HEADER ═══════════ */}
+   683→   852→      <header
+   684→   853→        className="pt-[104px] lg:pt-[108px] pb-16 relative overflow-hidden"
+   685→   854→        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, ${PRIMARY} 100%)` }}
+   686→   855→      >
+   687→   856→        <div className="absolute inset-0 opacity-10">
+   688→   857→          <div className="absolute top-10 left-10 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
+   689→   858→          <div className="absolute bottom-10 right-10 size-48 rounded-full" style={{ background: GOLD, filter: 'blur(60px)' }} />
+   690→   859→        </div>
+   691→   860→        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center relative z-10">
+   692→   861→          <motion.div
+   693→   862→            initial={{ opacity: 0, y: 20 }}
+   694→   863→            animate={{ opacity: 1, y: 0 }}
+   695→   864→            transition={{ duration: 0.6 }}
+   696→   865→          >
+   697→   866→            <Badge
+   698→   867→              className="mb-4 text-xs font-semibold px-4 py-1.5"
+   699→   868→              style={{ background: GOLD, color: PRIMARY, borderColor: 'transparent' }}
+   700→   869→            >
+   701→   870→              <GraduationCap className="size-3.5 mr-1.5" />
+   702→   871→              Now Open for 2025/2026 Intake
+   703→   872→            </Badge>
+   704→   873→            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+   705→   874→              Admissions
+   706→   875→            </h1>
+   707→   876→            <p className="mt-4 text-lg text-blue-100 max-w-2xl mx-auto">
+   708→   877→              Begin your journey at St. Kizito&apos;s Technical Institute — Madera. Apply online, pay securely via SchoolPay, and join a legacy of excellence in technical education.
+   709→   878→            </p>
+   710→   879→          </motion.div>
+   711→   880→        </div>
+   712→   881→      </header>
+   713→   882→
+   714→   883→      <main className="flex-1">
+   715→   884→        {/* ═══════════ PROCESS STEPS ═══════════ */}
+   716→   885→        <section className="py-16 bg-gray-50">
+   717→   886→          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+   718→   887→            <motion.div
+   719→   888→              initial={{ opacity: 0, y: 20 }}
+   720→   889→              whileInView={{ opacity: 1, y: 0 }}
+   721→   890→              viewport={{ once: true }}
+   722→   891→              transition={{ duration: 0.5 }}
+   723→   892→              className="text-center mb-12"
+   724→   893→            >
+   725→   894→              <h2 className="text-3xl font-bold text-gray-900">Admission Process</h2>
+   726→   895→              <p className="text-gray-500 mt-2">Follow these simple steps to secure your admission</p>
+   727→   896→            </motion.div>
+   728→   897→
+   729→   898→            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+   730→   899→              {PROCESS_STEPS.map((step, i) => {
+   731→   900→                const Icon = step.icon;
+   732→   901→                return (
+   733→   902→                  <motion.div
+   734→   903→                    key={i}
+   735→   904→                    initial={{ opacity: 0, y: 20 }}
+   736→   905→                    whileInView={{ opacity: 1, y: 0 }}
+   737→   906→                    viewport={{ once: true }}
+   738→   907→                    transition={{ duration: 0.4, delay: i * 0.1 }}
+   739→   908→                    className="flex flex-col items-center text-center"
+   740→   909→                  >
+   741→   910→                    <div
+   742→   911→                      className="size-16 rounded-full flex items-center justify-center relative mb-3"
+   743→   912→                      style={{ border: `3px solid ${GOLD}`, background: `${PRIMARY}10` }}
+   744→   913→                    >
+   745→   914→                      <Icon className="size-6" style={{ color: PRIMARY }} />
+   746→   915→                      <span
+   747→   916→                        className="absolute -top-1 -right-1 size-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+   748→   917→                        style={{ background: GOLD, color: PRIMARY }}
+   749→   918→                      >
+   750→   919→                        {i + 1}
+   751→   920→                      </span>
+   752→   921→                    </div>
+   753→   922→                    <p className="text-sm font-semibold text-gray-800 leading-tight">{step.label}</p>
+   754→   923→                    {i < PROCESS_STEPS.length - 1 && (
+   755→   924→                      <ChevronRight className="size-4 text-gray-300 mt-2 hidden lg:block absolute right-0 top-1/2 -translate-y-1/2" />
+   756→   925→                    )}
+   757→   926→                  </motion.div>
+   758→   927→                );
+   759→   928→              })}
+   760→   929→            </div>
+   761→   930→          </div>
+   762→   931→        </section>
+   763→   932→
+   764→   933→        {/* ═══════════ ENTRY REQUIREMENTS ═══════════ */}
+   765→   934→        <section className="py-16">
+   766→   935→          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+   767→   936→            <motion.div
+   768→   937→              initial={{ opacity: 0, y: 20 }}
+   769→   938→              whileInView={{ opacity: 1, y: 0 }}
+   770→   939→              viewport={{ once: true }}
+   771→   940→              transition={{ duration: 0.5 }}
+   772→   941→              className="text-center mb-12"
+   773→   942→            >
+   774→   943→              <h2 className="text-3xl font-bold text-gray-900">Entry Requirements</h2>
+   775→   944→              <p className="text-gray-500 mt-2">Check the requirements for your preferred programme</p>
+   776→   945→            </motion.div>
+   777→   946→
+   778→   947→            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+   779→   948→              {/* Card 1: National Certificates */}
+   780→   949→              <motion.div
+   781→   950→                initial={{ opacity: 0, y: 20 }}
+   782→   951→                whileInView={{ opacity: 1, y: 0 }}
+   783→   952→                viewport={{ once: true }}
+   784→   953→                transition={{ duration: 0.4, delay: 0.1 }}
+   785→   954→              >
+   786→   955→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+   787→   956→                  style={{ borderTopColor: PRIMARY }}
+   788→   957→                >
+   789→   958→                  <CardHeader className="pb-3">
+   790→   959→                    <div className="flex items-center gap-3">
+   791→   960→                      <div className="size-10 rounded-lg flex items-center justify-center" style={{ background: `${PRIMARY}15` }}>
+   792→   961→                        <Award className="size-5" style={{ color: PRIMARY }} />
+   793→   962→                      </div>
+   794→   963→                      <CardTitle className="text-lg">National Certificates</CardTitle>
+   795→   964→                    </div>
+   796→   965→                  </CardHeader>
+   797→   966→                  <CardContent className="space-y-3">
+   798→   967→                    <div className="flex items-start gap-2">
+   799→   968→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   800→   969→                      <p className="text-sm text-gray-600">UCE certificate with at least <strong>3 credits</strong></p>
+   801→   970→                    </div>
+   802→   971→                    <div className="flex items-start gap-2">
+   803→   972→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   804→   973→                      <p className="text-sm text-gray-600">Minimum age of <strong>16 years</strong> at time of admission</p>
+   805→   974→                    </div>
+   806→   975→                    <div className="flex items-start gap-2">
+   807→   976→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   808→   977→                      <p className="text-sm text-gray-600">Duration: <strong>2 years</strong></p>
+   809→   978→                    </div>
+   810→   979→                  </CardContent>
+   811→   980→                </Card>
+   812→   981→              </motion.div>
+   813→   982→
+   814→   983→              {/* Card 2: Vocational Skills */}
+   815→   984→              <motion.div
+   816→   985→                initial={{ opacity: 0, y: 20 }}
+   817→   986→                whileInView={{ opacity: 1, y: 0 }}
+   818→   987→                viewport={{ once: true }}
+   819→   988→                transition={{ duration: 0.4, delay: 0.2 }}
+   820→   989→              >
+   821→   990→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+   822→   991→                  style={{ borderTopColor: GOLD }}
+   823→   992→                >
+   824→   993→                  <CardHeader className="pb-3">
+   825→   994→                    <div className="flex items-center gap-3">
+   826→   995→                      <div className="size-10 rounded-lg flex items-center justify-center" style={{ background: `${GOLD}20` }}>
+   827→   996→                        <BadgeCheck className="size-5" style={{ color: GOLD }} />
+   828→   997→                      </div>
+   829→   998→                      <CardTitle className="text-lg">Vocational Skills</CardTitle>
+   830→   999→                    </div>
+   831→  1000→                  </CardHeader>
+   832→  1001→                  <CardContent className="space-y-3">
+   833→  1002→                    <div className="flex items-start gap-2">
+   834→  1003→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   835→  1004→                      <p className="text-sm text-gray-600"><strong>Open to all</strong> — no formal academic requirements</p>
+   836→  1005→                    </div>
+   837→  1006→                    <div className="flex items-start gap-2">
+   838→  1007→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   839→  1008→                      <p className="text-sm text-gray-600"><strong>No age limit</strong> — everyone is welcome</p>
+   840→  1009→                    </div>
+   841→  1010→                    <div className="flex items-start gap-2">
+   842→  1011→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+   843→  1012→                      <p className="text-sm text-gray-600">Duration: <strong>3–6 months</strong></p>
+   844→  1013→                    </div>
+   845→  1014→                  </CardContent>
+   846→  1015→                </Card>
+   847→  1016→              </motion.div>
+   848→  1017→
+   849→  1018→              {/* Card 3: Required Documents */}
+   850→  1019→              <motion.div
+   851→  1020→                initial={{ opacity: 0, y: 20 }}
+   852→  1021→                whileInView={{ opacity: 1, y: 0 }}
+   853→  1022→                viewport={{ once: true }}
+   854→  1023→                transition={{ duration: 0.4, delay: 0.3 }}
+   855→  1024→              >
+   856→  1025→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+   857→  1026→                  style={{ borderTopColor: '#e11d48' }}
+   858→  1027→                >
+   859→  1028→                  <CardHeader className="pb-3">
+   860→  1029→                    <div className="flex items-center gap-3">
+   861→  1030→                      <div className="size-10 rounded-lg flex items-center justify-center bg-red-50">
+   862→  1031→                        <FileText className="size-5 text-red-500" />
+   863→  1032→                      </div>
+   864→  1033→                      <CardTitle className="text-lg">Required Documents</CardTitle>
+   865→  1034→                    </div>
+   866→  1035→                  </CardHeader>
+   867→  1036→                  <CardContent className="space-y-3">
+   868→  1037→                    <div className="flex items-start gap-2">
+   869→  1038→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   870→  1039→                      <p className="text-sm text-gray-600">Academic <strong>certificates & transcripts</strong></p>
+   871→  1040→                    </div>
+   872→  1041→                    <div className="flex items-start gap-2">
+   873→  1042→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   874→  1043→                      <p className="text-sm text-gray-600"><strong>NIN</strong> or Birth Certificate</p>
+   875→  1044→                    </div>
+   876→  1045→                    <div className="flex items-start gap-2">
+   877→  1046→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   878→  1047→                      <p className="text-sm text-gray-600"><strong>3 passport-size</strong> photographs</p>
+   879→  1048→                    </div>
+   880→  1049→                    <div className="flex items-start gap-2">
+   881→  1050→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   882→  1051→                      <p className="text-sm text-gray-600"><strong>Recommendation letter</strong> from former school or LC1</p>
+   883→  1052→                    </div>
+   884→  1053→                  </CardContent>
+   885→  1054→                </Card>
+   886→  1055→              </motion.div>
+   887→  1056→            </div>
+   888→  1057→          </div>
+   889→  1058→        </section>
+   890→  1059→
+   891→  1060→        {/* ═══════════ DOWNLOAD APPLICATION FORMS ═══════════ */}
+   892→  1061→        <section className="py-16 px-4">
+   893→  1062→          <div className="max-w-4xl mx-auto">
+   894→  1063→            <motion.div
+   895→  1064→              initial={{ opacity: 0, y: 20 }}
+   896→  1065→              whileInView={{ opacity: 1, y: 0 }}
+   897→  1066→              viewport={{ once: true }}
+   898→  1067→              transition={{ duration: 0.5 }}
+   899→  1068→              className="text-center mb-10"
+   900→  1069→            >
+   901→  1070→              <h2 className="text-3xl font-bold text-gray-900">Download Application Forms</h2>
+   902→  1071→              <p className="text-gray-500 mt-2">
+   903→  1072→                Download the appropriate form, fill it in, and submit it to the admissions office.
+   904→  1073→              </p>
+   905→  1074→            </motion.div>
+   906→  1075→
+   907→  1076→            <div className="grid md:grid-cols-2 gap-6">
+   908→  1077→              {/* Formal (TVET) Form */}
+   909→  1078→              <motion.div
+   910→  1079→                initial={{ opacity: 0, y: 20 }}
+   911→  1080→                whileInView={{ opacity: 1, y: 0 }}
+   912→  1081→                viewport={{ once: true }}
+   913→  1082→                transition={{ duration: 0.5, delay: 0.1 }}
+   914→  1083→              >
+   915→  1084→                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+   916→  1085→                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+   917→  1086→                    <div className="flex items-start gap-4 mb-4">
+   918→  1087→                      <div
+   919→  1088→                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+   920→  1089→                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+   921→  1090→                      >
+   922→  1091→                        <FileText className="w-6 h-6 text-white" />
+   923→  1092→                      </div>
+   924→  1093→                      <div className="flex-1">
+   925→  1094→                        <h3 className="text-lg font-bold text-gray-900">Formal Admission Form</h3>
+   926→  1095→                        <p className="text-xs text-gray-400 mt-0.5">National Certificate &amp; Diploma Programmes</p>
+   927→  1096→                      </div>
+   928→  1097→                    </div>
+   929→  1098→                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+   930→  1099→                      This is the official TVET admission form for government-recognised programmes
+   931→  1100→                      (2-year certificates and diplomas). Provided by the Ministry of Education &amp; Sports.
+   932→  1101→                    </p>
+   933→  1102→                    <div className="mt-6">
+   934→  1103→                      <a
+   935→  1104→                        href={tvetFormUrl}
+   936→  1105→                        download
+   937→  1106→                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+   938→  1107→                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+   939→  1108→                      >
+   940→  1109→                        <Download className="w-4 h-4" />
+   941→  1110→                        Download TVET Form (PDF)
+   942→  1111→                      </a>
+   943→  1112→                    </div>
+   944→  1113→                  </CardContent>
+   945→  1114→                </Card>
+   946→  1115→              </motion.div>
+   947→  1116→
+   948→  1117→              {/* Non-Formal Form */}
+   949→  1118→              <motion.div
+   950→  1119→                initial={{ opacity: 0, y: 20 }}
+   951→  1120→                whileInView={{ opacity: 1, y: 0 }}
+   952→  1121→                viewport={{ once: true }}
+   953→  1122→                transition={{ duration: 0.5, delay: 0.2 }}
+   954→  1123→              >
+   955→  1124→                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+   956→  1125→                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+   957→  1126→                    <div className="flex items-start gap-4 mb-4">
+   958→  1127→                      <div
+   959→  1128→                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+   960→  1129→                        style={{ backgroundColor: '#fef9e7' }}
+   961→  1130→                      >
+   962→  1131→                        <FileText className="w-6 h-6" style={{ color: '#92640a' }} />
+   963→  1132→                      </div>
+   964→  1133→                      <div className="flex-1">
+   965→  1134→                        <h3 className="text-lg font-bold text-gray-900">Non-Formal Admission Form</h3>
+   966→  1135→                        <p className="text-xs text-gray-400 mt-0.5">Short Courses &amp; Vocational Skills</p>
+   967→  1136→                      </div>
+   968→  1137→                    </div>
+   969→  1138→                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+   970→  1139→                      This form is for short courses (3–6 months) and vocational skills programmes.
+   971→  1140→                      Provided by St. Kizito&apos;s Technical Institute - Madera.
+   972→  1141→                    </p>
+   973→  1142→                    <div className="mt-6">
+   974→  1143→                      {nonFormalFormUrl ? (
+   975→  1144→                        <a
+   976→  1145→                          href={nonFormalFormUrl}
+   977→  1146→                          download
+   978→  1147→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+   979→  1148→                          style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+   980→  1149→                        >
+   981→  1150→                          <Download className="w-4 h-4" />
+   982→  1151→                          Download Non-Formal Form
+   983→  1152→                        </a>
+   984→  1153→                      ) : (
+   985→  1154→                        <div
+   986→  1155→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400"
+   987→  1156→                        >
+   988→  1157→                          <FileText className="w-4 h-4" />
+   989→  1158→                          Form Not Yet Available
+   990→  1159→                        </div>
+   991→  1160→                      )}
+   992→  1161→                    </div>
+   993→  1162→                  </CardContent>
+   994→  1163→                </Card>
+   995→  1164→              </motion.div>
+   996→  1165→            </div>
+   997→  1166→
+   998→  1167→            <p className="text-center text-xs text-gray-400 mt-6">
+   999→  1168→              You may also apply online using the form below, or visit the admissions office in person.
+  1000→  1169→            </p>
+  1001→  1170→          </div>
+  1002→  1171→        </section>
+  1003→  1172→
+  1004→  1173→        {/* ═══════════ ONLINE APPLICATION FORM ═══════════ */}
+  1005→  1174→        <section className="py-16 bg-gray-50">
+  1006→  1175→          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+  1007→  1176→            <motion.div
+  1008→  1177→              initial={{ opacity: 0, y: 20 }}
+  1009→  1178→              whileInView={{ opacity: 1, y: 0 }}
+  1010→  1179→              viewport={{ once: true }}
+  1011→  1180→              transition={{ duration: 0.5 }}
+  1012→  1181→              className="text-center mb-12"
+  1013→  1182→            >
+  1014→  1183→              <h2 className="text-3xl font-bold text-gray-900">Online Application Form</h2>
+  1015→  1184→              <p className="text-gray-500 mt-2">Complete all steps to submit your application</p>
+  1016→  1185→            </motion.div>
+  1017→  1186→
+  1018→  1187→            <motion.div
+  1019→  1188→              initial={{ opacity: 0, y: 20 }}
+  1020→  1189→              whileInView={{ opacity: 1, y: 0 }}
+  1021→  1190→              viewport={{ once: true }}
+  1022→  1191→              transition={{ duration: 0.5, delay: 0.2 }}
+  1023→  1192→              className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+  1024→  1193→            >
+  1025→  1194→              <div className="flex flex-col lg:flex-row">
+  1026→  1195→                {/* ──── LEFT SIDEBAR: Step Indicator ──── */}
+  1027→  1196→                <aside
+  1028→  1197→                  className="lg:w-64 shrink-0 p-6 lg:p-8 lg:border-r border-b lg:border-b-0 border-gray-100"
+  1029→  1198→                  style={{ background: `linear-gradient(180deg, ${PRIMARY}08, white)` }}
+  1030→  1199→                >
+  1031→  1200→                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-6">
+  1032→  1201→                    Application Steps
+  1033→  1202→                  </h3>
+  1034→  1203→                  <nav className="space-y-1">
+  1035→  1204→                    {FORM_STEPS_META.map((step) => {
+  1036→  1205→                      const Icon = step.icon;
+  1037→  1206→                      const active = currentStep === step.id;
+  1038→  1207→                      const completed = isStepCompleted(step.id);
+  1039→  1208→                      return (
+  1040→  1209→                        <button
+  1041→  1210→                          key={step.id}
+  1042→  1211→                          type="button"
+  1043→  1212→                          onClick={() => {
+  1044→  1213→                            if (step.id < currentStep || completed) setCurrentStep(step.id);
+  1045→  1214→                          }}
+  1046→  1215→                          disabled={step.id > currentStep && !completed}
+  1047→  1216→                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+  1048→  1217→                            active
+  1049→  1218→                              ? 'text-white shadow-md'
+  1050→  1219→                              : completed
+  1051→  1220→                              ? 'text-gray-700 hover:bg-gray-50'
+  1052→  1221→                              : 'text-gray-400'
+  1053→  1222→                          }`}
+  1054→  1223→                          style={
+  1055→  1224→                            active
+  1056→  1225→                              ? { background: PRIMARY }
+  1057→  1226→                              : undefined
+  1058→  1227→                          }
+  1059→  1228→                        >
+  1060→  1229→                          <div
+  1061→  1230→                            className={`size-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
+  1062→  1231→                              active
+  1063→  1232→                                ? 'border-white bg-white/20'
+  1064→  1233→                                : completed
+  1065→  1234→                                ? 'border-green-400 bg-green-50'
+  1066→  1235→                                : 'border-gray-200 bg-gray-50'
+  1067→  1236→                            }`}
+  1068→  1237→                          >
+  1069→  1238→                            {completed && !active ? (
+  1070→  1239→                              <Check className="size-4 text-green-500" />
+  1071→  1240→                            ) : (
+  1072→  1241→                              <Icon className={`size-3.5 ${active ? 'text-white' : 'text-gray-400'}`} />
+  1073→  1242→                            )}
+  1074→  1243→                          </div>
+  1075→  1244→                          <span className="text-sm font-medium leading-tight">{step.label}</span>
+  1076→  1245→                        </button>
+  1077→  1246→                      );
+  1078→  1247→                    })}
+  1079→  1248→                  </nav>
+  1080→  1249→
+  1081→  1250→                  {/* Mobile step indicator */}
+  1082→  1251→                  <div className="lg:hidden mt-6 pt-4 border-t border-gray-100">
+  1083→  1252→                    <div className="flex items-center justify-between gap-2">
+  1084→  1253→                      {FORM_STEPS_META.map((step) => (
+  1085→  1254→                        <div key={step.id} className="flex-1 flex justify-center">
+  1086→  1255→                          <div
+  1087→  1256→                            className={`size-3 rounded-full transition-colors ${
+  1088→  1257→                              currentStep === step.id
+  1089→  1258→                                ? 'ring-2 ring-offset-2'
+  1090→  1259→                                : isStepCompleted(step.id)
+  1091→  1260→                                ? 'bg-green-500'
+  1092→  1261→                                : 'bg-gray-200'
+  1093→  1262→                            }`}
+  1094→  1263→                            style={
+  1095→  1264→                              currentStep === step.id
+  1096→  1265→                                ? { background: GOLD, ringColor: GOLD }
+  1097→  1266→                                : undefined
+  1098→  1267→                            }
+  1099→  1268→                          />
+  1100→  1269→                        </div>
+  1101→  1270→                      ))}
+  1102→  1271→                    </div>
+  1103→  1272→                    <p className="text-xs text-center text-gray-400 mt-2">
+  1104→  1273→                      Step {currentStep} of 5
+  1105→  1274→                    </p>
+  1106→  1275→                  </div>
+  1107→  1276→                </aside>
+  1108→  1277→
+  1109→  1278→                {/* ──── RIGHT CONTENT AREA ──── */}
+  1110→  1279→                <div className="flex-1 p-6 sm:p-8 lg:p-10 min-h-[480px]">
+  1111→  1280→                  <AnimatePresence mode="wait">
+  1112→  1281→                    {renderStepContent()}
+  1113→  1282→                  </AnimatePresence>
+  1114→  1283→
+  1115→  1284→                  {/* Navigation Buttons */}
+  1116→  1285→                  {paymentStatus !== 'success' && (
+  1117→  1286→                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+  1118→  1287→                      <Button
+  1119→  1288→                        variant="outline"
+  1120→  1289→                        onClick={goPrev}
+  1121→  1290→                        disabled={currentStep === 1}
+  1122→  1291→                        className="cursor-pointer disabled:opacity-40"
+  1123→  1292→                      >
+  1124→  1293→                        <ChevronLeft className="size-4 mr-1" />
+  1125→  1294→                        Previous
+  1126→  1295→                      </Button>
+  1127→  1296→
+  1128→  1297→                      <div className="flex items-center gap-2">
+  1129→  1298→                        {FORM_STEPS_META.map((step) => (
+  1130→  1299→                          <div
+  1131→  1300→                            key={step.id}
+  1132→  1301→                            className={`h-1.5 rounded-full transition-all duration-300 ${
+  1133→  1302→                              step.id === currentStep
+  1134→  1303→                                ? 'w-8'
+  1135→  1304→                                : step.id < currentStep
+  1136→  1305→                                ? 'w-4 bg-green-400'
+  1137→  1306→                                : 'w-4 bg-gray-200'
+  1138→  1307→                            }`}
+  1139→  1308→                            style={step.id === currentStep ? { background: GOLD } : undefined}
+  1140→  1309→                          />
+  1141→  1310→                        ))}
+  1142→  1311→                      </div>
+  1143→  1312→
+  1144→  1313→                      {currentStep < 5 && (
+  1145→  1314→                        <Button
+  1146→  1315→                          onClick={goNext}
+  1147→  1316→                          disabled={submitting}
+  1148→  1317→                          className="cursor-pointer"
+  1149→  1318→                          style={{ background: PRIMARY }}
+  1150→  1319→                        >
+  1151→  1320→                          {submitting ? (
+  1152→  1321→                            <>
+  1153→  1322→                              <Loader2 className="size-4 mr-2 animate-spin" />
+  1154→  1323→                              Submitting...
+  1155→  1324→                            </>
+  1156→  1325→                          ) : currentStep === 4 ? (
+  1157→  1326→                            <>
+  1158→  1327→                              Submit Application
+  1159→  1328→                              <ArrowRight className="size-4 ml-1" />
+  1160→  1329→                            </>
+  1161→  1330→                          ) : (
+  1162→  1331→                            <>
+  1163→  1332→                              Next
+  1164→  1333→                              <ChevronRight className="size-4 ml-1" />
+  1165→  1334→                            </>
+  1166→  1335→                          )}
+  1167→  1336→                        </Button>
+  1168→  1337→                      )}
+  1169→  1338→                      {currentStep === 5 && paymentStatus === 'idle' && (
+  1170→  1339→                        <div />
+  1171→  1340→                      )}
+  1172→  1341→                      {currentStep === 5 && (paymentStatus === 'failed' || paymentStatus === 'dialog') && (
+  1173→  1342→                        <div />
+  1174→  1343→                      )}
+  1175→  1344→                    </div>
+  1176→  1345→                  )}
+  1177→  1346→                </div>
+  1178→  1347→              </div>
+  1179→  1348→            </motion.div>
+  1180→  1349→          </div>
+  1181→  1350→        </section>
+  1182→  1351→
+  1183→  1352→        {/* ═══════════ NEED HELP SECTION ═══════════ */}
+  1184→  1353→        <section className="py-16">
+  1185→  1354→          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+  1186→  1355→            <motion.div
+  1187→  1356→              initial={{ opacity: 0, y: 20 }}
+  1188→  1357→              whileInView={{ opacity: 1, y: 0 }}
+  1189→  1358→              viewport={{ once: true }}
+  1190→  1359→              transition={{ duration: 0.5 }}
+  1191→  1360→              className="rounded-2xl overflow-hidden shadow-xl"
+  1192→  1361→              style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+  1193→  1362→            >
+  1194→  1363→              <div className="p-8 sm:p-12 text-center relative">
+  1195→  1364→                <div className="absolute inset-0 opacity-5">
+  1196→  1365→                  <div className="absolute top-0 right-0 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
+  1197→  1366→                </div>
+  1198→  1367→                <div className="relative z-10">
+  1199→  1368→                  <div className="mx-auto size-14 rounded-full flex items-center justify-center mb-4" style={{ background: GOLD }}>
+  1200→  1369→                    <HelpCircle className="size-7" style={{ color: PRIMARY }} />
+  1201→  1370→                  </div>
+  1202→  1371→                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Need Help With Your Application?</h2>
+  1203→  1372→                  <p className="text-blue-100 max-w-xl mx-auto mb-8">
+  1204→  1373→                    Our admissions team is here to assist you every step of the way. Reach out to us through any of the channels below.
+  1205→  1374→                  </p>
+  1206→  1375→                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+  1207→  1376→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1208→  1377→                      <Phone className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1209→  1378→                      <p className="text-white font-semibold text-sm">Call Us</p>
+  1210→  1379→                      <p className="text-blue-200 text-sm mt-1">+256 752 309 660</p>
+  1211→  1380→                    </div>
+  1212→  1381→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1213→  1382→                      <Mail className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1214→  1383→                      <p className="text-white font-semibold text-sm">Email</p>
+  1215→  1384→                      <p className="text-blue-200 text-sm mt-1">stkizitmad@gmail.com</p>
+  1216→  1385→                    </div>
+  1217→  1386→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1218→  1387→                      <MapPin className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1219→  1388→                      <p className="text-white font-semibold text-sm">Visit Us</p>
+  1220→  1389→                      <p className="text-blue-200 text-sm mt-1">Madera, Soroti City</p>
+  1221→  1390→                    </div>
+  1222→  1391→                  </div>
+  1223→  1392→                  <div className="flex items-center justify-center gap-2 mt-6 text-blue-200 text-sm">
+  1224→  1393→                    <Clock className="size-4" style={{ color: GOLD }} />
+  1225→  1394→                    Office Hours: Mon–Fri, 8:00 AM – 5:00 PM
+  1226→  1395→                  </div>
+  1227→  1396→                </div>
+  1228→  1397→              </div>
+  1229→  1398→            </motion.div>
+  1230→  1399→          </div>
+  1231→  1400→        </section>
+  1232→  1401→      </main>
+  1233→  1402→
+  1234→  1403→      {/* ═══════════ PAYMENT DIALOG OVERLAY ═══════════ */}
+  1235→  1404→      <AnimatePresence>
+  1236→  1405→        {renderPaymentDialog()}
+  1237→  1406→      </AnimatePresence>
+  1238→  1407→    </div>
+  1239→  1408→  );
+  1240→  1409→}
+  1241→  1410→
