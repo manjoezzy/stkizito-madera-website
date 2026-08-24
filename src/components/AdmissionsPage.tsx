@@ -393,76 +393,6 @@ export default function AdmissionsPage() {
     }
   };
 
-  /* ──────── temporary admission letter download ──────── */
-
-  const handleDownloadLetter = () => {
-    const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const letter = `
-═════════════════════════════════════════════════════
-                  ST. KIZITO'S TECHNICAL INSTITUTE - MADERA
-                     Soroti City, Uganda
-═════════════════════════════════════════════════════
-
-
-                    TEMPORARY ADMISSION LETTER
-
-
-Reference Number:    ${referenceNumber}
-Applicant Name:      ${form.fullName}
-Programme:           ${form.programme}
-Intake Year:         ${form.intakeYear}
-Date of Issue:       ${dateStr}
-
-
-─────────────────────────────────────────────────────
-
-Dear ${form.fullName},
-
-Congratulations! Your application to St. Kizito's Technical Institute - Madera
-has been received and is being processed.
-
-
-REQUIREMENTS FOR VERIFICATION AND ENROLLMENT:
-
-1. Carry original documents for verification:
-   - National ID / Passport
-   - Academic Certificates / Transcripts
-   - Passport Photos
-
-2. At least 60% of tuition fees must be paid before reporting.
-
-3. Report on the date specified in the official admission letter.
-
-
-NOTE: This is a temporary admission letter. Your application is subject to
-verification of submitted documents and payment of required fees.
-
-
-SchoolPay Payment Code: ${schoolpayCode}
-Amount to Pay:          ${formatCurrency(applicationFee)}
-
-Dial *210# on MTN or *185# on Airtel, enter the code above, and follow the prompts.
-
-
-─────────────────────────────────────────────────────
-
-Issued by the Admissions Office,
-St. Kizito's Technical Institute - Madera
-Soroti City, Uganda
-
-`;
-
-    const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Temporary_Admission_Letter_${referenceNumber}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    addToast('Admission letter downloaded!', 'success');
-  };
 
   /* ──────── copy to clipboard ──────── */
 
@@ -990,14 +920,6 @@ Soroti City, Uganda
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
-                onClick={handleDownloadLetter}
-                variant="outline"
-                className="cursor-pointer"
-              >
-                <Download className="size-4 mr-2" />
-                Download Temporary Admission Letter
-              </Button>
-              <Button
                 onClick={() => setCurrentPage('track-application')}
                 style={{ background: PRIMARY }}
                 className="cursor-pointer"
@@ -1380,6 +1302,20 @@ Soroti City, Uganda
             >
               <h2 className="text-3xl font-bold text-gray-900">Online Application Form</h2>
               <p className="text-gray-500 mt-2">Complete all steps to submit your application</p>
+
+              {/* TVET Formal Application CTA */}
+              <div className="mt-6 max-w-xl mx-auto">
+                <button
+                  onClick={() => setCurrentPage('tvet-form')}
+                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
+                  style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  Apply for TVET Programmes (Formal)
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <p className="text-[11px] text-gray-400 mt-2">Official Ministry of Education TVET application form for National Certificates & Diplomas</p>
+              </div>
             </motion.div>
 
             <motion.div

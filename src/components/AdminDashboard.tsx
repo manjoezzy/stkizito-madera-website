@@ -42,6 +42,7 @@ import {
   FileCheck,
   Globe,
   Share2,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -342,6 +343,7 @@ export default function AdminDashboard() {
   // Loading
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [sendLetterLoading, setSendLetterLoading] = useState<string | null>(null);
 
   // ---- Data Fetching ----
   const fetchDashboard = async () => {
@@ -521,6 +523,10 @@ export default function AdminDashboard() {
         fetchApplications();
         fetchDashboard();
         if (status === 'enrolled') fetchStudents();
+        // Auto-send admission letter when approved
+        if (status === 'approved') {
+          sendAdmissionLetter(id);
+        }
       } else {
         addToast(json.message || 'Action failed', 'error');
       }
@@ -528,6 +534,26 @@ export default function AdminDashboard() {
       addToast('Failed to update application', 'error');
     }
     setActionLoading(null);
+  };
+
+  const sendAdmissionLetter = async (applicationId: string) => {
+    setSendLetterLoading(applicationId);
+    try {
+      const res = await fetch('/api/admissions/send-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        addToast(json.message || 'Admission letter sent successfully', 'success');
+      } else {
+        addToast(json.message || 'Failed to send letter', 'error');
+      }
+    } catch {
+      addToast('Failed to send admission letter', 'error');
+    }
+    setSendLetterLoading(null);
   };
 
   const deleteEvent = async (id: string) => {
@@ -1102,6 +1128,20 @@ export default function AdminDashboard() {
                     Enroll Student
                   </Button>
                 )}
+                {(viewApplicant.status === 'approved' || viewApplicant.status === 'enrolled') && (
+                  <Button
+                    variant="outline"
+                    onClick={() => sendAdmissionLetter(viewApplicant.id)}
+                    disabled={!!sendLetterLoading}
+                  >
+                    {sendLetterLoading ? (
+                      <span className="w-4 h-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4 mr-1" />
+                    )}
+                    Send Admission Letter
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => setViewApplicant(null)}
@@ -1378,6 +1418,20 @@ export default function AdminDashboard() {
                   >
                     <UserPlus className="w-4 h-4 mr-1" />
                     Enroll Student
+                  </Button>
+                )}
+                {(expandedApp.status === 'approved' || expandedApp.status === 'enrolled') && (
+                  <Button
+                    variant="outline"
+                    onClick={() => sendAdmissionLetter(expandedApp.id)}
+                    disabled={!!sendLetterLoading}
+                  >
+                    {sendLetterLoading ? (
+                      <span className="w-4 h-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4 mr-1" />
+                    )}
+                    Send Admission Letter
                   </Button>
                 )}
                 <Button
@@ -2101,64 +2155,79 @@ function ApplicationsSection({
   onEnroll,
   actionLoading,
 }: ApplicationsProps) {
+  const [activeTab, setActiveTab] = useState('all');
+
+  const tabs = [
+    { key: 'all', label: 'All', count: appCounts.total ?? 0, color: 'text-slate-700', bg: 'bg-slate-100', activeBg: 'bg-slate-700', activeText: 'text-white' },
+    { key: 'pending', label: 'Pending', count: appCounts.pending ?? 0, color: 'text-amber-700', bg: 'bg-amber-50', activeBg: 'bg-amber-600', activeText: 'text-white' },
+    { key: 'approved', label: 'Approved', count: appCounts.approved ?? 0, color: 'text-blue-700', bg: 'bg-blue-50', activeBg: 'bg-blue-600', activeText: 'text-white' },
+    { key: 'enrolled', label: 'Enrolled', count: appCounts.enrolled ?? 0, color: 'text-emerald-700', bg: 'bg-emerald-50', activeBg: 'bg-emerald-600', activeText: 'text-white' },
+    { key: 'rejected', label: 'Rejected', count: appCounts.rejected ?? 0, color: 'text-red-700', bg: 'bg-red-50', activeBg: 'bg-red-600', activeText: 'text-white' },
+  ];
+
+  const filteredApplications = activeTab === 'all'
+    ? applications
+    : applications.filter((app) => app.status === activeTab);
+
+  const handleTabClick = (key: string) => {
+    setActiveTab(key);
+    setAppStatusFilter(key);
+  };
+
   return (
     <div className="space-y-4">
-      {/* Summary Badges */}
+      {/* Status Tabs */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline" className="text-slate-600 border-slate-300 px-3 py-1">
-          All: {appCounts.total ?? 0}
-        </Badge>
-        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 px-3 py-1">
-          Pending: {appCounts.pending ?? 0}
-        </Badge>
-        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 px-3 py-1">
-          Approved: {appCounts.approved ?? 0}
-        </Badge>
-        <Badge className="bg-red-100 text-red-700 hover:bg-red-100 px-3 py-1">
-          Rejected: {appCounts.rejected ?? 0}
-        </Badge>
-        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 px-3 py-1">
-          Enrolled: {appCounts.enrolled ?? 0}
-        </Badge>
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleTabClick(tab.key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
+              activeTab === tab.key
+                ? `${tab.activeBg} ${tab.activeText} shadow-sm`
+                : `${tab.bg} ${tab.color} hover:opacity-80`
+            }`}
+          >
+            {tab.label}
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded-full ${
+                activeTab === tab.key
+                  ? 'bg-white/20 text-white'
+                  : 'bg-black/5 text-current'
+              }`}
+            >
+              {tab.count}
+            </span>
+          </button>
+        ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Search by name, ref#, email or phone..."
-            value={appSearch}
-            onChange={(e) => setAppSearch(e.target.value)}
-            className="pl-9 bg-white"
-          />
-        </div>
-        <Select value={appStatusFilter} onValueChange={setAppStatusFilter}>
-          <SelectTrigger className="w-full sm:w-44 bg-white">
-            <Filter className="w-4 h-4 mr-2 text-slate-400" />
-            <SelectValue placeholder="Filter status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="enrolled">Enrolled</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Input
+          placeholder="Search by name, ref#, email or phone..."
+          value={appSearch}
+          onChange={(e) => setAppSearch(e.target.value)}
+          className="pl-9 bg-white"
+        />
       </div>
 
       {/* Table */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
-          {applications.length === 0 ? (
+          {filteredApplications.length === 0 ? (
             <div className="py-16 text-center">
               <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-400 font-medium">No applications found</p>
+              <p className="text-slate-400 font-medium">
+                {activeTab === 'all' ? 'No applications found' : `No ${activeTab} applications`}
+              </p>
               <p className="text-slate-300 text-sm mt-1">
-                {appSearch || appStatusFilter !== 'all'
-                  ? 'Try adjusting your search or filter'
-                  : 'Applications will appear here once submitted'}
+                {appSearch
+                  ? 'Try adjusting your search'
+                  : activeTab === 'all'
+                  ? 'Applications will appear here once submitted'
+                  : `Applications will move here when ${activeTab}`}
               </p>
             </div>
           ) : (
@@ -2177,7 +2246,7 @@ function ApplicationsSection({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {applications.map((app) => (
+                  {filteredApplications.map((app) => (
                     <TableRow key={app.id} className="border-slate-50 cursor-pointer hover:bg-slate-50" onClick={() => onExpand(app)}>
                       <TableCell className="text-xs font-mono text-slate-600">
                         {app.referenceNumber.slice(-8)}

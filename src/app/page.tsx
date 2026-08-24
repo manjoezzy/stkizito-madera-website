@@ -19,6 +19,7 @@ import AboutPage from '@/components/AboutPage';
 import AlumniPage from '@/components/AlumniPage';
 import GraduationPage from '@/components/GraduationPage';
 import AdmissionsEnrolledPage from '@/components/AdmissionsEnrolledPage';
+import TvetApplicationForm from '@/components/TvetApplicationForm';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
@@ -38,6 +39,7 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   alumni: AlumniPage,
   graduation: GraduationPage,
   'enrolled-students': AdmissionsEnrolledPage,
+  'tvet-form': TvetApplicationForm,
 };
 
 const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
@@ -51,12 +53,13 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
   events: { showNav: true, fullWidth: false },
   gallery: { showNav: true, fullWidth: false },
   contact: { showNav: true, fullWidth: false },
-  'admin-login': { showNav: true, fullWidth: false },
+  'admin-login': { showNav: false, fullWidth: true },
   'admin-dashboard': { showNav: false, fullWidth: true },
   about: { showNav: true, fullWidth: false },
   alumni: { showNav: true, fullWidth: false },
   graduation: { showNav: true, fullWidth: false },
   'enrolled-students': { showNav: true, fullWidth: false },
+  'tvet-form': { showNav: true, fullWidth: false },
 };
 
 export default function MainApp() {

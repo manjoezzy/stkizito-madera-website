@@ -547,6 +547,39 @@ function GovernanceContent() {
 
 /* ──── SCHOOL ANTHEM ──── */
 function AnthemContent() {
+  const anthemVerses = [
+    {
+      lines: [
+        'St. Kizito, Technical Institute!',
+        'Our haven of learning Madera',
+        'May the Lord God strengthen our motto!',
+        'We Progress Through Labour!',
+        'May the Lord God protect our Institute of learning today!',
+        'And bless our temple of learning.',
+      ],
+    },
+    {
+      lines: [
+        'St. Kizito, Technical Institute!',
+        'Producing competent technicians',
+        'With the knowledge, better skills that we have!',
+        'Contributing national development',
+        'Oh what joy to be in the hands of our nation today!',
+        'Promoting quality education.',
+      ],
+    },
+    {
+      lines: [
+        'St. Kizito, Technical Institute!',
+        'The centre of excellence skills',
+        'Our glory shines now and forever',
+        'We toil and sweat as we labour',
+        'You are the most high, long life learning centre today!',
+        'of skills in technology.',
+      ],
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="p-6 rounded-xl text-center" style={{ background: `linear-gradient(135deg, ${PRIMARY}08, ${GOLD}08)` }}>
@@ -554,21 +587,15 @@ function AnthemContent() {
           <Music className="h-8 w-8" style={{ color: GOLD }} />
         </div>
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-4">St. Kizito&apos;s Technical Institute - Madera</p>
-        <div className="max-w-lg mx-auto space-y-3 text-slate-700 leading-relaxed italic text-base">
-          <p>St. Kizito&apos;s our great institute,</p>
-          <p>Built on faith and solid ground,</p>
-          <p>Madera stands with pride and honour,</p>
-          <p>Where true skills and knowledge abound.</p>
-          <br />
-          <p>With hands and hearts we work together,</p>
-          <p>In harmony and love united,</p>
-          <p>To build our nation strong and brighter,</p>
-          <p>Through technical skills, we are ignited.</p>
-          <br />
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>Forward ever, backward never,</p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>St. Kizito&apos;s, we pledge to thee,</p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>Excellence in all we endeavour,</p>
-          <p className="font-semibold not-italic" style={{ color: PRIMARY }}>For God and country, we are free.</p>
+        <div className="max-w-lg mx-auto space-y-6 text-slate-700 leading-relaxed italic text-base">
+          {anthemVerses.map((verse, vi) => (
+            <div key={vi}>
+              {verse.lines.map((line, li) => (
+                <p key={li}>{line}</p>
+              ))}
+              {vi < anthemVerses.length - 1 && <br />}
+            </div>
+          ))}
         </div>
         <p className="mt-6 text-xs text-slate-400">The school anthem is sung during official assemblies and ceremonies.</p>
       </div>
