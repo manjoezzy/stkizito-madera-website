@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { hashSync } from 'bcrypt-ts';
+import { checkRateLimit } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,18 +15,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+    // Rate limit by IP
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const { allowed } = checkRateLimit(`reset-confirm:${ip}`, 5);
+    if (!allowed) {
       return NextResponse.json(
-        { success: false, message: 'Password must be at least 6 characters long' },
+        { success: false, message: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 8) {
+      return NextResponse.json(
+        { success: false, message: 'Password must be at least 8 characters long' },
         { status: 400 }
       );
     }
 
     // Look up the token in SiteSetting
     const key = `password_reset_${token}`;
-    const setting = await db.siteSetting.findUnique({
-      where: { key },
-    });
+    const setting = await db.siteSetting.findUnique({ where: { key } });
 
     if (!setting) {
       return NextResponse.json(
@@ -33,13 +43,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if token has expired (1 hour = 3600000 ms)
+    // Check if token has expired (1 hour)
     const now = new Date();
     const updatedAt = new Date(setting.updatedAt);
     const oneHourMs = 60 * 60 * 1000;
 
     if (now.getTime() - updatedAt.getTime() > oneHourMs) {
-      // Token expired - delete it
       await db.siteSetting.delete({ where: { key } });
       return NextResponse.json(
         { success: false, message: 'Reset token has expired. Please request a new one.' },
@@ -47,16 +56,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the admin email from the setting value
     const adminEmail = setting.value;
 
-    // Update the admin's password (store as plain text for demo)
-    const admin = await db.admin.findUnique({
-      where: { email: adminEmail },
-    });
-
+    const admin = await db.admin.findUnique({ where: { email: adminEmail } });
     if (!admin) {
-      // Delete token and return error
       await db.siteSetting.delete({ where: { key } });
       return NextResponse.json(
         { success: false, message: 'Admin account not found' },
@@ -64,9 +67,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // HASH the password before storing (was storing plain text before!)
     await db.admin.update({
       where: { email: adminEmail },
-      data: { password: newPassword },
+      data: { password: hashSync(newPassword, 10) },
     });
 
     // Delete the used token

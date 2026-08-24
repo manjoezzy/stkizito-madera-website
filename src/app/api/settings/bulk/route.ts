@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, hasMinRole, forbidden, unauthorized } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,6 +38,10 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'super-admin')) return forbidden();
+
     const body = await request.json();
     const { settings } = body;
 

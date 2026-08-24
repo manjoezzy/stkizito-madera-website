@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { initiateDemoPayment, verifyDemoPayment, generateTransactionRef } from '@/lib/schoolpay';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -122,6 +123,10 @@ export async function POST(request: NextRequest) {
 
     // SchoolPay callback (webhook from SchoolPay in production)
     if (action === 'callback') {
+      console.warn('[PAYMENT CALLBACK] Webhook signature verification not implemented. Requiring auth as fallback.');
+      const session = await getSession();
+      if (!session) return unauthorized();
+
       const { transactionRef: cbTxRef, status: cbStatus, amount: cbAmount } = body;
 
       const payment = await db.payment.findUnique({
@@ -176,6 +181,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const payments = await db.payment.findMany({
       orderBy: { createdAt: 'desc' },
       take: 100,

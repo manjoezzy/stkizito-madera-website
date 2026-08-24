@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 import { generateAdmissionRef, generateTransactionRef, generateSchoolPayCode } from '@/lib/schoolpay';
 
 export async function POST(request: NextRequest) {
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const ref = searchParams.get('ref');
 
-    // Single application lookup by reference
+    // Single application lookup by reference (public tracking)
     if (ref) {
       const app = await db.admissionApplication.findUnique({
         where: { referenceNumber: ref },
@@ -87,6 +88,11 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({ success: true, data: app });
     }
+
+    // Listing / search requires admissions-staff role
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
 
     const where: Record<string, unknown> = {};
     if (status && status !== 'all') where.status = status;
@@ -127,6 +133,10 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await request.json();
     const { id, status, ...updates } = body;
 

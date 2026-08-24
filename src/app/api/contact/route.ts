@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,10 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const messages = await db.contactMessage.findMany({ orderBy: { createdAt: 'desc' }, take: 50 });
     const unread = await db.contactMessage.count({ where: { isRead: false } });
     return NextResponse.json({ success: true, data: messages, unread });

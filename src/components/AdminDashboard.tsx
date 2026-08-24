@@ -687,7 +687,16 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' }),
+      });
+    } catch {
+      // Even if the server call fails, clear local state
+    }
     setAdminUser(null);
     setCurrentPage('home');
     addToast('Logged out successfully', 'info');

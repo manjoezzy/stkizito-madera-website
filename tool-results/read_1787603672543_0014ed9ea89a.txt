@@ -1,0 +1,588 @@
+     1→'use client';
+     2→
+     3→import { useState } from 'react';
+     4→import { motion, AnimatePresence } from 'framer-motion';
+     5→import {
+     6→  Search,
+     7→  ClipboardList,
+     8→  CheckCircle,
+     9→  XCircle,
+    10→  Clock,
+    11→  Loader2,
+    12→  Copy,
+    13→  FileText,
+    14→  User,
+    15→  BookOpen,
+    16→  CreditCard,
+    17→  Phone,
+    18→  Mail,
+    19→  Calendar,
+    20→  ArrowLeft,
+    21→  GraduationCap,
+    22→  ShieldCheck,
+    23→  Eye,
+    24→  CircleCheckBig,
+    25→} from 'lucide-react';
+    26→import { Button } from '@/components/ui/button';
+    27→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+    28→import { Input } from '@/components/ui/input';
+    29→import { Label } from '@/components/ui/label';
+    30→import { Badge } from '@/components/ui/badge';
+    31→import { useAppStore } from '@/store/useAppStore';
+    32→import { formatCurrency } from '@/lib/schoolpay';
+    33→
+    34→const PRIMARY = '#1a3a6b';
+    35→const PRIMARY_LIGHT = '#2756a0';
+    36→const GOLD = '#f5c518';
+    37→
+    38→interface ApplicationData {
+    39→  referenceNumber: string;
+    40→  fullName: string;
+    41→  programme: string | null;
+    42→  intakeYear: string | null;
+    43→  status: string;
+    44→  schoolpayCode: string | null;
+    45→  paymentStatus: string;
+    46→  paymentAmount: number | null;
+    47→  createdAt: string;
+    48→  phone: string;
+    49→  email: string;
+    50→  documents: Array<{
+    51→    id: string;
+    52→    fileName: string;
+    53→    documentType: string;
+    54→    createdAt: string;
+    55→  }>;
+    56→  grades: string | null;
+    57→}
+    58→
+    59→const STATUS_STEPS = [
+    60→  { key: 'applied', label: 'Applied' },
+    61→  { key: 'documents_verified', label: 'Documents Verified' },
+    62→  { key: 'under_review', label: 'Under Review' },
+    63→  { key: 'decision', label: 'Approved / Rejected' },
+    64→  { key: 'enrolled', label: 'Enrolled' },
+    65→];
+    66→
+    67→function getStatusStepIndex(status: string): number {
+    68→  switch (status) {
+    69→    case 'pending': return 0;
+    70→    case 'approved': return 3;
+    71→    case 'rejected': return 3;
+    72→    case 'enrolled': return 4;
+    73→    default: return 0;
+    74→  }
+    75→}
+    76→
+    77→function getStatusConfig(status: string) {
+    78→  switch (status) {
+    79→    case 'pending':
+    80→      return { label: 'Pending', color: 'bg-amber-100 text-amber-800 border-amber-200', dot: 'bg-amber-500' };
+    81→    case 'approved':
+    82→      return { label: 'Approved', color: 'bg-emerald-100 text-emerald-800 border-emerald-200', dot: 'bg-emerald-500' };
+    83→    case 'rejected':
+    84→      return { label: 'Rejected', color: 'bg-red-100 text-red-800 border-red-200', dot: 'bg-red-500' };
+    85→    case 'enrolled':
+    86→      return { label: 'Enrolled', color: 'bg-blue-100 text-blue-800 border-blue-200', dot: 'bg-blue-500' };
+    87→    default:
+    88→      return { label: 'Unknown', color: 'bg-gray-100 text-gray-800 border-gray-200', dot: 'bg-gray-500' };
+    89→  }
+    90→}
+    91→
+    92→export default function TrackApplicationPage() {
+    93→  const { addToast, setCurrentPage } = useAppStore();
+    94→
+    95→  const [searchInput, setSearchInput] = useState('');
+    96→  const [searching, setSearching] = useState(false);
+    97→  const [application, setApplication] = useState<ApplicationData | null>(null);
+    98→  const [notFound, setNotFound] = useState(false);
+    99→
+   100→  const handleSearch = async () => {
+   101→    const query = searchInput.trim();
+   102→    if (!query) {
+   103→      addToast('Enter your reference number, phone, or email', 'error');
+   104→      return;
+   105→    }
+   106→
+   107→    setSearching(true);
+   108→    setNotFound(false);
+   109→    setApplication(null);
+   110→
+   111→    try {
+   112→      // Detect search type: reference starts with SKT-, otherwise search by phone/email/name
+   113→      const isRef = query.toUpperCase().startsWith('SKT-');
+   114→      const isEmail = query.includes('@');
+   115→      let url: string;
+   116→      if (isRef) {
+   117→        url = `/api/admissions?ref=${encodeURIComponent(query)}`;
+   118→      } else {
+   119→        url = `/api/admissions?search=${encodeURIComponent(query)}`;
+   120→      }
+   121→
+   122→      const res = await fetch(url);
+   123→      if (!res.ok) throw new Error('API error');
+   124→      const data = await res.json();
+   125→
+   126→      if (data.success && data.data) {
+   127→        const app = Array.isArray(data.data) ? data.data[0] : data.data;
+   128→        if (app) {
+   129→          setApplication(app);
+   130→        } else {
+   131→          setNotFound(true);
+   132→        }
+   133→      } else {
+   134→        setNotFound(true);
+   135→      }
+   136→    } catch (err) {
+   137→      console.error('Tracking search error:', err);
+   138→      addToast('Search failed. Please check your connection and try again.', 'error');
+   139→    } finally {
+   140→      setSearching(false);
+   141→    }
+   142→  };
+   143→
+   144→  const handleKeyDown = (e: React.KeyboardEvent) => {
+   145→    if (e.key === 'Enter') handleSearch();
+   146→  };
+   147→
+   148→  const copyToClipboard = (text: string) => {
+   149→    navigator.clipboard.writeText(text).then(() => {
+   150→      addToast('Copied to clipboard!', 'success');
+   151→    }).catch(() => {
+   152→      addToast('Failed to copy', 'error');
+   153→    });
+   154→  };
+   155→
+   156→  const statusConfig = application ? getStatusConfig(application.status) : null;
+   157→  const currentStepIdx = application ? getStatusStepIndex(application.status) : -1;
+   158→  const parsedGrades = application?.grades
+   159→    ? (() => { try { return JSON.parse(application.grades); } catch { return null; } })()
+   160→    : null;
+   161→
+   162→  return (
+   163→    <div className="min-h-screen flex flex-col">
+   164→      {/* Header */}
+   165→      <header
+   166→        className="pt-[104px] lg:pt-[108px] pb-16 relative overflow-hidden"
+   167→        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, ${PRIMARY} 100%)` }}
+   168→      >
+   169→        <div className="absolute inset-0 opacity-10">
+   170→          <div className="absolute top-10 left-10 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
+   171→          <div className="absolute bottom-10 right-10 size-48 rounded-full" style={{ background: GOLD, filter: 'blur(60px)' }} />
+   172→        </div>
+   173→        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
+   174→          <motion.div
+   175→            initial={{ opacity: 0, y: 20 }}
+   176→            animate={{ opacity: 1, y: 0 }}
+   177→            transition={{ duration: 0.6 }}
+   178→          >
+   179→            <Badge
+   180→              className="mb-4 text-xs font-semibold px-4 py-1.5"
+   181→              style={{ background: GOLD, color: PRIMARY, borderColor: 'transparent' }}
+   182→            >
+   183→              <Eye className="size-3.5 mr-1.5" />
+   184→              Application Tracking
+   185→            </Badge>
+   186→            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+   187→              Track Your Application
+   188→            </h1>
+   189→            <p className="mt-4 text-lg text-blue-100 max-w-2xl mx-auto">
+   190→              Enter your application reference number or phone number to check the status of your admission.
+   191→            </p>
+   192→          </motion.div>
+   193→        </div>
+   194→      </header>
+   195→
+   196→      <main className="flex-1 py-12 px-4">
+   197→        <div className="max-w-3xl mx-auto space-y-8">
+   198→          {/* Search Card */}
+   199→          <motion.div
+   200→            initial={{ opacity: 0, y: 20 }}
+   201→            animate={{ opacity: 1, y: 0 }}
+   202→            transition={{ duration: 0.4, delay: 0.1 }}
+   203→          >
+   204→            <Card className="shadow-lg border-gray-100">
+   205→              <CardContent className="p-6">
+   206→                <div className="flex flex-col sm:flex-row gap-3">
+   207→                  <div className="flex-1">
+   208→                    <Label htmlFor="search-input" className="text-sm font-medium text-gray-700 mb-1.5 block">
+   209→                      Reference Number or Phone Number
+   210→                    </Label>
+   211→                    <Input
+   212→                      id="search-input"
+   213→                      type="text"
+   214→                      placeholder="e.g. SKT-2026-12345, phone, or email"
+   215→                      value={searchInput}
+   216→                      onChange={(e) => setSearchInput(e.target.value)}
+   217→                      onKeyDown={handleKeyDown}
+   218→                      className="h-11"
+   219→                    />
+   220→                  </div>
+   221→                  <div className="flex items-end">
+   222→                    <Button
+   223→                      onClick={handleSearch}
+   224→                      disabled={searching}
+   225→                      className="h-11 px-6 cursor-pointer"
+   226→                      style={{ background: PRIMARY }}
+   227→                    >
+   228→                      {searching ? (
+   229→                        <>
+   230→                          <Loader2 className="size-4 mr-2 animate-spin" />
+   231→                          Searching...
+   232→                        </>
+   233→                      ) : (
+   234→                        <>
+   235→                          <Search className="size-4 mr-2" />
+   236→                          Track Application
+   237→                        </>
+   238→                      )}
+   239→                    </Button>
+   240→                  </div>
+   241→                </div>
+   242→              </CardContent>
+   243→            </Card>
+   244→          </motion.div>
+   245→
+   246→          {/* Not Found */}
+   247→          <AnimatePresence>
+   248→            {notFound && (
+   249→              <motion.div
+   250→                initial={{ opacity: 0, y: 20 }}
+   251→                animate={{ opacity: 1, y: 0 }}
+   252→                exit={{ opacity: 0, y: -20 }}
+   253→              >
+   254→                <Card className="border-red-200 bg-red-50">
+   255→                  <CardContent className="p-8 text-center">
+   256→                    <div className="mx-auto size-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+   257→                      <XCircle className="size-8 text-red-400" />
+   258→                    </div>
+   259→                    <h3 className="text-lg font-bold text-gray-900">Application Not Found</h3>
+   260→                    <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
+   261→                      We couldn't find an application matching your search. Please check your reference number or phone number and try again.
+   262→                    </p>
+   263→                    <Button
+   264→                      onClick={() => setCurrentPage('admissions')}
+   265→                      variant="outline"
+   266→                      className="mt-4 cursor-pointer"
+   267→                    >
+   268→                      <ArrowLeft className="size-4 mr-2" />
+   269→                      Apply Now
+   270→                    </Button>
+   271→                  </CardContent>
+   272→                </Card>
+   273→              </motion.div>
+   274→            )}
+   275→          </AnimatePresence>
+   276→
+   277→          {/* Application Dashboard */}
+   278→          <AnimatePresence>
+   279→            {application && statusConfig && (
+   280→              <motion.div
+   281→                initial={{ opacity: 0, y: 20 }}
+   282→                animate={{ opacity: 1, y: 0 }}
+   283→                exit={{ opacity: 0, y: -20 }}
+   284→                className="space-y-6"
+   285→              >
+   286→                {/* Reference Number & Status */}
+   287→                <Card className="shadow-lg border-gray-100">
+   288→                  <CardContent className="p-6">
+   289→                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   290→                      <div>
+   291→                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Reference Number</p>
+   292→                        <div className="flex items-center gap-2 mt-1">
+   293→                          <p className="text-2xl sm:text-3xl font-extrabold font-mono" style={{ color: PRIMARY }}>
+   294→                            {application.referenceNumber}
+   295→                          </p>
+   296→                          <button
+   297→                            onClick={() => copyToClipboard(application.referenceNumber)}
+   298→                            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+   299→                            title="Copy reference"
+   300→                          >
+   301→                            <Copy className="size-4 text-gray-400" />
+   302→                          </button>
+   303→                        </div>
+   304→                      </div>
+   305→                      <Badge className={`${statusConfig.color} border text-sm px-4 py-1.5 font-semibold`}>
+   306→                        <span className={`size-2 rounded-full mr-2 ${statusConfig.dot}`} />
+   307→                        {statusConfig.label}
+   308→                      </Badge>
+   309→                    </div>
+   310→                  </CardContent>
+   311→                </Card>
+   312→
+   313→                {/* Status Timeline */}
+   314→                <Card className="shadow-lg border-gray-100">
+   315→                  <CardHeader className="pb-4">
+   316→                    <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+   317→                      <Clock className="size-4" style={{ color: PRIMARY }} />
+   318→                      Application Progress
+   319→                    </CardTitle>
+   320→                  </CardHeader>
+   321→                  <CardContent className="pb-6">
+   322→                    <div className="flex items-center gap-0 overflow-x-auto pb-2">
+   323→                      {STATUS_STEPS.map((step, idx) => {
+   324→                        const isCompleted = idx < currentStepIdx;
+   325→                        const isCurrent = idx === currentStepIdx;
+   326→                        const isRejected = application.status === 'rejected' && idx === 3;
+   327→
+   328→                        return (
+   329→                          <div key={step.key} className="flex items-center">
+   330→                            <div className="flex flex-col items-center min-w-[80px]">
+   331→                              <div
+   332→                                className={`size-10 rounded-full flex items-center justify-center border-2 transition-all ${
+   333→                                  isCompleted
+   334→                                    ? 'border-green-400 bg-green-50'
+   335→                                    : isCurrent && isRejected
+   336→                                    ? 'border-red-400 bg-red-50'
+   337→                                    : isCurrent
+   338→                                    ? 'border-amber-400 bg-amber-50'
+   339→                                    : 'border-gray-200 bg-gray-50'
+   340→                                }`}
+   341→                              >
+   342→                                {isCompleted ? (
+   343→                                  <CheckCircle className="size-5 text-green-500" />
+   344→                                ) : isCurrent && isRejected ? (
+   345→                                  <XCircle className="size-5 text-red-500" />
+   346→                                ) : isCurrent ? (
+   347→                                  <div className={`size-3 rounded-full animate-pulse ${isRejected ? 'bg-red-400' : 'bg-amber-400'}`} />
+   348→                                ) : (
+   349→                                  <div className="size-2 rounded-full bg-gray-300" />
+   350→                                )}
+   351→                              </div>
+   352→                              <span
+   353→                                className={`text-xs mt-2 text-center font-medium ${
+   354→                                  isCompleted
+   355→                                    ? 'text-green-700'
+   356→                                    : isCurrent
+   357→                                    ? isRejected ? 'text-red-700' : 'text-amber-700'
+   358→                                    : 'text-gray-400'
+   359→                                }`}
+   360→                              >
+   361→                                {step.label}
+   362→                              </span>
+   363→                            </div>
+   364→                            {idx < STATUS_STEPS.length - 1 && (
+   365→                              <div
+   366→                                className={`h-0.5 w-8 sm:w-12 mx-1 mb-5 rounded transition-colors ${
+   367→                                  idx < currentStepIdx ? 'bg-green-400' : 'bg-gray-200'
+   368→                                }`}
+   369→                              />
+   370→                            )}
+   371→                          </div>
+   372→                        );
+   373→                      })}
+   374→                    </div>
+   375→                  </CardContent>
+   376→                </Card>
+   377→
+   378→                {/* Personal Info Summary */}
+   379→                <Card className="shadow-lg border-gray-100">
+   380→                  <CardHeader className="pb-4">
+   381→                    <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+   382→                      <User className="size-4" style={{ color: PRIMARY }} />
+   383→                      Applicant Information
+   384→                    </CardTitle>
+   385→                  </CardHeader>
+   386→                  <CardContent className="pb-6">
+   387→                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   388→                      <div className="flex items-start gap-3">
+   389→                        <User className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   390→                        <div>
+   391→                          <p className="text-xs text-gray-400">Full Name</p>
+   392→                          <p className="text-sm font-semibold text-gray-900">{application.fullName}</p>
+   393→                        </div>
+   394→                      </div>
+   395→                      <div className="flex items-start gap-3">
+   396→                        <BookOpen className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   397→                        <div>
+   398→                          <p className="text-xs text-gray-400">Programme</p>
+   399→                          <p className="text-sm font-semibold text-gray-900">{application.programme || 'N/A'}</p>
+   400→                        </div>
+   401→                      </div>
+   402→                      <div className="flex items-start gap-3">
+   403→                        <Calendar className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   404→                        <div>
+   405→                          <p className="text-xs text-gray-400">Date Applied</p>
+   406→                          <p className="text-sm font-semibold text-gray-900">
+   407→                            {new Date(application.createdAt).toLocaleDateString('en-GB', {
+   408→                              day: '2-digit',
+   409→                              month: 'long',
+   410→                              year: 'numeric',
+   411→                            })}
+   412→                          </p>
+   413→                        </div>
+   414→                      </div>
+   415→                      <div className="flex items-start gap-3">
+   416→                        <GraduationCap className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   417→                        <div>
+   418→                          <p className="text-xs text-gray-400">Intake Year</p>
+   419→                          <p className="text-sm font-semibold text-gray-900">{application.intakeYear || 'N/A'}</p>
+   420→                        </div>
+   421→                      </div>
+   422→                      <div className="flex items-start gap-3">
+   423→                        <Phone className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   424→                        <div>
+   425→                          <p className="text-xs text-gray-400">Phone</p>
+   426→                          <p className="text-sm font-semibold text-gray-900">{application.phone}</p>
+   427→                        </div>
+   428→                      </div>
+   429→                      <div className="flex items-start gap-3">
+   430→                        <Mail className="size-4 text-gray-400 mt-0.5 shrink-0" />
+   431→                        <div>
+   432→                          <p className="text-xs text-gray-400">Email</p>
+   433→                          <p className="text-sm font-semibold text-gray-900">{application.email}</p>
+   434→                        </div>
+   435→                      </div>
+   436→                    </div>
+   437→                  </CardContent>
+   438→                </Card>
+   439→
+   440→                {/* SchoolPay Code & Payment */}
+   441→                {(application.schoolpayCode || application.paymentStatus) && (
+   442→                  <Card className="shadow-lg border-gray-100">
+   443→                    <CardHeader className="pb-4">
+   444→                      <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+   445→                        <CreditCard className="size-4" style={{ color: PRIMARY }} />
+   446→                        Payment Information
+   447→                      </CardTitle>
+   448→                    </CardHeader>
+   449→                    <CardContent className="pb-6 space-y-4">
+   450→                      {application.schoolpayCode && (
+   451→                        <div className="flex items-center justify-between p-4 rounded-lg bg-amber-50 border border-amber-200">
+   452→                          <div>
+   453→                            <p className="text-xs text-amber-600 font-medium">SchoolPay Code</p>
+   454→                            <p className="text-xl font-extrabold font-mono tracking-wider" style={{ color: PRIMARY }}>
+   455→                              {application.schoolpayCode}
+   456→                            </p>
+   457→                          </div>
+   458→                          <button
+   459→                            onClick={() => copyToClipboard(application.schoolpayCode!)}
+   460→                            className="p-2 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer"
+   461→                            title="Copy code"
+   462→                          >
+   463→                            <Copy className="size-5 text-amber-600" />
+   464→                          </button>
+   465→                        </div>
+   466→                      )}
+   467→
+   468→                      {application.paymentStatus && (
+   469→                        <div className="flex items-center justify-between py-2 border-t border-gray-100">
+   470→                          <span className="text-sm text-gray-500">Payment Status</span>
+   471→                          <Badge
+   472→                            className={`${
+   473→                              application.paymentStatus === 'paid'
+   474→                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+   475→                                : application.paymentStatus === 'failed'
+   476→                                ? 'bg-red-100 text-red-800 border-red-200'
+   477→                                : 'bg-amber-100 text-amber-800 border-amber-200'
+   478→                            } border text-xs font-semibold`}
+   479→                          >
+   480→                            {application.paymentStatus.charAt(0).toUpperCase() + application.paymentStatus.slice(1)}
+   481→                          </Badge>
+   482→                        </div>
+   483→                      )}
+   484→
+   485→                      {application.paymentAmount != null && application.paymentAmount > 0 && (
+   486→                        <div className="flex items-center justify-between py-2 border-t border-gray-100">
+   487→                          <span className="text-sm text-gray-500">Amount Paid</span>
+   488→                          <span className="text-sm font-bold" style={{ color: GOLD }}>
+   489→                            {formatCurrency(application.paymentAmount)}
+   490→                          </span>
+   491→                        </div>
+   492→                      )}
+   493→
+   494→                      {application.schoolpayCode && application.paymentStatus !== 'paid' && (
+   495→                        <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+   496→                          <p className="text-xs text-blue-700">
+   497→                            <ShieldCheck className="size-3.5 inline-block mr-1" />
+   498→                            Dial <span className="font-bold font-mono">*210#</span> on MTN or <span className="font-bold font-mono">*185#</span> on Airtel, enter the code above, and follow prompts.
+   499→                          </p>
+   500→                        </div>
+   501→                      )}
+   502→                    </CardContent>
+   503→                  </Card>
+   504→                )}
+   505→
+   506→                {/* Grades */}
+   507→                {parsedGrades && Array.isArray(parsedGrades) && parsedGrades.length > 0 && (
+   508→                  <Card className="shadow-lg border-gray-100">
+   509→                    <CardHeader className="pb-4">
+   510→                      <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+   511→                        <ClipboardList className="size-4" style={{ color: PRIMARY }} />
+   512→                        Academic Grades
+   513→                      </CardTitle>
+   514→                    </CardHeader>
+   515→                    <CardContent className="pb-6">
+   516→                      <div className="rounded-lg border border-gray-200 overflow-hidden">
+   517→                        <div className="grid grid-cols-2 gap-0 bg-gray-50 px-4 py-2 border-b border-gray-200">
+   518→                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subject</span>
+   519→                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Grade</span>
+   520→                        </div>
+   521→                        <div className="max-h-48 overflow-y-auto">
+   522→                          {parsedGrades.map((g: { subject: string; grade: string }, idx: number) => (
+   523→                            <div key={idx} className="grid grid-cols-2 gap-0 px-4 py-2 border-b border-gray-100 last:border-b-0">
+   524→                              <span className="text-sm text-gray-700">{g.subject}</span>
+   525→                              <span className="text-sm font-semibold text-gray-900">{g.grade}</span>
+   526→                            </div>
+   527→                          ))}
+   528→                        </div>
+   529→                      </div>
+   530→                    </CardContent>
+   531→                  </Card>
+   532→                )}
+   533→
+   534→                {/* Uploaded Documents */}
+   535→                {application.documents && application.documents.length > 0 && (
+   536→                  <Card className="shadow-lg border-gray-100">
+   537→                    <CardHeader className="pb-4">
+   538→                      <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+   539→                        <FileText className="size-4" style={{ color: PRIMARY }} />
+   540→                        Uploaded Documents
+   541→                      </CardTitle>
+   542→                    </CardHeader>
+   543→                    <CardContent className="pb-6">
+   544→                      <div className="space-y-2">
+   545→                        {application.documents.map((doc) => (
+   546→                          <div
+   547→                            key={doc.id}
+   548→                            className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100"
+   549→                          >
+   550→                            <CircleCheckBig className="size-4 text-green-500 shrink-0" />
+   551→                            <div className="flex-1 min-w-0">
+   552→                              <p className="text-sm font-medium text-gray-900 truncate">{doc.fileName}</p>
+   553→                              <p className="text-xs text-gray-400 capitalize">{doc.documentType.replace(/_/g, ' ')}</p>
+   554→                            </div>
+   555→                          </div>
+   556→                        ))}
+   557→                      </div>
+   558→                    </CardContent>
+   559→                  </Card>
+   560→                )}
+   561→
+   562→                {/* Actions */}
+   563→                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+   564→                  <Button
+   565→                    onClick={() => setCurrentPage('admissions')}
+   566→                    variant="outline"
+   567→                    className="cursor-pointer"
+   568→                  >
+   569→                    <ArrowLeft className="size-4 mr-2" />
+   570→                    Back to Admissions
+   571→                  </Button>
+   572→                  <Button
+   573→                    onClick={() => setCurrentPage('home')}
+   574→                    style={{ background: PRIMARY }}
+   575→                    className="cursor-pointer"
+   576→                  >
+   577→                    Back to Home
+   578→                  </Button>
+   579→                </div>
+   580→              </motion.div>
+   581→            )}
+   582→          </AnimatePresence>
+   583→        </div>
+   584→      </main>
+   585→    </div>
+   586→  );
+   587→}
+   588→

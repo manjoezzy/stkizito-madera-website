@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, Info, KeyRound } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -41,12 +41,17 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
 
+      if (res.status === 429) {
+        setError('Too many attempts. Please wait.');
+        return;
+      }
+
       if (!res.ok || !data.success) {
         setError(data.message || 'Invalid credentials. Please try again.');
         return;
       }
 
-      setAdminUser(data.data);
+      setAdminUser({ ...data.data, session: true });
       addToast('Welcome back!', 'success');
       setCurrentPage('admin-dashboard');
     } catch {
@@ -277,21 +282,7 @@ export default function AdminLoginPage() {
                     </button>
                   </div>
 
-                  {/* Demo credentials - compact */}
-                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-3.5 h-3.5 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-[11px] font-semibold text-amber-700">Demo Credentials</p>
-                        <p className="text-[11px] text-amber-600 mt-0.5">
-                          Email: <span className="font-mono font-medium">admin@stkizitos.edu</span>
-                        </p>
-                        <p className="text-[11px] text-amber-600">
-                          Password: <span className="font-mono font-medium">admin123</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+
                 </motion.form>
               ) : resetSuccess ? (
                 /* ══════════ RESET SUCCESS ══════════ */

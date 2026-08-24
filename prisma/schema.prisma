@@ -13,6 +13,8 @@ model Admin {
   password  String
   name      String
   role      String   @default("admin")
+  disabled  Boolean  @default(false)
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -74,7 +76,8 @@ model Student {
   
   fullName      String
   phone         String
-  email         String
+  email         String   @unique
+  password      String?
   programme     String
   intakeYear    String
   status        String   @default("active") // active, graduated, suspended
@@ -195,4 +198,21 @@ model GraduationItem {
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  userId     String
+  userRole   String
+  action     String
+  resource   String?
+  resourceId String?
+  ipAddress  String?
+  userAgent  String?
+  result     String    @default("success")
+  metadata   String?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }

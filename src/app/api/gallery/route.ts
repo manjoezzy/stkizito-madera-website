@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 
 // GET /api/gallery — public: only published items; admin: all items
 export async function GET(req: NextRequest) {
@@ -7,6 +8,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const admin = searchParams.get('admin') === 'true';
     const category = searchParams.get('category');
+
+    if (admin) {
+      const session = await getSession();
+      if (!session) return unauthorized();
+      if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+    }
 
     const where: Record<string, unknown> = admin ? {} : { isPublished: true };
     if (category && category !== 'all') {
@@ -28,6 +35,10 @@ export async function GET(req: NextRequest) {
 // POST /api/gallery — create a new gallery item (admin)
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await req.json();
     const { title, description, imageUrl, category, eventDate, isPublished } = body;
 
@@ -56,6 +67,10 @@ export async function POST(req: NextRequest) {
 // PATCH /api/gallery — update a gallery item (admin)
 export async function PATCH(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await req.json();
     const { id, ...data } = body;
 
@@ -78,6 +93,10 @@ export async function PATCH(req: NextRequest) {
 // DELETE /api/gallery — delete a gallery item (admin)
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

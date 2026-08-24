@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSession, unauthorized } from '@/lib/auth';
 
 // Vercel-compatible upload: returns base64 data URLs (no filesystem writes needed)
 // This works in serverless environments where /public is read-only.
@@ -64,6 +65,9 @@ function getFileName(file: File): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const type = (formData.get('type') as string) || 'general';

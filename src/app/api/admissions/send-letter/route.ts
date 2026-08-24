@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { buildAdmissionLetter } from '@/lib/admission-letter';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await request.json();
     const { applicationId, referenceNumber } = body;
 

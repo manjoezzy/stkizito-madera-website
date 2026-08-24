@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const admin = searchParams.get('admin') === 'true';
+
+    if (admin) {
+      const session = await getSession();
+      if (!session) return unauthorized();
+      if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+    }
 
     const events = await db.event.findMany({
       where: admin ? {} : { isPublished: true },
@@ -21,6 +28,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await request.json();
     const {
       title, description, category, eventDate, eventTime, location,
@@ -56,6 +67,10 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const body = await request.json();
     const { id, ...updates } = body;
 
@@ -81,6 +96,10 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ success: false, message: 'ID required' }, { status: 400 });

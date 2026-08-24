@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import crypto from 'crypto';
+import { checkRateLimit } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,6 +12,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, message: 'Email is required' },
         { status: 400 }
+      );
+    }
+
+    // Rate limit by IP
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const { allowed } = checkRateLimit(`reset:${ip}`, 3);
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, message: 'Too many reset requests. Please try again later.' },
+        { status: 429 }
       );
     }
 

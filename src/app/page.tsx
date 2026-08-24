@@ -66,7 +66,36 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
 };
 
 export default function MainApp() {
-  const { currentPage, toasts, removeToast } = useAppStore();
+  const { currentPage, toasts, removeToast, adminUser, setAdminUser, setCurrentPage } = useAppStore();
+
+  // Restore session from cookie on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/session', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.data) {
+            setAdminUser({
+              id: data.data.userId,
+              email: data.data.email,
+              name: data.data.name,
+              role: data.data.role,
+              isDemo: false,
+              session: true,
+            });
+            // If on login page, redirect to dashboard
+            const current = useAppStore.getState().currentPage;
+            if (current === 'admin-login') {
+              setCurrentPage('admin-dashboard');
+            }
+          }
+        }
+      } catch {
+        // Session check failed silently — user is not logged in
+      }
+    })();
+  }, []);
 
   // Check URL hash on mount for navigation
   useEffect(() => {

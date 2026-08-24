@@ -2,12 +2,21 @@ import { create } from 'zustand';
 
 export type Page = 'home' | 'about' | 'programs' | 'admissions' | 'track-application' | 'student-portal' | 'student-login' | 'online-learning' | 'events' | 'news' | 'admin-login' | 'admin-dashboard' | 'contact' | 'gallery' | 'alumni' | 'graduation' | 'enrolled-students' | 'tvet-form';
 
-interface AdminUser {
+export interface AdminUser {
   id: string;
   email: string;
   name: string;
   role: string;
   isDemo: boolean;
+  session?: boolean;
+}
+
+export interface StudentUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'student';
+  studentNumber?: string;
 }
 
 interface AppState {
@@ -17,6 +26,10 @@ interface AppState {
   adminUser: AdminUser | null;
   setAdminUser: (user: AdminUser | null) => void;
   isAdminLoggedIn: boolean;
+
+  studentUser: StudentUser | null;
+  setStudentUser: (user: StudentUser | null) => void;
+  isStudentLoggedIn: boolean;
 
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
@@ -36,6 +49,10 @@ export const useAppStore = create<AppState>((set) => ({
   adminUser: null,
   setAdminUser: (user) => set({ adminUser: user, isAdminLoggedIn: !!user }),
   isAdminLoggedIn: false,
+
+  studentUser: null,
+  setStudentUser: (user) => set({ studentUser: user, isStudentLoggedIn: !!user }),
+  isStudentLoggedIn: false,
 
   mobileMenuOpen: false,
   setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
