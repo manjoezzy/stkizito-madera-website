@@ -256,7 +256,7 @@ export default function ProgramsPage() {
             className="text-center mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: PRIMARY }}>
-              Diploma & Certificate Programmes
+              Certificate Programmes
             </h2>
             <p className="mt-2 text-gray-500 max-w-xl mx-auto">
               Two-year programmes examined by UVTAB/UBTEB leading to nationally recognised qualifications.

@@ -89,6 +89,7 @@ interface FormData {
   ceremonyYear: string;
   ceremonyName: string;
   sortOrder: number;
+  videoLink: string;
 }
 
 // ===================== CONSTANTS =====================
@@ -106,6 +107,7 @@ const EMPTY_FORM: FormData = {
   ceremonyYear: new Date().getFullYear().toString(),
   ceremonyName: '',
   sortOrder: 0,
+  videoLink: '',
 };
 
 // ===================== ANIMATION VARIANTS =====================
@@ -312,19 +314,26 @@ export default function AdminGraduationSection() {
       alert('Title is required.');
       return;
     }
-    if (!formData.mediaUrl.trim()) {
-      alert('Please upload a media file.');
+    // Allow either uploaded file or video link
+    const finalMediaUrl = formData.videoLink?.trim() || formData.mediaUrl.trim();
+    if (!finalMediaUrl) {
+      alert('Please upload a media file or paste a video link.');
       return;
     }
 
     setSaving(true);
     try {
+      const payload = {
+        ...formData,
+        mediaUrl: finalMediaUrl,
+        itemType: formData.videoLink?.trim() ? 'video' : formData.itemType,
+      };
       if (editingItem) {
         // Update
         const res = await fetch('/api/graduation', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editingItem.id, ...formData }),
+          body: JSON.stringify({ id: editingItem.id, ...payload }),
         });
         if (!res.ok) throw new Error('Update failed');
       } else {
@@ -332,7 +341,7 @@ export default function AdminGraduationSection() {
         const res = await fetch('/api/graduation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error('Create failed');
       }
@@ -855,7 +864,7 @@ export default function AdminGraduationSection() {
 
       {/* ===== ADD/EDIT DIALOG ===== */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div
@@ -874,7 +883,7 @@ export default function AdminGraduationSection() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 mt-2">
+          <div className="space-y-3 mt-2 overflow-y-auto -mx-2 px-2">
             {/* Title */}
             <div className="space-y-1.5">
               <Label htmlFor="grad-title" className="text-sm font-medium">
@@ -903,7 +912,7 @@ export default function AdminGraduationSection() {
             </div>
 
             {/* Type & Year Row */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Media Type</Label>
                 <Select
@@ -999,7 +1008,7 @@ export default function AdminGraduationSection() {
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors hover:border-blue-400 hover:bg-blue-50/50"
+                className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors hover:border-blue-400 hover:bg-blue-50/50"
                 style={{ borderColor: formData.mediaUrl ? '#22c55e' : undefined }}
               >
                 <input
@@ -1019,26 +1028,26 @@ export default function AdminGraduationSection() {
                 />
 
                 {uploading ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: PRIMARY_BLUE }} />
-                    <p className="text-sm text-muted-foreground">Uploading...</p>
+                  <div className="flex flex-col items-center gap-1">
+                    <Loader2 className="w-6 h-6 animate-spin" style={{ color: PRIMARY_BLUE }} />
+                    <p className="text-xs text-muted-foreground">Uploading...</p>
                   </div>
                 ) : formData.mediaUrl ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <CheckCircle2 className="w-8 h-8 text-green-600" />
-                    <p className="text-sm font-medium text-green-700">
+                  <div className="flex flex-col items-center gap-1">
+                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+                    <p className="text-xs font-medium text-green-700">
                       {uploadFileName || 'File uploaded successfully'}
                     </p>
                     <p className="text-xs text-muted-foreground">Click to replace</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-8 h-8 text-muted-foreground" />
+                  <div className="flex flex-col items-center gap-1">
+                    <Upload className="w-6 h-6 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium">
+                      <p className="text-xs font-medium">
                         Drag & drop or <span className="underline" style={{ color: PRIMARY_BLUE }}>click to upload</span>
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
                         {formData.itemType === 'video' ? (
                           <span className="flex items-center justify-center gap-1">
                             <CircleAlert className="w-3 h-3" />
@@ -1053,7 +1062,18 @@ export default function AdminGraduationSection() {
                 )}
               </div>
 
-              {/* Preview */}
+              {/* Video Link */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Or paste a video link</Label>
+              <Input
+                placeholder="https://youtube.com/watch?v=..."
+                value={formData.videoLink || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, videoLink: e.target.value }))}
+              />
+              <p className="text-[10px] text-muted-foreground">YouTube, Vimeo, or any direct video URL.</p>
+            </div>
+
+            {/* Preview */}
               <AnimatePresence>
                 {uploadPreview && (
                   <motion.div

@@ -322,6 +322,7 @@ export default function AdminDashboard() {
     title: '',
     description: '',
     imageUrl: '',
+    videoUrl: '',
     category: 'general',
     eventDate: '',
   });
@@ -1172,7 +1173,7 @@ export default function AdminDashboard() {
 
       {/* ===== EXPANDED MESSAGE DIALOG ===== */}
       <Dialog open={!!expandedMessage} onOpenChange={() => setExpandedMessage(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
               {expandedMessage?.subject || 'Message'}
@@ -1481,14 +1482,14 @@ export default function AdminDashboard() {
 
       {/* ===== CREATE EVENT DIALOG ===== */}
       <Dialog open={eventDialogOpen} onOpenChange={setEventDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Create New Event</DialogTitle>
             <DialogDescription>Add a new event to the school calendar.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3 overflow-y-auto -mx-2 px-2">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Title</label>
               <Input
                 placeholder="Event title"
                 value={eventForm.title}
@@ -1496,16 +1497,16 @@ export default function AdminDashboard() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
               <Input
                 placeholder="Brief description"
                 value={eventForm.description}
                 onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Category</label>
                 <Select
                   value={eventForm.category}
                   onValueChange={(v) => setEventForm({ ...eventForm, category: v })}
@@ -1523,7 +1524,7 @@ export default function AdminDashboard() {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Date</label>
                 <Input
                   type="date"
                   value={eventForm.eventDate}
@@ -1531,9 +1532,9 @@ export default function AdminDashboard() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Time</label>
                 <Input
                   type="time"
                   value={eventForm.eventTime}
@@ -1541,7 +1542,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Location</label>
                 <Input
                   placeholder="Event location"
                   value={eventForm.location}
@@ -1550,9 +1551,9 @@ export default function AdminDashboard() {
               </div>
             </div>
             {/* Banner Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
-              <label htmlFor="isBanner" className="text-sm font-medium text-slate-700 cursor-pointer">
-                Banner Event (shows as large banner on Events page)
+            <div className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200">
+              <label htmlFor="isBanner" className="text-xs font-medium text-slate-700 cursor-pointer">
+                Banner Event
               </label>
               <Switch
                 id="isBanner"
@@ -1563,10 +1564,10 @@ export default function AdminDashboard() {
             {/* Banner Image Upload */}
             {eventForm.isBanner && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Banner Image *</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Banner Image *</label>
                 <div
                   onClick={() => document.getElementById('bannerFileInput')?.click()}
-                  className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                  className={`relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <input
                     id="bannerFileInput"
@@ -1605,9 +1606,9 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <Upload className="mx-auto h-6 w-6 text-slate-400" />
-                      <p className="text-sm text-slate-600 font-medium">Click to upload banner image</p>
-                      <p className="text-xs text-slate-400">JPG, PNG, GIF or WebP</p>
+                      <Upload className="mx-auto h-5 w-5 text-slate-400" />
+                      <p className="text-xs text-slate-600 font-medium">Click to upload banner</p>
+                      <p className="text-[10px] text-slate-400">JPG, PNG, GIF or WebP</p>
                     </div>
                   )}
                 </div>
@@ -1615,14 +1616,14 @@ export default function AdminDashboard() {
             )}
             {/* Attachment Upload */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 <span className="flex items-center gap-1.5">
-                  <Paperclip className="w-3.5 h-3.5" /> Attachment (optional)
+                  <Paperclip className="w-3 h-3" /> Attachment (optional)
                 </span>
               </label>
               <div
                 onClick={() => document.getElementById('attachmentFileInput')?.click()}
-                className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                className={`relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <input
                   id="attachmentFileInput"
@@ -1676,14 +1677,14 @@ export default function AdminDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <Upload className="mx-auto h-6 w-6 text-slate-400" />
-                    <p className="text-sm text-slate-600 font-medium">Click to attach a file</p>
-                    <p className="text-xs text-slate-400">PDF, DOCX, JPG or PNG</p>
+                    <Upload className="mx-auto h-5 w-5 text-slate-400" />
+                    <p className="text-xs text-slate-600 font-medium">Click to attach file</p>
+                    <p className="text-[10px] text-slate-400">PDF, DOCX, JPG or PNG</p>
                   </div>
                 )}
               </div>
             </div>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button
                 onClick={createEvent}
                 disabled={eventForm.isBanner && !eventForm.bannerUrl}
@@ -1701,17 +1702,21 @@ export default function AdminDashboard() {
 
       {/* ===== GALLERY DIALOG ===== */}
       <Dialog open={galleryDialogOpen} onOpenChange={(open) => {
-        if (!open) { setUploadPreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }
+        if (!open) {
+          setUploadPreview(null);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          setGalleryForm({ title: '', description: '', imageUrl: '', videoUrl: '', category: 'general', eventDate: '' });
+        }
         setGalleryDialogOpen(open);
       }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Add Gallery Photo</DialogTitle>
-            <DialogDescription>Upload a photo directly or paste an image URL.</DialogDescription>
+            <DialogDescription>Upload a photo or paste an image URL.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3 overflow-y-auto -mx-2 px-2">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Title *</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Title *</label>
               <Input
                 placeholder="Photo title"
                 value={galleryForm.title}
@@ -1719,7 +1724,7 @@ export default function AdminDashboard() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
               <Input
                 placeholder="Short note about this photo"
                 value={galleryForm.description}
@@ -1729,10 +1734,10 @@ export default function AdminDashboard() {
 
             {/* File Upload Zone */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Upload Photo *</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Upload Photo *</label>
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <input
                   ref={fileInputRef}
@@ -1748,15 +1753,15 @@ export default function AdminDashboard() {
                     <p className="text-sm text-slate-500">Uploading...</p>
                   </div>
                 ) : uploadPreview || galleryForm.imageUrl ? (
-                  <div className="space-y-2">
-                    <img src={uploadPreview || galleryForm.imageUrl} alt="Preview" className="max-h-40 mx-auto rounded-lg object-contain" />
-                    <p className="text-xs text-emerald-600 font-medium">Photo uploaded - click to replace</p>
+                  <div className="space-y-1">
+                    <img src={uploadPreview || galleryForm.imageUrl} alt="Preview" className="max-h-28 mx-auto rounded-lg object-contain" />
+                    <p className="text-[10px] text-emerald-600 font-medium">Photo uploaded - click to replace</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <Upload className="mx-auto h-8 w-8 text-slate-400" />
-                    <p className="text-sm text-slate-600 font-medium">Click to upload a photo</p>
-                    <p className="text-xs text-slate-400">JPG, PNG, GIF or WebP up to 10MB</p>
+                  <div className="space-y-1">
+                    <Upload className="mx-auto h-6 w-6 text-slate-400" />
+                    <p className="text-xs text-slate-600 font-medium">Click to upload a photo</p>
+                    <p className="text-[10px] text-slate-400">JPG, PNG, GIF or WebP up to 10MB</p>
                   </div>
                 )}
               </div>
@@ -1767,10 +1772,10 @@ export default function AdminDashboard() {
               <div className="relative">
                 <div className="absolute inset-0 flex items-center z-10">
                   <div className="flex-1 border-t border-slate-200" />
-                  <span className="px-3 text-xs text-slate-400 bg-white">or enter URL</span>
+                  <span className="px-2 text-[10px] text-slate-400 bg-white">or enter URL</span>
                   <div className="flex-1 border-t border-slate-200" />
                 </div>
-                <div className="pt-5">
+                <div className="pt-4">
                   <Input
                     placeholder="https://example.com/photo.jpg"
                     value={galleryForm.imageUrl}
@@ -1780,9 +1785,20 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Video Link Input */}
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Video Link (optional)</label>
+              <Input
+                placeholder="https://youtube.com/watch?v=... or any video URL"
+                value={galleryForm.videoUrl || ''}
+                onChange={(e) => setGalleryForm({ ...galleryForm, videoUrl: e.target.value })}
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Paste a YouTube, Vimeo, or other video link to attach to this gallery item.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Category</label>
                 <Select
                   value={galleryForm.category}
                   onValueChange={(v) => setGalleryForm({ ...galleryForm, category: v })}
@@ -1800,7 +1816,7 @@ export default function AdminDashboard() {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Event Date</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Event Date</label>
                 <Input
                   type="date"
                   value={galleryForm.eventDate}

@@ -1,0 +1,1152 @@
+     1→'use client';
+     2→
+     3→import React, { useState, useEffect, useCallback, useRef } from 'react';
+     4→import { motion, AnimatePresence } from 'framer-motion';
+     5→import {
+     6→  ImagePlus,
+     7→  Video,
+     8→  Search,
+     9→  Plus,
+    10→  Trash2,
+    11→  Pencil,
+    12→  Play,
+    13→  Eye,
+    14→  EyeOff,
+    15→  ChevronLeft,
+    16→  ChevronRight,
+    17→  ImageIcon,
+    18→  Film,
+    19→  Upload,
+    20→  X,
+    21→  Loader2,
+    22→  GraduationCap,
+    23→  CalendarDays,
+    24→  Camera,
+    25→  CircleAlert,
+    26→  FileVideo,
+    27→  GripVertical,
+    28→  CheckCircle2,
+    29→  XCircle,
+    30→  LayoutGrid,
+    31→} from 'lucide-react';
+    32→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+    33→import { Input } from '@/components/ui/input';
+    34→import { Button } from '@/components/ui/button';
+    35→import { Badge } from '@/components/ui/badge';
+    36→import { Label } from '@/components/ui/label';
+    37→import {
+    38→  Dialog,
+    39→  DialogContent,
+    40→  DialogHeader,
+    41→  DialogTitle,
+    42→} from '@/components/ui/dialog';
+    43→import {
+    44→  Select,
+    45→  SelectContent,
+    46→  SelectItem,
+    47→  SelectTrigger,
+    48→  SelectValue,
+    49→} from '@/components/ui/select';
+    50→import { Textarea } from '@/components/ui/textarea';
+    51→
+    52→// ===================== TYPES =====================
+    53→
+    54→interface GraduationItem {
+    55→  id: string;
+    56→  title: string;
+    57→  description: string | null;
+    58→  itemType: string;
+    59→  mediaUrl: string;
+    60→  thumbnailUrl: string | null;
+    61→  ceremonyYear: string;
+    62→  ceremonyName: string | null;
+    63→  sortOrder: number;
+    64→  isPublished: boolean;
+    65→  createdAt: string;
+    66→  updatedAt: string;
+    67→}
+    68→
+    69→interface GraduationApiResponse {
+    70→  data: GraduationItem[];
+    71→  total: number;
+    72→  page: number;
+    73→  totalPages: number;
+    74→}
+    75→
+    76→interface UploadResponse {
+    77→  url: string;
+    78→  fileName: string;
+    79→  fileSize: number;
+    80→  mimeType: string;
+    81→}
+    82→
+    83→interface FormData {
+    84→  title: string;
+    85→  description: string;
+    86→  itemType: 'photo' | 'video';
+    87→  mediaUrl: string;
+    88→  thumbnailUrl: string;
+    89→  ceremonyYear: string;
+    90→  ceremonyName: string;
+    91→  sortOrder: number;
+    92→}
+    93→
+    94→// ===================== CONSTANTS =====================
+    95→
+    96→const PRIMARY_BLUE = '#1a3a6b';
+    97→const GOLD_ACCENT = '#f5c518';
+    98→const ITEMS_PER_PAGE = 12;
+    99→
+   100→const EMPTY_FORM: FormData = {
+   101→  title: '',
+   102→  description: '',
+   103→  itemType: 'photo',
+   104→  mediaUrl: '',
+   105→  thumbnailUrl: '',
+   106→  ceremonyYear: new Date().getFullYear().toString(),
+   107→  ceremonyName: '',
+   108→  sortOrder: 0,
+   109→};
+   110→
+   111→// ===================== ANIMATION VARIANTS =====================
+   112→
+   113→const containerVariants = {
+   114→  hidden: { opacity: 0 },
+   115→  visible: {
+   116→    opacity: 1,
+   117→    transition: { staggerChildren: 0.05 },
+   118→  },
+   119→};
+   120→
+   121→const cardVariants = {
+   122→  hidden: { opacity: 0, y: 20, scale: 0.95 },
+   123→  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: 'easeOut' as const } },
+   124→  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
+   125→};
+   126→
+   127→const fadeInVariants = {
+   128→  hidden: { opacity: 0, y: -10 },
+   129→  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+   130→  exit: { opacity: 0, y: 10, transition: { duration: 0.15 } },
+   131→};
+   132→
+   133→// ===================== COMPONENT =====================
+   134→
+   135→export default function AdminGraduationSection() {
+   136→  // ---- Data State ----
+   137→  const [items, setItems] = useState<GraduationItem[]>([]);
+   138→  const [total, setTotal] = useState(0);
+   139→  const [totalPages, setTotalPages] = useState(0);
+   140→  const [loading, setLoading] = useState(true);
+   141→
+   142→  // ---- Filter State ----
+   143→  const [searchQuery, setSearchQuery] = useState('');
+   144→  const [filterYear, setFilterYear] = useState<string>('all');
+   145→  const [filterType, setFilterType] = useState<string>('all');
+   146→  const [availableYears, setAvailableYears] = useState<string[]>([]);
+   147→
+   148→  // ---- Pagination State ----
+   149→  const [currentPage, setCurrentPage] = useState(1);
+   150→
+   151→  // ---- Dialog State ----
+   152→  const [dialogOpen, setDialogOpen] = useState(false);
+   153→  const [editingItem, setEditingItem] = useState<GraduationItem | null>(null);
+   154→  const [formData, setFormData] = useState<FormData>({ ...EMPTY_FORM });
+   155→
+   156→  // ---- Upload State ----
+   157→  const [uploading, setUploading] = useState(false);
+   158→  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+   159→  const [uploadFileName, setUploadFileName] = useState<string>('');
+   160→  const fileInputRef = useRef<HTMLInputElement>(null);
+   161→
+   162→  // ---- Action State ----
+   163→  const [saving, setSaving] = useState(false);
+   164→  const [deleting, setDeleting] = useState<string | null>(null);
+   165→  const [togglingPublish, setTogglingPublish] = useState<string | null>(null);
+   166→
+   167→  // ===================== DATA FETCHING =====================
+   168→
+   169→  const fetchItems = useCallback(async () => {
+   170→    setLoading(true);
+   171→    try {
+   172→      const params = new URLSearchParams();
+   173→      params.set('page', currentPage.toString());
+   174→      params.set('limit', ITEMS_PER_PAGE.toString());
+   175→      if (filterType !== 'all') params.set('type', filterType);
+   176→      if (filterYear !== 'all') params.set('year', filterYear);
+   177→
+   178→      const res = await fetch(`/api/graduation?${params.toString()}`);
+   179→      if (!res.ok) throw new Error('Failed to fetch graduation items');
+   180→
+   181→      const json: GraduationApiResponse = await res.json();
+   182→      let filtered = json.data;
+   183→
+   184→      // Client-side search filter
+   185→      if (searchQuery.trim()) {
+   186→        const q = searchQuery.toLowerCase();
+   187→        filtered = filtered.filter(
+   188→          (item) =>
+   189→            item.title.toLowerCase().includes(q) ||
+   190→            (item.description && item.description.toLowerCase().includes(q)) ||
+   191→            (item.ceremonyName && item.ceremonyName.toLowerCase().includes(q))
+   192→        );
+   193→      }
+   194→
+   195→      setItems(filtered);
+   196→      setTotal(json.total);
+   197→      setTotalPages(json.totalPages);
+   198→
+   199→      // Extract unique years from data
+   200→      const years = new Set<string>();
+   201→      json.data.forEach((item) => years.add(item.ceremonyYear));
+   202→      setAvailableYears(
+   203→        Array.from(years).sort((a, b) => b.localeCompare(a))
+   204→      );
+   205→    } catch (err) {
+   206→      console.error('Error fetching graduation items:', err);
+   207→    } finally {
+   208→      setLoading(false);
+   209→    }
+   210→  }, [currentPage, filterType, filterYear, searchQuery]);
+   211→
+   212→  useEffect(() => {
+   213→    fetchItems();
+   214→  }, [fetchItems]);
+   215→
+   216→  // ===================== COMPUTED STATS =====================
+   217→
+   218→  const stats = React.useMemo(() => {
+   219→    const photoCount = items.filter((i) => i.itemType === 'photo').length;
+   220→    const videoCount = items.filter((i) => i.itemType === 'video').length;
+   221→    const publishedCount = items.filter((i) => i.isPublished).length;
+   222→    return { total: items.length, photoCount, videoCount, publishedCount };
+   223→  }, [items]);
+   224→
+   225→  // ===================== HANDLERS =====================
+   226→
+   227→  const openAddDialog = () => {
+   228→    setEditingItem(null);
+   229→    setFormData({ ...EMPTY_FORM, ceremonyYear: new Date().getFullYear().toString() });
+   230→    setUploadPreview(null);
+   231→    setUploadFileName('');
+   232→    setDialogOpen(true);
+   233→  };
+   234→
+   235→  const openEditDialog = (item: GraduationItem) => {
+   236→    setEditingItem(item);
+   237→    setFormData({
+   238→      title: item.title,
+   239→      description: item.description || '',
+   240→      itemType: item.itemType as 'photo' | 'video',
+   241→      mediaUrl: item.mediaUrl,
+   242→      thumbnailUrl: item.thumbnailUrl || '',
+   243→      ceremonyYear: item.ceremonyYear,
+   244→      ceremonyName: item.ceremonyName || '',
+   245→      sortOrder: item.sortOrder,
+   246→    });
+   247→    setUploadPreview(item.itemType === 'photo' ? item.mediaUrl : (item.thumbnailUrl || null));
+   248→    setUploadFileName('');
+   249→    setDialogOpen(true);
+   250→  };
+   251→
+   252→  const handleFileUpload = async (file: File) => {
+   253→    // Validate file
+   254→    const isImage = file.type.startsWith('image/');
+   255→    const isVideo = ['video/mp4', 'video/webm', 'video/ogg'].includes(file.type);
+   256→
+   257→    if (!isImage && !isVideo) {
+   258→      alert('Unsupported file type. Please upload an image (JPG, PNG, WebP, GIF) or video (MP4, WebM, OGG).');
+   259→      return;
+   260→    }
+   261→
+   262→    if (file.size > 10 * 1024 * 1024) {
+   263→      alert('File size exceeds 10MB limit.');
+   264→      return;
+   265→    }
+   266→
+   267→    setUploading(true);
+   268→    try {
+   269→      const fd = new FormData();
+   270→      fd.append('file', file);
+   271→      fd.append('type', 'graduation');
+   272→
+   273→      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+   274→      if (!res.ok) throw new Error('Upload failed');
+   275→
+   276→      const data: UploadResponse = await res.json();
+   277→      setFormData((prev) => ({
+   278→        ...prev,
+   279→        mediaUrl: data.url,
+   280→        itemType: isVideo ? 'video' : prev.itemType,
+   281→      }));
+   282→      setUploadFileName(data.fileName);
+   283→
+   284→      // Generate preview
+   285→      if (isImage) {
+   286→        setUploadPreview(data.url);
+   287→      } else {
+   288→        const videoEl = document.createElement('video');
+   289→        videoEl.src = data.url;
+   290→        videoEl.currentTime = 1;
+   291→        videoEl.addEventListener('seeked', () => {
+   292→          const canvas = document.createElement('canvas');
+   293→          canvas.width = videoEl.videoWidth || 640;
+   294→          canvas.height = videoEl.videoHeight || 360;
+   295→          const ctx = canvas.getContext('2d');
+   296→          if (ctx) {
+   297→            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+   298→            setUploadPreview(canvas.toDataURL('image/jpeg', 0.7));
+   299→          }
+   300→        }, { once: true });
+   301→      }
+   302→    } catch (err) {
+   303→      console.error('Upload error:', err);
+   304→      alert('Failed to upload file. Please try again.');
+   305→    } finally {
+   306→      setUploading(false);
+   307→    }
+   308→  };
+   309→
+   310→  const handleSave = async () => {
+   311→    if (!formData.title.trim()) {
+   312→      alert('Title is required.');
+   313→      return;
+   314→    }
+   315→    if (!formData.mediaUrl.trim()) {
+   316→      alert('Please upload a media file.');
+   317→      return;
+   318→    }
+   319→
+   320→    setSaving(true);
+   321→    try {
+   322→      if (editingItem) {
+   323→        // Update
+   324→        const res = await fetch('/api/graduation', {
+   325→          method: 'PUT',
+   326→          headers: { 'Content-Type': 'application/json' },
+   327→          body: JSON.stringify({ id: editingItem.id, ...formData }),
+   328→        });
+   329→        if (!res.ok) throw new Error('Update failed');
+   330→      } else {
+   331→        // Create
+   332→        const res = await fetch('/api/graduation', {
+   333→          method: 'POST',
+   334→          headers: { 'Content-Type': 'application/json' },
+   335→          body: JSON.stringify(formData),
+   336→        });
+   337→        if (!res.ok) throw new Error('Create failed');
+   338→      }
+   339→
+   340→      setDialogOpen(false);
+   341→      fetchItems();
+   342→    } catch (err) {
+   343→      console.error('Save error:', err);
+   344→      alert('Failed to save. Please try again.');
+   345→    } finally {
+   346→      setSaving(false);
+   347→    }
+   348→  };
+   349→
+   350→  const handleDelete = async (item: GraduationItem) => {
+   351→    if (!window.confirm(`Are you sure you want to delete "${item.title}"? This action cannot be undone.`)) {
+   352→      return;
+   353→    }
+   354→
+   355→    setDeleting(item.id);
+   356→    try {
+   357→      const res = await fetch('/api/graduation', {
+   358→        method: 'DELETE',
+   359→        headers: { 'Content-Type': 'application/json' },
+   360→        body: JSON.stringify({ id: item.id }),
+   361→      });
+   362→      if (!res.ok) throw new Error('Delete failed');
+   363→      fetchItems();
+   364→    } catch (err) {
+   365→      console.error('Delete error:', err);
+   366→      alert('Failed to delete. Please try again.');
+   367→    } finally {
+   368→      setDeleting(null);
+   369→    }
+   370→  };
+   371→
+   372→  const handleTogglePublish = async (item: GraduationItem) => {
+   373→    setTogglingPublish(item.id);
+   374→    try {
+   375→      const res = await fetch('/api/graduation', {
+   376→        method: 'PUT',
+   377→        headers: { 'Content-Type': 'application/json' },
+   378→        body: JSON.stringify({ id: item.id, isPublished: !item.isPublished }),
+   379→      });
+   380→      if (!res.ok) throw new Error('Toggle failed');
+   381→      fetchItems();
+   382→    } catch (err) {
+   383→      console.error('Toggle publish error:', err);
+   384→      alert('Failed to update publish status.');
+   385→    } finally {
+   386→      setTogglingPublish(null);
+   387→    }
+   388→  };
+   389→
+   390→  const handleDrop = (e: React.DragEvent) => {
+   391→    e.preventDefault();
+   392→    const file = e.dataTransfer.files[0];
+   393→    if (file) handleFileUpload(file);
+   394→  };
+   395→
+   396→  const handleDragOver = (e: React.DragEvent) => {
+   397→    e.preventDefault();
+   398→  };
+   399→
+   400→  const resetFilters = () => {
+   401→    setSearchQuery('');
+   402→    setFilterYear('all');
+   403→    setFilterType('all');
+   404→    setCurrentPage(1);
+   405→  };
+   406→
+   407→  // ===================== RENDER HELPERS =====================
+   408→
+   409→  const renderMediaCard = (item: GraduationItem) => {
+   410→    const isVideo = item.itemType === 'video';
+   411→    const imageSrc = isVideo ? item.thumbnailUrl : item.mediaUrl;
+   412→
+   413→    return (
+   414→      <motion.div key={item.id} variants={cardVariants} layout>
+   415→        <Card className="border-0 shadow-sm overflow-hidden group hover:shadow-md transition-shadow duration-200">
+   416→          {/* Media Preview */}
+   417→          <div className="relative aspect-video bg-muted/50 overflow-hidden">
+   418→            {imageSrc ? (
+   419→              <img
+   420→                src={imageSrc}
+   421→                alt={item.title}
+   422→                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+   423→              />
+   424→            ) : (
+   425→              <div className="w-full h-full flex items-center justify-center bg-muted">
+   426→                {isVideo ? (
+   427→                  <Film className="w-12 h-12 text-muted-foreground/40" />
+   428→                ) : (
+   429→                  <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
+   430→                )}
+   431→              </div>
+   432→            )}
+   433→
+   434→            {/* Play icon overlay for videos */}
+   435→            {isVideo && (
+   436→              <div className="absolute inset-0 flex items-center justify-center">
+   437→                <div
+   438→                  className="w-14 h-14 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm group-hover:bg-black/70 transition-colors"
+   439→                >
+   440→                  <Play className="w-7 h-7 text-white fill-white ml-1" />
+   441→                </div>
+   442→              </div>
+   443→            )}
+   444→
+   445→            {/* Type badge */}
+   446→            <div className="absolute top-2 left-2">
+   447→              <Badge
+   448→                variant="secondary"
+   449→                className="text-[10px] font-semibold uppercase tracking-wider backdrop-blur-md bg-black/50 text-white border-0"
+   450→              >
+   451→                {isVideo ? 'Video' : 'Photo'}
+   452→              </Badge>
+   453→            </div>
+   454→
+   455→            {/* Published indicator */}
+   456→            <div className="absolute top-2 right-2">
+   457→              {item.isPublished ? (
+   458→                <Badge
+   459→                  className="text-[10px] font-semibold bg-green-600 text-white border-0"
+   460→                >
+   461→                  <CheckCircle2 className="w-3 h-3 mr-1" />
+   462→                  Live
+   463→                </Badge>
+   464→              ) : (
+   465→                <Badge
+   466→                  variant="secondary"
+   467→                  className="text-[10px] font-semibold backdrop-blur-md bg-black/50 text-white border-0"
+   468→                >
+   469→                  <XCircle className="w-3 h-3 mr-1" />
+   470→                  Draft
+   471→                </Badge>
+   472→              )}
+   473→            </div>
+   474→
+   475→            {/* Hover actions overlay */}
+   476→            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+   477→              <div className="absolute bottom-2 right-2 flex gap-1.5">
+   478→                <button
+   479→                  onClick={() => openEditDialog(item)}
+   480→                  className="p-1.5 rounded-md bg-white/90 hover:bg-white text-gray-800 transition-colors"
+   481→                  title="Edit"
+   482→                >
+   483→                  <Pencil className="w-3.5 h-3.5" />
+   484→                </button>
+   485→                <button
+   486→                  onClick={() => handleDelete(item)}
+   487→                  disabled={deleting === item.id}
+   488→                  className="p-1.5 rounded-md bg-red-500/90 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+   489→                  title="Delete"
+   490→                >
+   491→                  {deleting === item.id ? (
+   492→                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+   493→                  ) : (
+   494→                    <Trash2 className="w-3.5 h-3.5" />
+   495→                  )}
+   496→                </button>
+   497→              </div>
+   498→            </div>
+   499→          </div>
+   500→
+   501→          {/* Card Body */}
+   502→          <CardContent className="p-3 space-y-2">
+   503→            <div className="flex items-start justify-between gap-2">
+   504→              <h3 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">
+   505→                {item.title}
+   506→              </h3>
+   507→              <Badge
+   508→                className="shrink-0 text-[10px] font-bold px-1.5 py-0"
+   509→                style={{
+   510→                  backgroundColor: PRIMARY_BLUE,
+   511→                  color: 'white',
+   512→                }}
+   513→              >
+   514→                {item.ceremonyYear}
+   515→              </Badge>
+   516→            </div>
+   517→
+   518→            {item.ceremonyName && (
+   519→              <p className="text-xs text-muted-foreground truncate">
+   520→                {item.ceremonyName}
+   521→              </p>
+   522→            )}
+   523→
+   524→            {item.description && (
+   525→              <p className="text-xs text-muted-foreground line-clamp-2">
+   526→                {item.description}
+   527→              </p>
+   528→            )}
+   529→
+   530→            {/* Actions row */}
+   531→            <div className="flex items-center justify-between pt-1 border-t border-border/50">
+   532→              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+   533→                {isVideo ? (
+   534→                  <FileVideo className="w-3 h-3" />
+   535→                ) : (
+   536→                  <Camera className="w-3 h-3" />
+   537→                )}
+   538→                <span className="capitalize">{item.itemType}</span>
+   539→                {item.sortOrder > 0 && (
+   540→                  <span className="text-muted-foreground/60">· Order: {item.sortOrder}</span>
+   541→                )}
+   542→              </div>
+   543→
+   544→              <button
+   545→                onClick={() => handleTogglePublish(item)}
+   546→                disabled={togglingPublish === item.id}
+   547→                className="flex items-center gap-1 text-[11px] font-medium transition-colors disabled:opacity-50"
+   548→                style={{
+   549→                  color: item.isPublished ? '#16a34a' : '#9ca3af',
+   550→                }}
+   551→              >
+   552→                {togglingPublish === item.id ? (
+   553→                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+   554→                ) : item.isPublished ? (
+   555→                  <Eye className="w-3.5 h-3.5" />
+   556→                ) : (
+   557→                  <EyeOff className="w-3.5 h-3.5" />
+   558→                )}
+   559→                {item.isPublished ? 'Published' : 'Draft'}
+   560→              </button>
+   561→            </div>
+   562→          </CardContent>
+   563→        </Card>
+   564→      </motion.div>
+   565→    );
+   566→  };
+   567→
+   568→  // ===================== MAIN RENDER =====================
+   569→
+   570→  return (
+   571→    <section className="space-y-6">
+   572→      {/* ===== HEADER ===== */}
+   573→      <motion.div
+   574→        initial={{ opacity: 0, y: -10 }}
+   575→        animate={{ opacity: 1, y: 0 }}
+   576→        transition={{ duration: 0.3 }}
+   577→        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+   578→      >
+   579→        <div>
+   580→          <div className="flex items-center gap-2.5 mb-1">
+   581→            <div
+   582→              className="w-9 h-9 rounded-lg flex items-center justify-center"
+   583→              style={{ backgroundColor: `${PRIMARY_BLUE}15` }}
+   584→            >
+   585→              <GraduationCap className="w-5 h-5" style={{ color: PRIMARY_BLUE }} />
+   586→            </div>
+   587→            <h2 className="text-2xl font-bold tracking-tight" style={{ color: PRIMARY_BLUE }}>
+   588→              Graduation Gallery
+   589→            </h2>
+   590→          </div>
+   591→          <p className="text-sm text-muted-foreground ml-[46px]">
+   592→            Manage graduation photos and videos displayed on the public graduation page
+   593→          </p>
+   594→        </div>
+   595→        <Button
+   596→          onClick={openAddDialog}
+   597→          className="shrink-0 text-white font-semibold shadow-sm hover:shadow-md transition-shadow"
+   598→          style={{ backgroundColor: PRIMARY_BLUE }}
+   599→          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#244a8a')}
+   600→          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = PRIMARY_BLUE)}
+   601→        >
+   602→          <Plus className="w-4 h-4 mr-2" />
+   603→          Add Media
+   604→        </Button>
+   605→      </motion.div>
+   606→
+   607→      {/* ===== FILTER BAR ===== */}
+   608→      <motion.div
+   609→        variants={fadeInVariants}
+   610→        initial="hidden"
+   611→        animate="visible"
+   612→        className="flex flex-col sm:flex-row gap-3"
+   613→      >
+   614→        {/* Search */}
+   615→        <div className="relative flex-1">
+   616→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+   617→          <Input
+   618→            placeholder="Search by title, description, or ceremony name..."
+   619→            value={searchQuery}
+   620→            onChange={(e) => {
+   621→              setSearchQuery(e.target.value);
+   622→              setCurrentPage(1);
+   623→            }}
+   624→            className="pl-9 h-10"
+   625→          />
+   626→        </div>
+   627→
+   628→        {/* Year Filter */}
+   629→        <Select
+   630→          value={filterYear}
+   631→          onValueChange={(val) => {
+   632→            setFilterYear(val);
+   633→            setCurrentPage(1);
+   634→          }}
+   635→        >
+   636→          <SelectTrigger className="w-full sm:w-[160px] h-10">
+   637→            <CalendarDays className="w-4 h-4 mr-2 text-muted-foreground" />
+   638→            <SelectValue placeholder="All Years" />
+   639→          </SelectTrigger>
+   640→          <SelectContent>
+   641→            <SelectItem value="all">All Years</SelectItem>
+   642→            {availableYears.map((year) => (
+   643→              <SelectItem key={year} value={year}>
+   644→                {year}
+   645→              </SelectItem>
+   646→            ))}
+   647→          </SelectContent>
+   648→        </Select>
+   649→
+   650→        {/* Type Filter */}
+   651→        <Select
+   652→          value={filterType}
+   653→          onValueChange={(val) => {
+   654→            setFilterType(val);
+   655→            setCurrentPage(1);
+   656→          }}
+   657→        >
+   658→          <SelectTrigger className="w-full sm:w-[150px] h-10">
+   659→            <LayoutGrid className="w-4 h-4 mr-2 text-muted-foreground" />
+   660→            <SelectValue placeholder="All Types" />
+   661→          </SelectTrigger>
+   662→          <SelectContent>
+   663→            <SelectItem value="all">All Types</SelectItem>
+   664→            <SelectItem value="photo">Photos</SelectItem>
+   665→            <SelectItem value="video">Videos</SelectItem>
+   666→          </SelectContent>
+   667→        </Select>
+   668→
+   669→        {/* Reset filters button (shown when any filter is active) */}
+   670→        {(searchQuery || filterYear !== 'all' || filterType !== 'all') && (
+   671→          <Button
+   672→            variant="ghost"
+   673→            size="sm"
+   674→            onClick={resetFilters}
+   675→            className="h-10 px-3 text-muted-foreground hover:text-foreground"
+   676→          >
+   677→            <X className="w-4 h-4 mr-1" />
+   678→            Clear
+   679→          </Button>
+   680→        )}
+   681→      </motion.div>
+   682→
+   683→      {/* ===== STATS ROW ===== */}
+   684→      <motion.div
+   685→        variants={fadeInVariants}
+   686→        initial="hidden"
+   687→        animate="visible"
+   688→        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+   689→      >
+   690→        <Card className="border-0 shadow-sm">
+   691→          <CardContent className="p-3 flex items-center gap-3">
+   692→            <div
+   693→              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   694→              style={{ backgroundColor: `${PRIMARY_BLUE}15` }}
+   695→            >
+   696→              <ImagePlus className="w-4.5 h-4.5" style={{ color: PRIMARY_BLUE }} />
+   697→            </div>
+   698→            <div>
+   699→              <p className="text-xs text-muted-foreground">Total Items</p>
+   700→              <p className="text-lg font-bold" style={{ color: PRIMARY_BLUE }}>{stats.total}</p>
+   701→            </div>
+   702→          </CardContent>
+   703→        </Card>
+   704→        <Card className="border-0 shadow-sm">
+   705→          <CardContent className="p-3 flex items-center gap-3">
+   706→            <div
+   707→              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   708→              style={{ backgroundColor: '#dbeafe' }}
+   709→            >
+   710→              <Camera className="w-4.5 h-4.5 text-blue-600" />
+   711→            </div>
+   712→            <div>
+   713→              <p className="text-xs text-muted-foreground">Photos</p>
+   714→              <p className="text-lg font-bold text-blue-600">{stats.photoCount}</p>
+   715→            </div>
+   716→          </CardContent>
+   717→        </Card>
+   718→        <Card className="border-0 shadow-sm">
+   719→          <CardContent className="p-3 flex items-center gap-3">
+   720→            <div
+   721→              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   722→              style={{ backgroundColor: '#fef3c7' }}
+   723→            >
+   724→              <Video className="w-4.5 h-4.5" style={{ color: '#d97706' }} />
+   725→            </div>
+   726→            <div>
+   727→              <p className="text-xs text-muted-foreground">Videos</p>
+   728→              <p className="text-lg font-bold" style={{ color: '#d97706' }}>{stats.videoCount}</p>
+   729→            </div>
+   730→          </CardContent>
+   731→        </Card>
+   732→        <Card className="border-0 shadow-sm">
+   733→          <CardContent className="p-3 flex items-center gap-3">
+   734→            <div
+   735→              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+   736→              style={{ backgroundColor: '#dcfce7' }}
+   737→            >
+   738→              <CheckCircle2 className="w-4.5 h-4.5 text-green-600" />
+   739→            </div>
+   740→            <div>
+   741→              <p className="text-xs text-muted-foreground">Published</p>
+   742→              <p className="text-lg font-bold text-green-600">{stats.publishedCount}</p>
+   743→            </div>
+   744→          </CardContent>
+   745→        </Card>
+   746→      </motion.div>
+   747→
+   748→      {/* ===== GRID / LOADING / EMPTY STATE ===== */}
+   749→      {loading ? (
+   750→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+   751→          {Array.from({ length: 8 }).map((_, i) => (
+   752→            <Card key={i} className="border-0 shadow-sm overflow-hidden">
+   753→              <div className="aspect-video bg-muted animate-pulse" />
+   754→              <CardContent className="p-3 space-y-2">
+   755→                <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+   756→                <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
+   757→              </CardContent>
+   758→            </Card>
+   759→          ))}
+   760→        </div>
+   761→      ) : items.length === 0 ? (
+   762→        <motion.div
+   763→          initial={{ opacity: 0, scale: 0.95 }}
+   764→          animate={{ opacity: 1, scale: 1 }}
+   765→          transition={{ duration: 0.3 }}
+   766→        >
+   767→          <Card className="border-0 shadow-sm">
+   768→            <CardContent className="py-16 flex flex-col items-center justify-center text-center space-y-4">
+   769→              <div
+   770→                className="w-16 h-16 rounded-full flex items-center justify-center"
+   771→                style={{ backgroundColor: `${PRIMARY_BLUE}10` }}
+   772→              >
+   773→                <GraduationCap className="w-8 h-8" style={{ color: `${PRIMARY_BLUE}60` }} />
+   774→              </div>
+   775→              <div>
+   776→                <h3 className="text-lg font-semibold text-foreground mb-1">
+   777→                  No graduation items found
+   778→                </h3>
+   779→                <p className="text-sm text-muted-foreground max-w-sm">
+   780→                  {searchQuery || filterYear !== 'all' || filterType !== 'all'
+   781→                    ? 'Try adjusting your filters or search query to find what you\'re looking for.'
+   782→                    : 'Get started by adding your first graduation photo or video to the gallery.'}
+   783→                </p>
+   784→              </div>
+   785→              {searchQuery || filterYear !== 'all' || filterType !== 'all' ? (
+   786→                <Button variant="outline" onClick={resetFilters}>
+   787→                  <X className="w-4 h-4 mr-2" />
+   788→                  Clear Filters
+   789→                </Button>
+   790→              ) : (
+   791→                <Button
+   792→                  onClick={openAddDialog}
+   793→                  className="text-white font-semibold"
+   794→                  style={{ backgroundColor: PRIMARY_BLUE }}
+   795→                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#244a8a')}
+   796→                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = PRIMARY_BLUE)}
+   797→                >
+   798→                  <Plus className="w-4 h-4 mr-2" />
+   799→                  Add Your First Media
+   800→                </Button>
+   801→              )}
+   802→            </CardContent>
+   803→          </Card>
+   804→        </motion.div>
+   805→      ) : (
+   806→        <motion.div
+   807→          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+   808→          variants={containerVariants}
+   809→          initial="hidden"
+   810→          animate="visible"
+   811→        >
+   812→          <AnimatePresence mode="popLayout">
+   813→            {items.map(renderMediaCard)}
+   814→          </AnimatePresence>
+   815→        </motion.div>
+   816→      )}
+   817→
+   818→      {/* ===== PAGINATION ===== */}
+   819→      {!loading && totalPages > 1 && (
+   820→        <motion.div
+   821→          variants={fadeInVariants}
+   822→          initial="hidden"
+   823→          animate="visible"
+   824→          className="flex items-center justify-between pt-2"
+   825→        >
+   826→          <p className="text-sm text-muted-foreground">
+   827→            Page <span className="font-semibold text-foreground">{currentPage}</span> of{' '}
+   828→            <span className="font-semibold text-foreground">{totalPages}</span>{' '}
+   829→            · <span className="font-semibold text-foreground">{total}</span> total items
+   830→          </p>
+   831→          <div className="flex items-center gap-2">
+   832→            <Button
+   833→              variant="outline"
+   834→              size="sm"
+   835→              disabled={currentPage <= 1}
+   836→              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   837→              className="h-9"
+   838→            >
+   839→              <ChevronLeft className="w-4 h-4 mr-1" />
+   840→              Previous
+   841→            </Button>
+   842→            <Button
+   843→              variant="outline"
+   844→              size="sm"
+   845→              disabled={currentPage >= totalPages}
+   846→              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   847→              className="h-9"
+   848→            >
+   849→              Next
+   850→              <ChevronRight className="w-4 h-4 ml-1" />
+   851→            </Button>
+   852→          </div>
+   853→        </motion.div>
+   854→      )}
+   855→
+   856→      {/* ===== ADD/EDIT DIALOG ===== */}
+   857→      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+   858→        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+   859→          <DialogHeader>
+   860→            <DialogTitle className="flex items-center gap-2">
+   861→              <div
+   862→                className="w-8 h-8 rounded-lg flex items-center justify-center"
+   863→                style={{ backgroundColor: `${PRIMARY_BLUE}15` }}
+   864→              >
+   865→                {editingItem ? (
+   866→                  <Pencil className="w-4 h-4" style={{ color: PRIMARY_BLUE }} />
+   867→                ) : (
+   868→                  <Plus className="w-4 h-4" style={{ color: PRIMARY_BLUE }} />
+   869→                )}
+   870→              </div>
+   871→              <span style={{ color: PRIMARY_BLUE }}>
+   872→                {editingItem ? 'Edit Media' : 'Add New Media'}
+   873→              </span>
+   874→            </DialogTitle>
+   875→          </DialogHeader>
+   876→
+   877→          <div className="space-y-4 mt-2">
+   878→            {/* Title */}
+   879→            <div className="space-y-1.5">
+   880→              <Label htmlFor="grad-title" className="text-sm font-medium">
+   881→                Title <span className="text-red-500">*</span>
+   882→              </Label>
+   883→              <Input
+   884→                id="grad-title"
+   885→                placeholder="e.g., Graduation Ceremony 2024"
+   886→                value={formData.title}
+   887→                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+   888→              />
+   889→            </div>
+   890→
+   891→            {/* Description */}
+   892→            <div className="space-y-1.5">
+   893→              <Label htmlFor="grad-desc" className="text-sm font-medium">
+   894→                Description
+   895→              </Label>
+   896→              <Textarea
+   897→                id="grad-desc"
+   898→                placeholder="Brief description of this media item..."
+   899→                value={formData.description}
+   900→                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+   901→                rows={3}
+   902→              />
+   903→            </div>
+   904→
+   905→            {/* Type & Year Row */}
+   906→            <div className="grid grid-cols-2 gap-3">
+   907→              <div className="space-y-1.5">
+   908→                <Label className="text-sm font-medium">Media Type</Label>
+   909→                <Select
+   910→                  value={formData.itemType}
+   911→                  onValueChange={(val: 'photo' | 'video') =>
+   912→                    setFormData((prev) => ({ ...prev, itemType: val }))
+   913→                  }
+   914→                >
+   915→                  <SelectTrigger className="h-10">
+   916→                    <SelectValue />
+   917→                  </SelectTrigger>
+   918→                  <SelectContent>
+   919→                    <SelectItem value="photo">
+   920→                      <span className="flex items-center gap-2">
+   921→                        <Camera className="w-3.5 h-3.5" />
+   922→                        Photo
+   923→                      </span>
+   924→                    </SelectItem>
+   925→                    <SelectItem value="video">
+   926→                      <span className="flex items-center gap-2">
+   927→                        <Video className="w-3.5 h-3.5" />
+   928→                        Video
+   929→                      </span>
+   930→                    </SelectItem>
+   931→                  </SelectContent>
+   932→                </Select>
+   933→              </div>
+   934→
+   935→              <div className="space-y-1.5">
+   936→                <Label htmlFor="grad-year" className="text-sm font-medium">
+   937→                  Ceremony Year
+   938→                </Label>
+   939→                <Input
+   940→                  id="grad-year"
+   941→                  type="number"
+   942→                  min={2000}
+   943→                  max={2100}
+   944→                  placeholder="2024"
+   945→                  value={formData.ceremonyYear}
+   946→                  onChange={(e) =>
+   947→                    setFormData((prev) => ({ ...prev, ceremonyYear: e.target.value }))
+   948→                  }
+   949→                />
+   950→              </div>
+   951→            </div>
+   952→
+   953→            {/* Ceremony Name */}
+   954→            <div className="space-y-1.5">
+   955→              <Label htmlFor="grad-ceremony" className="text-sm font-medium">
+   956→                Ceremony Name
+   957→              </Label>
+   958→              <Input
+   959→                id="grad-ceremony"
+   960→                placeholder="e.g., 10th Annual Graduation Ceremony"
+   961→                value={formData.ceremonyName}
+   962→                onChange={(e) =>
+   963→                  setFormData((prev) => ({ ...prev, ceremonyName: e.target.value }))
+   964→                }
+   965→              />
+   966→            </div>
+   967→
+   968→            {/* Sort Order */}
+   969→            <div className="space-y-1.5">
+   970→              <Label htmlFor="grad-order" className="text-sm font-medium">
+   971→                Sort Order
+   972→              </Label>
+   973→              <Input
+   974→                id="grad-order"
+   975→                type="number"
+   976→                min={0}
+   977→                placeholder="0"
+   978→                value={formData.sortOrder}
+   979→                onChange={(e) =>
+   980→                  setFormData((prev) => ({
+   981→                    ...prev,
+   982→                    sortOrder: parseInt(e.target.value) || 0,
+   983→                  }))
+   984→                }
+   985→              />
+   986→              <p className="text-xs text-muted-foreground">
+   987→                Lower numbers appear first. Default is 0.
+   988→              </p>
+   989→            </div>
+   990→
+   991→            {/* File Upload Area */}
+   992→            <div className="space-y-1.5">
+   993→              <Label className="text-sm font-medium">
+   994→                Media File <span className="text-red-500">*</span>
+   995→              </Label>
+   996→
+   997→              {/* Upload drop zone */}
+   998→              <div
+   999→                onDrop={handleDrop}
+  1000→                onDragOver={handleDragOver}
+  1001→                onClick={() => fileInputRef.current?.click()}
+  1002→                className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors hover:border-blue-400 hover:bg-blue-50/50"
+  1003→                style={{ borderColor: formData.mediaUrl ? '#22c55e' : undefined }}
+  1004→              >
+  1005→                <input
+  1006→                  ref={fileInputRef}
+  1007→                  type="file"
+  1008→                  className="hidden"
+  1009→                  accept={
+  1010→                    formData.itemType === 'video'
+  1011→                      ? 'video/mp4,video/webm,video/ogg'
+  1012→                      : 'image/*'
+  1013→                  }
+  1014→                  onChange={(e) => {
+  1015→                    const file = e.target.files?.[0];
+  1016→                    if (file) handleFileUpload(file);
+  1017→                    e.target.value = '';
+  1018→                  }}
+  1019→                />
+  1020→
+  1021→                {uploading ? (
+  1022→                  <div className="flex flex-col items-center gap-2">
+  1023→                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: PRIMARY_BLUE }} />
+  1024→                    <p className="text-sm text-muted-foreground">Uploading...</p>
+  1025→                  </div>
+  1026→                ) : formData.mediaUrl ? (
+  1027→                  <div className="flex flex-col items-center gap-2">
+  1028→                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+  1029→                    <p className="text-sm font-medium text-green-700">
+  1030→                      {uploadFileName || 'File uploaded successfully'}
+  1031→                    </p>
+  1032→                    <p className="text-xs text-muted-foreground">Click to replace</p>
+  1033→                  </div>
+  1034→                ) : (
+  1035→                  <div className="flex flex-col items-center gap-2">
+  1036→                    <Upload className="w-8 h-8 text-muted-foreground" />
+  1037→                    <div>
+  1038→                      <p className="text-sm font-medium">
+  1039→                        Drag & drop or <span className="underline" style={{ color: PRIMARY_BLUE }}>click to upload</span>
+  1040→                      </p>
+  1041→                      <p className="text-xs text-muted-foreground mt-1">
+  1042→                        {formData.itemType === 'video' ? (
+  1043→                          <span className="flex items-center justify-center gap-1">
+  1044→                            <CircleAlert className="w-3 h-3" />
+  1045→                            MP4, WebM, or OGG — up to 10MB
+  1046→                          </span>
+  1047→                        ) : (
+  1048→                          'JPG, PNG, WebP, or GIF — up to 10MB'
+  1049→                        )}
+  1050→                      </p>
+  1051→                    </div>
+  1052→                  </div>
+  1053→                )}
+  1054→              </div>
+  1055→
+  1056→              {/* Preview */}
+  1057→              <AnimatePresence>
+  1058→                {uploadPreview && (
+  1059→                  <motion.div
+  1060→                    initial={{ opacity: 0, height: 0 }}
+  1061→                    animate={{ opacity: 1, height: 'auto' }}
+  1062→                    exit={{ opacity: 0, height: 0 }}
+  1063→                    className="overflow-hidden"
+  1064→                  >
+  1065→                    <div className="relative rounded-lg overflow-hidden border bg-muted/30 mt-2">
+  1066→                      {formData.itemType === 'video' ? (
+  1067→                        <div className="relative aspect-video">
+  1068→                          <img
+  1069→                            src={uploadPreview}
+  1070→                            alt="Video thumbnail"
+  1071→                            className="w-full h-full object-cover"
+  1072→                          />
+  1073→                          <div className="absolute inset-0 flex items-center justify-center">
+  1074→                            <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+  1075→                              <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+  1076→                            </div>
+  1077→                          </div>
+  1078→                        </div>
+  1079→                      ) : (
+  1080→                        <img
+  1081→                          src={uploadPreview}
+  1082→                          alt="Preview"
+  1083→                          className="w-full max-h-48 object-contain"
+  1084→                        />
+  1085→                      )}
+  1086→                      <button
+  1087→                        onClick={(e) => {
+  1088→                          e.stopPropagation();
+  1089→                          setUploadPreview(null);
+  1090→                          setFormData((prev) => ({ ...prev, mediaUrl: '' }));
+  1091→                          setUploadFileName('');
+  1092→                        }}
+  1093→                        className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+  1094→                      >
+  1095→                        <X className="w-4 h-4" />
+  1096→                      </button>
+  1097→                    </div>
+  1098→                  </motion.div>
+  1099→                )}
+  1100→              </AnimatePresence>
+  1101→
+  1102→              {/* Video note */}
+  1103→              {formData.itemType === 'video' && (
+  1104→                <div
+  1105→                  className="flex items-start gap-2 p-2.5 rounded-md text-xs"
+  1106→                  style={{ backgroundColor: `${GOLD_ACCENT}15`, color: '#92400e' }}
+  1107→                >
+  1108→                  <CircleAlert className="w-4 h-4 shrink-0 mt-0.5" />
+  1109→                  <span>
+  1110→                    Video uploads support <strong>MP4</strong>, <strong>WebM</strong>, and <strong>OGG</strong> formats
+  1111→                    with a maximum size of <strong>10MB</strong>. A thumbnail will be automatically generated.
+  1112→                  </span>
+  1113→                </div>
+  1114→              )}
+  1115→            </div>
+  1116→          </div>
+  1117→
+  1118→          {/* Dialog Actions */}
+  1119→          <div className="flex items-center justify-end gap-3 pt-4 border-t mt-4">
+  1120→            <Button
+  1121→              variant="outline"
+  1122→              onClick={() => setDialogOpen(false)}
+  1123→              className="h-10"
+  1124→            >
+  1125→              Cancel
+  1126→            </Button>
+  1127→            <Button
+  1128→              onClick={handleSave}
+  1129→              disabled={saving || !formData.title.trim() || !formData.mediaUrl.trim()}
+  1130→              className="h-10 text-white font-semibold min-w-[100px]"
+  1131→              style={{ backgroundColor: PRIMARY_BLUE }}
+  1132→              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#244a8a')}
+  1133→              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = PRIMARY_BLUE)}
+  1134→            >
+  1135→              {saving ? (
+  1136→                <>
+  1137→                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+  1138→                  Saving...
+  1139→                </>
+  1140→              ) : editingItem ? (
+  1141→                'Update Media'
+  1142→              ) : (
+  1143→                'Add Media'
+  1144→              )}
+  1145→            </Button>
+  1146→          </div>
+  1147→        </DialogContent>
+  1148→      </Dialog>
+  1149→    </section>
+  1150→  );
+  1151→}
+  1152→
