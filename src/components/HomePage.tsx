@@ -181,12 +181,12 @@ function HeroImageSlider() {
         <div
           key={slide.src}
           className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-          style={{ opacity: i === current ? 0.25 : 0 }}
+          style={{ opacity: i === current ? 0.55 : 0 }}
         >
           <Image src={slide.src} alt={slide.alt} fill className="object-cover" priority={i === 0} />
         </div>
       ))}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/80 via-[#1a3a6b]/60 to-[#0d1b2a]/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/40 via-[#1a3a6b]/25 to-[#0d1b2a]/50" />
       {/* Slide indicators */}
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {HERO_SLIDES.map((_, i) => (
@@ -352,7 +352,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
           >
             Building Skills,
             <br />

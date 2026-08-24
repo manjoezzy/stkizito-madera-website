@@ -24,3 +24,29 @@ Stage Summary:
 - Admission letter generation and email dispatch APIs created
 - Letter only generated/sent from admin portal, removed from applicant flow
 - Admin applications now grouped by status tabs with counts
+---
+Task ID: 2
+Agent: Main Agent
+Task: Hero fix, tracking fix, TVET passport photo, admin download forms, news page, password reset
+
+Work Log:
+- Fixed hero section: increased image opacity from 0.25 to 0.55, reduced overlay gradient
+- Added text shadow to hero heading for readability
+- Made application tracking more robust (case-insensitive SKT- prefix, better error handling)
+- Updated tracking search placeholder to include email option
+- Subagent: Added passport photo upload to TVET form (circular camera icon, drag-drop, 1.5MB limit)
+- Subagent: Added 'Download Filled Form' button in admin applicant view and expanded view
+- Subagent: Added TVET download/online fill quick action buttons in admin ApplicationsSection
+- Subagent: Created NewsPage component with featured events, news grid, gallery section
+- Subagent: Added 'news' to Page type, page.tsx, and Navigation
+- Subagent: Created password reset API (request + confirm endpoints)
+- Subagent: Added forgot password flow to AdminLoginPage with animated transitions
+
+Stage Summary:
+- Hero images now clearly visible with reduced dark overlay
+- Application tracking works with reference, phone, or email
+- TVET form supports passport photo upload with preview
+- Admin can download filled application forms as HTML
+- News page accessible from navigation with event photos and read more
+- Password reset flow available on admin login
+- Build passes with zero errors

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -27,6 +27,8 @@ import {
   PenLine,
   BadgeCheck,
   Award,
+  Camera,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -179,6 +181,10 @@ interface TvetFormData {
   // Section D: Declaration
   declarationName: string;
   declarationDate: string;
+
+  // Passport photo
+  passportPhoto: File | null;
+  passportPhotoPreview: string;
 }
 
 const INITIAL_FORM: TvetFormData = {
@@ -201,6 +207,8 @@ const INITIAL_FORM: TvetFormData = {
   ],
   reasonForCourse: '',
   declarationName: '', declarationDate: new Date().toISOString().split('T')[0],
+  passportPhoto: null,
+  passportPhotoPreview: '',
 };
 
 /* ──────────────── component ──────────────── */
@@ -213,6 +221,52 @@ export default function TvetApplicationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState<{ referenceNumber: string; schoolpayCode: string; programme: string } | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoDragOver, setPhotoDragOver] = useState(false);
+
+  /* ──────── passport photo handling ──────── */
+
+  const handlePhotoSelect = useCallback((file: File | null) => {
+    if (!file) return;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      addToast('Invalid file type. Please upload a JPEG, PNG, or WebP image only.', 'error');
+      return;
+    }
+    if (file.size > 1.5 * 1024 * 1024) {
+      addToast('File too large. Maximum size is 1.5MB.', 'error');
+      return;
+    }
+    const preview = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, passportPhoto: file, passportPhotoPreview: preview }));
+    if (errors.passportPhoto) setErrors((prev) => { const n = { ...prev }; delete n.passportPhoto; return n; });
+  }, [addToast, errors]);
+
+  const removePhoto = useCallback(() => {
+    if (form.passportPhotoPreview) URL.revokeObjectURL(form.passportPhotoPreview);
+    setForm((prev) => ({ ...prev, passportPhoto: null, passportPhotoPreview: '' }));
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  }, [form.passportPhotoPreview]);
+
+  const handlePhotoDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoDragOver(false);
+    const file = e.dataTransfer.files?.[0] || null;
+    handlePhotoSelect(file);
+  }, [handlePhotoSelect]);
+
+  const handlePhotoDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoDragOver(true);
+  }, []);
+
+  const handlePhotoDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoDragOver(false);
+  }, []);
 
   const updateField = <K extends keyof TvetFormData>(field: K, value: TvetFormData[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -297,6 +351,7 @@ export default function TvetApplicationForm() {
   const validateStep = (step: number): boolean => {
     const e: Record<string, string> = {};
     if (step === 1) {
+      if (!form.passportPhoto) e.passportPhoto = 'Passport photo is required';
       if (!form.surname.trim()) e.surname = 'Surname is required';
       if (!form.otherNames.trim()) e.otherNames = 'Other names are required';
       if (!form.dob) e.dob = 'Date of birth is required';
@@ -347,11 +402,32 @@ export default function TvetApplicationForm() {
     if (!validateStep(5)) { addToast('Please fill in the declaration', 'error'); return; }
     setSubmitting(true);
     try {
+      // 1. Upload passport photo first
+      let passportPhotoUrl: string | undefined;
+      if (form.passportPhoto) {
+        const photoFormData = new FormData();
+        photoFormData.append('file', form.passportPhoto);
+        photoFormData.append('type', 'admission');
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: photoFormData,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          passportPhotoUrl = uploadData.url;
+        } else {
+          addToast('Failed to upload passport photo. Please try again.', 'error');
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Submit application with form data + photo URL
       const programme = form.institutionChoices[0].courseI || 'TVET Programme';
       const res = await fetch('/api/admissions/tvet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, passportPhotoUrl }),
       });
       const data = await res.json();
       if (data.success) {
@@ -472,6 +548,61 @@ export default function TvetApplicationForm() {
   const renderStep1 = () => (
     <div className="space-y-6">
       <SectionTitle code="SECTION A" title="Particulars of Applicant" />
+
+      {/* Passport Photo Upload */}
+      <div className="flex flex-col items-center mb-2">
+        <Label className="text-sm font-medium text-gray-700 mb-3">
+          Attach Passport Photo <span className="text-red-500 font-bold">(Required)</span>
+        </Label>
+        <div
+          className={`relative w-32 h-32 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden transition-all ${
+            photoDragOver
+              ? 'border-blue-400 bg-blue-50 scale-105'
+              : form.passportPhotoPreview
+              ? 'border-emerald-300 bg-emerald-50'
+              : errors.passportPhoto
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+          }`}
+          onClick={() => !form.passportPhotoPreview && photoInputRef.current?.click()}
+          onDrop={handlePhotoDrop}
+          onDragOver={handlePhotoDragOver}
+          onDragLeave={handlePhotoDragLeave}
+        >
+          {form.passportPhotoPreview ? (
+            <>
+              <img
+                src={form.passportPhotoPreview}
+                alt="Passport photo preview"
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); removePhoto(); }}
+                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-md transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-1">
+              <Camera size={28} className={errors.passportPhoto ? 'text-red-400' : 'text-gray-400'} />
+              <span className="text-[10px] text-gray-400 text-center leading-tight px-1">
+                Click or drag<br />to upload
+              </span>
+            </div>
+          )}
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(e) => handlePhotoSelect(e.target.files?.[0] || null)}
+          />
+        </div>
+        <p className="text-[10px] text-gray-400 mt-2 text-center">JPEG, PNG, or WebP. Max 1.5MB</p>
+        {errors.passportPhoto && <p className="text-xs text-red-500 mt-1">{errors.passportPhoto}</p>}
+      </div>
 
       {/* Header with logo info */}
       <div className="rounded-xl border-2 p-4 text-center" style={{ borderColor: `${PRIMARY}20`, background: `${PRIMARY}04` }}>

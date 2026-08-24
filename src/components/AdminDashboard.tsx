@@ -1089,6 +1089,22 @@ export default function AdminDashboard() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const html = generateFilledFormHtml(viewApplicant);
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Application_${viewApplicant.referenceNumber}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Download Filled Form
+                </Button>
                 {viewApplicant.status === 'pending' && (
                   <>
                     <Button
@@ -1381,6 +1397,22 @@ export default function AdminDashboard() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const html = generateFilledFormHtml(expandedApp);
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Application_${expandedApp.referenceNumber}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Download Filled Form
+                </Button>
                 {(expandedApp.status === 'pending' || expandedApp.status === 'rejected') && (
                   <Button
                     onClick={() => {
@@ -2200,6 +2232,33 @@ function ApplicationsSection({
             </span>
           </button>
         ))}
+      </div>
+
+      {/* Quick Actions Row */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-xs h-8 gap-1.5 text-slate-600"
+          onClick={() => {
+            const a = document.createElement('a');
+            a.href = '/forms/tvet-admission-form.pdf';
+            a.download = 'TVET_Admission_Form.pdf';
+            a.click();
+          }}
+        >
+          <Download className="w-3.5 h-3.5" />
+          Download Blank TVET Form (PDF)
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-xs h-8 gap-1.5 text-slate-600"
+          onClick={() => useAppStore.getState().setCurrentPage('tvet-form')}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          Open Online TVET Form
+        </Button>
       </div>
 
       {/* Search */}
@@ -3068,6 +3127,16 @@ function SettingsSection() {
                 {tvetUploading ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
+            <p className="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
+              <span>Applicants can also fill this form online:</span>
+              <button
+                type="button"
+                onClick={() => useAppStore.getState().setCurrentPage('tvet-form')}
+                className="inline-flex items-center gap-1 text-[#1a3a6b] font-medium hover:underline cursor-pointer"
+              >
+                Open TVET Form
+              </button>
+            </p>
           </div>
 
           {/* Non-Formal Form */}
@@ -3134,6 +3203,282 @@ function SettingsSection() {
       </Card>
     </div>
   );
+}
+
+// ---- Generate Filled Form HTML ----
+function generateFilledFormHtml(app: Application): string {
+  const isTVET = app.institutionLevel === 'TVET';
+  let tvetData: Record<string, unknown> | null = null;
+  if (isTVET && app.grades) {
+    try { tvetData = JSON.parse(app.grades); } catch { /* ignore */ }
+  }
+
+  const sectionA = (tvetData?.sectionA as Record<string, string>) || {};
+  const sectionB = tvetData?.sectionB as Record<string, unknown> || {};
+  const sectionC = tvetData?.sectionC as Record<string, unknown> || {};
+  const sectionD = tvetData?.sectionD as Record<string, string> || {};
+
+  const renderSubjectTable = (subjects: { subject: string; grade: string }[] | undefined, maxRows: number) => {
+    if (!subjects || subjects.length === 0) return '<tr><td colspan="2" style="color:#999;text-align:center;padding:8px;">No data provided</td></tr>';
+    return subjects
+      .filter(s => s.subject?.trim())
+      .map((s, i) => `<tr><td style="padding:4px 8px;border:1px solid #ddd;">${i + 1}</td><td style="padding:4px 8px;border:1px solid #ddd;">${s.subject || ''}</td><td style="padding:4px 8px;border:1px solid #ddd;">${s.grade || ''}</td></tr>`)
+      .join('');
+  };
+
+  const ple = sectionB.ple as Record<string, unknown> || {};
+  const olevel = sectionB.olevel as Record<string, unknown> || {};
+  const ujtc = sectionB.ujtc as Record<string, unknown> || {};
+  const otherQuals = sectionB.otherQuals as Array<Record<string, unknown>> || [];
+  const workRecords = sectionC.workRecords as Array<Record<string, string>> || [];
+  const choices = sectionC.institutionChoices as Array<Record<string, string>> || [];
+
+  const passportPhotoHtml = sectionA.passportPhotoUrl
+    ? `<img src="${sectionA.passportPhotoUrl}" style="width:120px;height:150px;object-fit:cover;border:2px solid #1a3a6b;border-radius:4px;" />`
+    : '<div style="width:120px;height:150px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;">No Photo</div>';
+
+  if (isTVET) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>TVET Application - ${app.referenceNumber}</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; color: #333; background: #fff; }
+  .header { text-align: center; border-bottom: 3px solid #1a3a6b; padding-bottom: 16px; margin-bottom: 20px; }
+  .header h1 { color: #1a3a6b; margin: 0; font-size: 18px; }
+  .header p { margin: 4px 0; color: #666; font-size: 13px; }
+  .section { margin-bottom: 24px; page-break-inside: avoid; }
+  .section-title { background: #1a3a6b; color: white; padding: 8px 12px; font-size: 14px; font-weight: bold; margin-bottom: 12px; }
+  .field-row { display: flex; gap: 16px; margin-bottom: 8px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 11px; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field .value { padding: 6px 8px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 13px; min-height: 28px; }
+  .photo-row { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 16px; }
+  .photo-row .photo-area { flex-shrink: 0; }
+  .photo-row .names { flex: 1; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  th { background: #f0f0f0; padding: 6px 8px; border: 1px solid #ddd; font-size: 12px; text-align: left; }
+  td { padding: 4px 8px; border: 1px solid #ddd; font-size: 12px; }
+  .footer { margin-top: 30px; padding-top: 16px; border-top: 2px solid #1a3a6b; display: flex; justify-content: space-between; }
+  .footer .sig-box { text-align: center; }
+  .footer .sig-line { width: 200px; border-bottom: 1px solid #333; margin-bottom: 4px; }
+  @media print { body { padding: 0; } .section { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <p style="font-size:11px;letter-spacing:2px;">REPUBLIC OF UGANDA</p>
+    <h1>MINISTRY OF EDUCATION AND SPORTS</h1>
+    <p>TVET Online Application Form</p>
+    <p style="margin-top:8px;"><strong>Ref:</strong> ${app.referenceNumber} &nbsp;|&nbsp; <strong>Status:</strong> ${app.status.toUpperCase()} &nbsp;|&nbsp; <strong>Applied:</strong> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : 'N/A'}</p>
+  </div>
+
+  <!-- SECTION A -->
+  <div class="section">
+    <div class="section-title">SECTION A: PARTICULARS OF APPLICANT</div>
+    <div class="photo-row">
+      <div class="photo-area">${passportPhotoHtml}</div>
+      <div class="names">
+        <div class="field-row">
+          <div class="field"><label>Surname</label><div class="value">${sectionA.surname || ''}</div></div>
+          <div class="field"><label>Other Names</label><div class="value">${sectionA.otherNames || ''}</div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Nationality</label><div class="value">${sectionA.nationality || ''}</div></div>
+          <div class="field"><label>Sex</label><div class="value">${sectionA.sex || ''}</div></div>
+          <div class="field"><label>Date of Birth</label><div class="value">${sectionA.dob || ''}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Home District</label><div class="value">${sectionA.homeDistrict || ''}</div></div>
+      <div class="field"><label>County</label><div class="value">${sectionA.county || ''}</div></div>
+      <div class="field"><label>Sub-county</label><div class="value">${sectionA.subCounty || ''}</div></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Parish</label><div class="value">${sectionA.parish || ''}</div></div>
+      <div class="field"><label>Village</label><div class="value">${sectionA.village || ''}</div></div>
+      <div class="field"><label>Religion</label><div class="value">${sectionA.religion || ''}</div></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Email</label><div class="value">${sectionA.email || app.email || ''}</div></div>
+      <div class="field"><label>Telephone</label><div class="value">${app.phone || ''}</div></div>
+    </div>
+    <h4 style="font-size:13px;color:#1a3a6b;margin:16px 0 8px;font-weight:600;">Parent / Guardian Details</h4>
+    <div class="field-row">
+      <div class="field"><label>Name</label><div class="value">${sectionA.parentGuardianName || ''}</div></div>
+      <div class="field"><label>Telephone 1</label><div class="value">${sectionA.parentTelephone || ''}</div></div>
+      <div class="field"><label>Telephone 2</label><div class="value">${sectionA.parentTelephone2 || ''}</div></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Parent NIN</label><div class="value">${sectionA.parentNIN || ''}</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION B -->
+  <div class="section">
+    <div class="section-title">SECTION B: EDUCATIONAL BACKGROUND</div>
+    <h4 style="font-size:13px;color:#1a3a6b;margin:0 0 8px;font-weight:600;">(a) Primary Leaving Examination (PLE)</h4>
+    <div class="field-row">
+      <div class="field"><label>School Name</label><div class="value">${ple.schoolName || ''}</div></div>
+      <div class="field"><label>Year of Sitting</label><div class="value">${ple.yearSitting || ''}</div></div>
+      <div class="field"><label>Index Number</label><div class="value">${ple.indexNumber || ''}</div></div>
+      <div class="field"><label>Total Aggregates</label><div class="value">${ple.totalAggregates || ''}</div></div>
+      <div class="field"><label>Division</label><div class="value">${ple.division || ''}</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>Subject</th><th>Grade</th></tr></thead><tbody>${renderSubjectTable(ple.subjects as { subject: string; grade: string }[] | undefined, 8)}</tbody></table>
+
+    <h4 style="font-size:13px;color:#1a3a6b;margin:20px 0 8px;font-weight:600;">(b) O-Level (U.C.E.) Results</h4>
+    <div class="field-row">
+      <div class="field"><label>School Name</label><div class="value">${olevel.schoolName || ''}</div></div>
+      <div class="field"><label>Year of Sitting</label><div class="value">${olevel.yearSitting || ''}</div></div>
+      <div class="field"><label>Index Number</label><div class="value">${olevel.indexNumber || ''}</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>Subject</th><th>Grade</th></tr></thead><tbody>${renderSubjectTable(olevel.subjects as { subject: string; grade: string }[] | undefined, 10)}</tbody></table>
+
+    <h4 style="font-size:13px;color:#1a3a6b;margin:20px 0 8px;font-weight:600;">(c) UJTC / UCPC</h4>
+    <div class="field-row">
+      <div class="field"><label>Institution</label><div class="value">${ujtc.institution || ''}</div></div>
+      <div class="field"><label>Year</label><div class="value">${ujtc.yearSitting || ''}</div></div>
+      <div class="field"><label>Course Name</label><div class="value">${ujtc.courseName || ''}</div></div>
+      <div class="field"><label>Index Number</label><div class="value">${ujtc.indexNumber || ''}</div></div>
+      <div class="field"><label>Grade</label><div class="value">${ujtc.grade || ''}</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>Subject</th><th>Grade</th></tr></thead><tbody>${renderSubjectTable(ujtc.subjects as { subject: string; grade: string }[] | undefined, 6)}</tbody></table>
+
+    ${otherQuals.length > 0 ? `<h4 style="font-size:13px;color:#1a3a6b;margin:20px 0 8px;font-weight:600;">(d) Other Qualifications</h4>${otherQuals.map((q, i) => `
+    <div style="margin-bottom:12px;padding:8px;background:#fafafa;border:1px solid #eee;border-radius:4px;">
+      <p style="font-size:12px;font-weight:600;margin:0 0 6px;">Qualification ${i + 1}</p>
+      <div class="field-row"><div class="field"><label>Institution</label><div class="value">${q.institution || ''}</div></div><div class="field"><label>Course</label><div class="value">${q.courseName || ''}</div></div><div class="field"><label>Year</label><div class="value">${q.yearSitting || ''}</div></div><div class="field"><label>Grade</label><div class="value">${q.classGrade || ''}</div></div></div>
+    </div>`).join('')}` : ''}
+  </div>
+
+  <!-- SECTION C -->
+  <div class="section">
+    <div class="section-title">SECTION C: WORK RECORD & PROGRAMME CHOICES</div>
+    <h4 style="font-size:13px;color:#1a3a6b;margin:0 0 8px;font-weight:600;">Work Record</h4>
+    <table><thead><tr><th>Organization</th><th>Post Held</th><th>Period</th></tr></thead><tbody>
+    ${workRecords.filter(w => w.organization?.trim()).map(w => `<tr><td style="padding:4px 8px;border:1px solid #ddd;">${w.organization || ''}</td><td style="padding:4px 8px;border:1px solid #ddd;">${w.postHeld || ''}</td><td style="padding:4px 8px;border:1px solid #ddd;">${w.period || ''}</td></tr>`).join('') || '<tr><td colspan="3" style="color:#999;text-align:center;padding:8px;">No work record provided</td></tr>'}
+    </tbody></table>
+    <div class="field-row" style="margin-top:12px;">
+      <div class="field"><label>Sports / Games</label><div class="value">${sectionC.sportsGames || 'N/A'}</div></div>
+      <div class="field"><label>Chronic Disease</label><div class="value">${sectionC.chronicDisease || 'None'}</div></div>
+    </div>
+    <h4 style="font-size:13px;color:#1a3a6b;margin:20px 0 8px;font-weight:600;">Institution / Programme Choices</h4>
+    <table><thead><tr><th>#</th><th>Institution</th><th>Choice I</th><th>Choice II</th></tr></thead><tbody>
+    ${choices.map((c, i) => `<tr><td style="padding:4px 8px;border:1px solid #ddd;">${i + 1}</td><td style="padding:4px 8px;border:1px solid #ddd;">${c.institution || ''}</td><td style="padding:4px 8px;border:1px solid #ddd;">${c.courseI || ''}</td><td style="padding:4px 8px;border:1px solid #ddd;">${c.courseII || ''}</td></tr>`).join('')}
+    </tbody></table>
+    <div class="field-row" style="margin-top:12px;"><div class="field"><label>Reason for Choosing Course</label><div class="value">${sectionC.reasonForCourse || ''}</div></div></div>
+  </div>
+
+  <!-- SECTION D -->
+  <div class="section">
+    <div class="section-title">SECTION D: DECLARATION</div>
+    <div class="field-row">
+      <div class="field"><label>Applicant Name (Declaration)</label><div class="value">${sectionD.declarationName || ''}</div></div>
+      <div class="field"><label>Date</label><div class="value">${sectionD.declarationDate || ''}</div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="sig-box"><div class="sig-line"></div><p style="font-size:12px;">Applicant's Signature</p></div>
+    <div class="sig-box"><div class="sig-line"></div><p style="font-size:12px;">Date</p></div>
+    <div class="sig-box"><div class="sig-line"></div><p style="font-size:12px;">Official Use Only</p></div>
+  </div>
+</body>
+</html>`;
+  }
+
+  // Non-formal application
+  let gradesData: { subject: string; grade: string }[] = [];
+  if (app.grades) {
+    try { const parsed = JSON.parse(app.grades); if (Array.isArray(parsed)) gradesData = parsed; } catch { /* ignore */ }
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Application - ${app.referenceNumber}</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; color: #333; background: #fff; }
+  .header { text-align: center; border-bottom: 3px solid #1a3a6b; padding-bottom: 16px; margin-bottom: 20px; }
+  .header h1 { color: #1a3a6b; margin: 0; font-size: 20px; }
+  .header p { margin: 4px 0; color: #666; font-size: 13px; }
+  .section { margin-bottom: 24px; page-break-inside: avoid; }
+  .section-title { background: #1a3a6b; color: white; padding: 8px 12px; font-size: 14px; font-weight: bold; margin-bottom: 12px; }
+  .field-row { display: flex; gap: 16px; margin-bottom: 8px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 11px; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field .value { padding: 6px 8px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 13px; min-height: 28px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  th { background: #f0f0f0; padding: 6px 8px; border: 1px solid #ddd; font-size: 12px; text-align: left; }
+  td { padding: 4px 8px; border: 1px solid #ddd; font-size: 12px; }
+  @media print { body { padding: 0; } .section { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>St. Kizito's Technical Institute - Madera</h1>
+    <p>Non-Formal Admission Application Form</p>
+    <p style="margin-top:8px;"><strong>Ref:</strong> ${app.referenceNumber} &nbsp;|&nbsp; <strong>Status:</strong> ${app.status.toUpperCase()} &nbsp;|&nbsp; <strong>Applied:</strong> ${app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : 'N/A'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Personal Information</div>
+    <div class="field-row">
+      <div class="field"><label>Full Name</label><div class="value">${app.fullName || ''}</div></div>
+      <div class="field"><label>Date of Birth</label><div class="value">${app.dob || ''}</div></div>
+      <div class="field"><label>Gender</label><div class="value">${app.gender || ''}</div></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Nationality</label><div class="value">${app.nationality || ''}</div></div>
+      <div class="field"><label>Religion</label><div class="value">${app.religion || ''}</div></div>
+      <div class="field"><label>NIN</label><div class="value">${app.nin || ''}</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Contact Information</div>
+    <div class="field-row">
+      <div class="field"><label>Phone</label><div class="value">${app.phone || ''}</div></div>
+      <div class="field"><label>Email</label><div class="value">${app.email || ''}</div></div>
+      <div class="field"><label>District</label><div class="value">${app.district || ''}</div></div>
+      <div class="field"><label>Address</label><div class="value">${app.address || ''}</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Next of Kin</div>
+    <div class="field-row">
+      <div class="field"><label>Name</label><div class="value">${app.nextOfKin || ''}</div></div>
+      <div class="field"><label>Phone</label><div class="value">${app.nextOfKinPhone || ''}</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Academic Background</div>
+    <div class="field-row">
+      <div class="field"><label>Last School</label><div class="value">${app.lastSchool || ''}</div></div>
+      <div class="field"><label>Year Completed</label><div class="value">${app.yearCompleted || ''}</div></div>
+      <div class="field"><label>Qualification</label><div class="value">${app.qualification || ''}</div></div>
+    </div>
+    ${gradesData.length > 0 ? `
+    <h4 style="font-size:13px;color:#1a3a6b;margin:12px 0 8px;font-weight:600;">Grades / Academic Performance</h4>
+    <table><thead><tr><th>#</th><th>Subject</th><th>Grade</th></tr></thead><tbody>${renderSubjectTable(gradesData, 20)}</tbody></table>` : ''}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Programme Selection</div>
+    <div class="field-row">
+      <div class="field"><label>Programme</label><div class="value">${app.programme || ''}</div></div>
+      <div class="field"><label>Intake Year</label><div class="value">${app.intakeYear || ''}</div></div>
+      <div class="field"><label>Payment Status</label><div class="value">${app.paymentStatus || ''}</div></div>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 // ---- Helper Sub-Components ----

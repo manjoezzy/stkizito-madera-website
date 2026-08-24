@@ -100,7 +100,7 @@ export default function TrackApplicationPage() {
   const handleSearch = async () => {
     const query = searchInput.trim();
     if (!query) {
-      addToast('Enter a reference number or phone number', 'error');
+      addToast('Enter your reference number, phone, or email', 'error');
       return;
     }
 
@@ -109,12 +109,18 @@ export default function TrackApplicationPage() {
     setApplication(null);
 
     try {
-      const isRef = query.startsWith('SKT-');
-      const url = isRef
-        ? `/api/admissions?ref=${encodeURIComponent(query)}`
-        : `/api/admissions?search=${encodeURIComponent(query)}`;
+      // Detect search type: reference starts with SKT-, otherwise search by phone/email/name
+      const isRef = query.toUpperCase().startsWith('SKT-');
+      const isEmail = query.includes('@');
+      let url: string;
+      if (isRef) {
+        url = `/api/admissions?ref=${encodeURIComponent(query)}`;
+      } else {
+        url = `/api/admissions?search=${encodeURIComponent(query)}`;
+      }
 
       const res = await fetch(url);
+      if (!res.ok) throw new Error('API error');
       const data = await res.json();
 
       if (data.success && data.data) {
@@ -127,8 +133,9 @@ export default function TrackApplicationPage() {
       } else {
         setNotFound(true);
       }
-    } catch {
-      addToast('Network error. Please try again.', 'error');
+    } catch (err) {
+      console.error('Tracking search error:', err);
+      addToast('Search failed. Please check your connection and try again.', 'error');
     } finally {
       setSearching(false);
     }
@@ -204,7 +211,7 @@ export default function TrackApplicationPage() {
                     <Input
                       id="search-input"
                       type="text"
-                      placeholder="e.g. SKT-2025-12345 or 0771234567"
+                      placeholder="e.g. SKT-2026-12345, phone, or email"
                       value={searchInput}
                       onChange={(e) => setSearchInput(e.target.value)}
                       onKeyDown={handleKeyDown}

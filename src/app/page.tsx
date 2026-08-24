@@ -15,6 +15,7 @@ import StudentLoginPage from '@/components/StudentLoginPage';
 import OnlineLearningPage from '@/components/OnlineLearningPage';
 import EventsPage from '@/components/EventsPage';
 import GalleryPage from '@/components/GalleryPage';
+import NewsPage from '@/components/NewsPage';
 import AboutPage from '@/components/AboutPage';
 import AlumniPage from '@/components/AlumniPage';
 import GraduationPage from '@/components/GraduationPage';
@@ -31,6 +32,7 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   'student-login': StudentLoginPage,
   'online-learning': OnlineLearningPage,
   events: EventsPage,
+  news: NewsPage,
   gallery: GalleryPage,
   contact: HomePage, // Contact section is part of HomePage
   'admin-login': AdminLoginPage,
@@ -51,6 +53,7 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
   'student-login': { showNav: true, fullWidth: false },
   'online-learning': { showNav: true, fullWidth: false },
   events: { showNav: true, fullWidth: false },
+  news: { showNav: true, fullWidth: false },
   gallery: { showNav: true, fullWidth: false },
   contact: { showNav: true, fullWidth: false },
   'admin-login': { showNav: false, fullWidth: true },

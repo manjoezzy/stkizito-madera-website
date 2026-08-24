@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       workRecords, sportsGames, chronicDisease,
       institutionChoices, reasonForCourse,
       declarationName, declarationDate,
+      passportPhotoUrl,
     } = body;
 
     const fullName = `${surname || ''} ${otherNames || ''}`.trim();
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
         homeDistrict, county, subCounty, religion,
         parish, village,
         parentGuardianName, parentTelephone, parentTelephone2, parentNIN,
+        passportPhotoUrl: passportPhotoUrl || null,
       },
       sectionB: {
         ple: { schoolName: pleSchoolName, yearSitting: pleYearSitting, indexNumber: pleIndexNumber, totalAggregates: pleTotalAggregates, division: pleDivision, subjects: pleSubjects },

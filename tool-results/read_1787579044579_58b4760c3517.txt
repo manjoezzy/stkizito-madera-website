@@ -1,3 +1,82 @@
+     1→'use client';
+     2→
+     3→import React, { useState, useEffect, useCallback, useRef } from 'react';
+     4→import { motion, AnimatePresence } from 'framer-motion';
+     5→import {
+     6→  Globe,
+     7→  Phone,
+     8→  Mail,
+     9→  MapPin,
+    10→  Building2,
+    11→  Megaphone,
+    12→  BookOpen,
+    13→  Palette,
+    14→  Shield,
+    15→  Camera,
+    16→  Link2,
+    17→  Facebook,
+    18→  Twitter,
+    19→  Instagram,
+    20→  Youtube,
+    21→  Linkedin,
+    22→  Save,
+    23→  Loader2,
+    24→  Check,
+    25→  AlertCircle,
+    26→  Info,
+    27→  Sparkles,
+    28→  Eye,
+    29→  EyeOff,
+    30→  RefreshCw,
+    31→  ChevronDown,
+    32→  ChevronUp,
+    33→  FileText,
+    34→  Users,
+    35→  GraduationCap,
+    36→  CreditCard,
+    37→  Calendar,
+    38→  Tag,
+    39→  Type,
+    40→  Image,
+    41→  ToggleLeft,
+    42→  Search,
+    43→  Layers,
+    44→  Star,
+    45→  ExternalLink,
+    46→  Briefcase,
+    47→  Clock,
+    48→} from 'lucide-react';
+    49→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+    50→import { Input } from '@/components/ui/input';
+    51→import { Button } from '@/components/ui/button';
+    52→import { Label } from '@/components/ui/label';
+    53→import { Switch } from '@/components/ui/switch';
+    54→import { Textarea } from '@/components/ui/textarea';
+    55→import { Badge } from '@/components/ui/badge';
+    56→import { Separator } from '@/components/ui/separator';
+    57→import { Skeleton } from '@/components/ui/skeleton';
+    58→
+    59→// ===================== TYPES =====================
+    60→
+    61→interface FieldConfig {
+    62→  key: string;
+    63→  label: string;
+    64→  type: 'text' | 'textarea' | 'url' | 'email' | 'phone' | 'number' | 'switch';
+    65→  placeholder?: string;
+    66→  description?: string;
+    67→  maxLength?: number;
+    68→  rows?: number;
+    69→  defaultValue?: string;
+    70→}
+    71→
+    72→interface SectionConfig {
+    73→  id: string;
+    74→  title: string;
+    75→  description: string;
+    76→  icon: React.ElementType;
+    77→  accentColor?: string;
+    78→  fields: FieldConfig[];
+    79→}
     80→
     81→interface FieldSaveState {
     82→  [key: string]: 'idle' | 'saving' | 'saved' | 'error';
