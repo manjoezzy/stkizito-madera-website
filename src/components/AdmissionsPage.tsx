@@ -45,6 +45,7 @@ import {
   Copy,
   Upload,
   Search,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1004,6 +1005,15 @@ Soroti City, Uganda
                 <Search className="size-4 mr-2" />
                 Track Application
               </Button>
+              <Button
+                onClick={() => setCurrentPage('enrolled-students')}
+                variant="outline"
+                className="cursor-pointer"
+                style={{ borderColor: GOLD, color: '#92640a' }}
+              >
+                <Users className="size-4 mr-2" />
+                View Enrolled Students
+              </Button>
             </div>
 
             <div className="text-center">
@@ -1048,7 +1058,7 @@ Soroti City, Uganda
           <div className="absolute top-10 left-10 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
           <div className="absolute bottom-10 right-10 size-48 rounded-full" style={{ background: GOLD, filter: 'blur(60px)' }} />
         </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1074,7 +1084,7 @@ Soroti City, Uganda
       <main className="flex-1">
         {/* ═══════════ PROCESS STEPS ═══════════ */}
         <section className="py-16 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1120,7 +1130,7 @@ Soroti City, Uganda
 
         {/* ═══════════ ENTRY REQUIREMENTS ═══════════ */}
         <section className="py-16">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1360,7 +1370,7 @@ Soroti City, Uganda
 
         {/* ═══════════ ONLINE APPLICATION FORM ═══════════ */}
         <section className="py-16 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1531,7 +1541,7 @@ Soroti City, Uganda
 
         {/* ═══════════ NEED HELP SECTION ═══════════ */}
         <section className="py-16">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

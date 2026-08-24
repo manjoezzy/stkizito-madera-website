@@ -1,0 +1,855 @@
+   200→        ))}
+   201→      </div>
+   202→    </div>
+   203→  );
+   204→}
+   205→
+   206→/* ══════════════════════════════════════════════════════
+   207→   MAIN COMPONENT
+   208→   ══════════════════════════════════════════════════════ */
+   209→export default function HomePage() {
+   210→  const { currentPage, setCurrentPage, addToast } = useAppStore();
+   211→  const [statsVisible, setStatsVisible] = useState(false);
+   212→  const [contactForm, setContactForm] = useState({
+   213→    name: '',
+   214→    email: '',
+   215→    phone: '',
+   216→    subject: '',
+   217→    message: '',
+   218→  });
+   219→  const [contactSubmitting, setContactSubmitting] = useState(false);
+   220→
+   221→  // Scroll to contact section when navigating to 'contact' page
+   222→  useEffect(() => {
+   223→    if (currentPage === 'contact') {
+   224→      const timer = setTimeout(() => {
+   225→        const el = document.getElementById('contact');
+   226→        if (el) el.scrollIntoView({ behavior: 'smooth' });
+   227→      }, 100);
+   228→      return () => clearTimeout(timer);
+   229→    }
+   230→  }, [currentPage]);
+   231→
+   232→  // Trigger stats counter animation when stats section comes into view
+   233→  useEffect(() => {
+   234→    const observer = new IntersectionObserver(
+   235→      ([entry]) => {
+   236→        if (entry.isIntersecting) setStatsVisible(true);
+   237→      },
+   238→      { threshold: 0.3 }
+   239→    );
+   240→    const el = document.getElementById('stats-section');
+   241→    if (el) observer.observe(el);
+   242→    return () => observer.disconnect();
+   243→  }, []);
+   244→
+   245→  const stat0 = useCountUp(STATS[0].value, 2000, statsVisible);
+   246→  const stat1 = useCountUp(STATS[1].value, 2200, statsVisible);
+   247→  const stat2 = useCountUp(STATS[2].value, 1800, statsVisible);
+   248→  const stat3 = useCountUp(STATS[3].value, 2000, statsVisible);
+   249→  const counts = [stat0, stat1, stat2, stat3];
+   250→
+   251→  const handleContactSubmit = async (e: FormEvent) => {
+   252→    e.preventDefault();
+   253→    setContactSubmitting(true);
+   254→    try {
+   255→      const res = await fetch('/api/contact', {
+   256→        method: 'POST',
+   257→        headers: { 'Content-Type': 'application/json' },
+   258→        body: JSON.stringify(contactForm),
+   259→      });
+   260→      if (res.ok) {
+   261→        addToast('Message sent successfully! We will get back to you soon.', 'success');
+   262→        setContactForm({ name: '', email: '', phone: '', subject: '', message: '' });
+   263→      } else {
+   264→        addToast('Failed to send message. Please try again.', 'error');
+   265→      }
+   266→    } catch {
+   267→      addToast('Network error. Please check your connection.', 'error');
+   268→    } finally {
+   269→      setContactSubmitting(false);
+   270→    }
+   271→  };
+   272→
+   273→  /* ──────────── floating circles ──────────── */
+   274→  const floatingCircles = [
+   275→    { size: 320, x: '10%', y: '20%', delay: 0, duration: 18 },
+   276→    { size: 200, x: '80%', y: '10%', delay: 2, duration: 22 },
+   277→    { size: 260, x: '70%', y: '65%', delay: 4, duration: 20 },
+   278→    { size: 140, x: '20%', y: '75%', delay: 1, duration: 16 },
+   279→    { size: 100, x: '50%', y: '40%', delay: 3, duration: 24 },
+   280→  ];
+   281→
+   282→  return (
+   283→    <div className="min-h-screen flex flex-col bg-white">
+   284→      {/* ─────────────────────────────────────────────────
+   285→          1. HERO SECTION
+   286→          ───────────────────────────────────────────────── */}
+   287→      <section id="hero-section" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[104px] lg:pt-[108px]">
+   288→        {/* dark gradient background */}
+   289→        <div
+   290→          className="absolute inset-0"
+   291→          style={{
+   292→            background:
+   293→              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
+   294→          }}
+   295→        />
+   296→
+   297→        {/* animated floating decorative circles */}
+   298→        {floatingCircles.map((c, i) => (
+   299→          <motion.div
+   300→            key={i}
+   301→            className="absolute rounded-full"
+   302→            style={{
+   303→              width: c.size,
+   304→              height: c.size,
+   305→              left: c.x,
+   306→              top: c.y,
+   307→              background: `radial-gradient(circle, rgba(245,197,24,${0.06 + i * 0.02}) 0%, transparent 70%)`,
+   308→            }}
+   309→            animate={{
+   310→              y: [0, -30, 10, -20, 0],
+   311→              x: [0, 15, -10, 20, 0],
+   312→              scale: [1, 1.05, 0.95, 1.02, 1],
+   313→            }}
+   314→            transition={{
+   315→              duration: c.duration,
+   316→              repeat: Infinity,
+   317→              delay: c.delay,
+   318→              ease: 'easeInOut',
+   319→            }}
+   320→          />
+   321→        ))}
+   322→
+   323→        {/* subtle grid overlay */}
+   324→        <div
+   325→          className="absolute inset-0 opacity-5"
+   326→          style={{
+   327→            backgroundImage:
+   328→              'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+   329→            backgroundSize: '60px 60px',
+   330→          }}
+   331→        />
+   332→
+   333→        {/* Dynamic Hero image slider */}
+   334→        <HeroImageSlider />
+   335→
+   336→        {/* content */}
+   337→        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+   338→          {/* badge */}
+   339→          <motion.div
+   340→            initial={{ opacity: 0, y: -20 }}
+   341→            animate={{ opacity: 1, y: 0 }}
+   342→            transition={{ duration: 0.6 }}
+   343→            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 border border-[#f5c518]/30 bg-[#f5c518]/10"
+   344→          >
+   345→            <Sparkles className="h-4 w-4 text-[#f5c518]" />
+   346→            <span className="text-[#f5c518] text-sm font-medium tracking-wide">
+   347→              Government-Aided TVET Institution
+   348→            </span>
+   349→          </motion.div>
+   350→
+   351→          <motion.h1
+   352→            initial={{ opacity: 0, y: 30 }}
+   353→            animate={{ opacity: 1, y: 0 }}
+   354→            transition={{ duration: 0.7, delay: 0.15 }}
+   355→            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight"
+   356→          >
+   357→            Building Skills,
+   358→            <br />
+   359→            <span className="text-[#f5c518]">Transforming Lives</span>
+   360→            <br />
+   361→            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
+   362→              St. Kizito's Technical Institute - Madera
+   363→            </span>
+   364→          </motion.h1>
+   365→
+   366→          <motion.p
+   367→            initial={{ opacity: 0, y: 20 }}
+   368→            animate={{ opacity: 1, y: 0 }}
+   369→            transition={{ duration: 0.6, delay: 0.3 }}
+   370→            className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
+   371→          >
+   372→            Empowering the next generation with quality Technical and Vocational
+   373→            Education and Training (TVET) - grounded in excellence, faith, and
+   374→            practical skill development.
+   375→          </motion.p>
+   376→
+   377→          {/* scroll hint */}
+   378→          <motion.div
+   379→            initial={{ opacity: 0 }}
+   380→            animate={{ opacity: 1 }}
+   381→            transition={{ delay: 1.2 }}
+   382→            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+   383→          >
+   384→            <motion.div
+   385→              animate={{ y: [0, 8, 0] }}
+   386→              transition={{ duration: 2, repeat: Infinity }}
+   387→              className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+   388→            >
+   389→              <motion.div
+   390→                animate={{ y: [0, 12, 0] }}
+   391→                transition={{ duration: 2, repeat: Infinity }}
+   392→                className="w-1.5 h-1.5 bg-[#f5c518] rounded-full mt-2"
+   393→              />
+   394→            </motion.div>
+   395→          </motion.div>
+   396→
+   397→
+   398→        </div>
+   399→      </section>
+   400→
+   401→      {/* ─────────────────────────────────────────────────
+   402→          2. STATS SECTION
+   403→          ───────────────────────────────────────────────── */}
+   404→      <section id="stats-section" className="relative -mt-16 z-20 py-12 md:py-16 px-4">
+   405→        <div className="max-w-6xl mx-auto">
+   406→          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+   407→            {STATS.map((stat, i) => {
+   408→              const Icon = stat.icon;
+   409→              return (
+   410→                <motion.div
+   411→                  key={stat.label}
+   412→                  initial={{ opacity: 0, y: 30 }}
+   413→                  whileInView={{ opacity: 1, y: 0 }}
+   414→                  viewport={{ once: true, amount: 0.5 }}
+   415→                  transition={{ duration: 0.5, delay: i * 0.1 }}
+   416→                >
+   417→                  <div className="bg-white rounded-xl shadow-xl shadow-black/10 p-4 md:p-5 text-center border border-slate-100">
+   418→                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#1a3a6b]/10 mb-2">
+   419→                      <Icon className="h-5 w-5 text-[#1a3a6b]" />
+   420→                    </div>
+   421→                    <div className="text-2xl sm:text-3xl font-bold text-[#1a3a6b]">
+   422→                      {counts[i]}
+   423→                      <span className="text-[#f5c518]">{stat.suffix}</span>
+   424→                    </div>
+   425→                    <p className="text-xs text-slate-500 mt-0.5 font-medium">{stat.label}</p>
+   426→                  </div>
+   427→                </motion.div>
+   428→              );
+   429→            })}
+   430→          </div>
+   431→        </div>
+   432→      </section>
+   433→
+   434→      {/* ─────────────────────────────────────────────────
+   435→          3. WELCOME / ABOUT SECTION
+   436→          ───────────────────────────────────────────────── */}
+   437→      <Section className="py-20 md:py-28 px-4">
+   438→        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+   439→          {/* left - campus photo */}
+   440→          <div className="relative">
+   441→            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-[#1a3a6b]/20">
+   442→              <div className="absolute -inset-1 bg-gradient-to-br from-[#1a3a6b] to-[#f5c518] rounded-3xl opacity-20 blur-sm" />
+   443→              <div className="relative aspect-[4/3] max-w-md mx-auto">
+   444→                <Image
+   445→                  src="/images/about-workshop.png"
+   446→                  alt="Students in the workshop at St. Kizito's Technical Institute - Madera"
+   447→                  fill
+   448→                  className="object-cover rounded-2xl"
+   449→                />
+   450→              </div>
+   451→            </div>
+   452→            {/* floating accent card */}
+   453→            <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-2xl shadow-xl p-4 border border-slate-100">
+   454→              <div className="flex items-center gap-3">
+   455→                <div className="w-12 h-12 rounded-xl bg-[#f5c518]/20 flex items-center justify-center">
+   456→                  <Award className="h-6 w-6 text-[#f5c518]" />
+   457→                </div>
+   458→                <div>
+   459→                  <p className="text-2xl font-bold text-[#1a3a6b]">77+</p>
+   460→                  <p className="text-xs text-muted-foreground">Years of Excellence</p>
+   461→                </div>
+   462→              </div>
+   463→            </div>
+   464→          </div>
+   465→
+   466→          {/* right - text */}
+   467→          <div>
+   468→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-4">
+   469→              <Heart className="h-4 w-4" />
+   470→              Welcome to SKTM
+   471→            </div>
+   472→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b] leading-tight">
+   473→              A Legacy of Excellence in Technical Education
+   474→            </h2>
+   475→            <p className="mt-6 text-muted-foreground leading-relaxed text-base">
+   476→              Established in <strong className="text-[#1a3a6b]">1947</strong>, St. Kizito&apos;s
+   477→              Technical Institute - Madera is a government-aided technical institute
+   478→              anchored on Christian principles. We are committed to providing
+   479→              quality Technical and Vocational Education and Training (TVET) that
+   480→              equips learners with practical, market-relevant skills.
+   481→            </p>
+   482→            <p className="mt-4 text-muted-foreground leading-relaxed text-base">
+   483→              Located in Soroti City, Eastern Uganda, we have produced
+   484→              thousands of skilled professionals who are driving development across
+   485→              Uganda and beyond. Our programs are designed to meet the demands of
+   486→              today&apos;s labour market while nurturing ethical, responsible citizens.
+   487→            </p>
+   488→
+   489→            <div className="mt-8 flex flex-wrap gap-6">
+   490→              {[Target, Shield, Award, Users].map((Icon, i) => (
+   491→                <div key={i} className="flex items-center gap-2">
+   492→                  <div className="w-10 h-10 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+   493→                    <Icon className="h-5 w-5 text-[#1a3a6b]" />
+   494→                  </div>
+   495→                  <span className="text-sm font-medium text-[#1a3a6b]">
+   496→                    {['Practical Training', 'Christian Values', 'Certified', 'Industry Ready'][i]}
+   497→                  </span>
+   498→                </div>
+   499→              ))}
+   500→            </div>
+   501→
+   502→            <Button
+   503→              onClick={() => setCurrentPage('about')}
+   504→              className="mt-8 bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105"
+   505→            >
+   506→              Learn More
+   507→              <ArrowRight className="ml-2 h-4 w-4" />
+   508→            </Button>
+   509→          </div>
+   510→        </div>
+   511→      </Section>
+   512→
+   513→      {/* ─────────────────────────────────────────────────
+   514→          4. PROGRAMS SHOWCASE
+   515→          ───────────────────────────────────────────────── */}
+   516→      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+   517→        <div className="max-w-6xl mx-auto">
+   518→          <div className="text-center mb-14">
+   519→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   520→              <BookOpen className="h-4 w-4" />
+   521→              Our Programs
+   522→            </div>
+   523→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   524→              Explore Our TVET Programs
+   525→            </h2>
+   526→            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+   527→              Industry-aligned certificate and diploma programs designed to give
+   528→              you the hands-on skills employers demand.
+   529→            </p>
+   530→          </div>
+   531→
+   532→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+   533→            {PROGRAMS.map((prog, i) => {
+   534→              const Icon = prog.icon;
+   535→              return (
+   536→                <motion.div
+   537→                  key={prog.name}
+   538→                  initial={{ opacity: 0, y: 30 }}
+   539→                  whileInView={{ opacity: 1, y: 0 }}
+   540→                  viewport={{ once: true }}
+   541→                  transition={{ duration: 0.5, delay: i * 0.08 }}
+   542→                >
+   543→                  <Card className="group h-full border border-slate-200/80 rounded-2xl hover:border-[#1a3a6b]/20 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white">
+   544→                    {/* top accent bar */}
+   545→                    <div className="h-1.5 bg-gradient-to-r from-[#1a3a6b] via-[#2756a0] to-[#f5c518]" />
+   546→                    <CardContent className="p-6 flex flex-col h-full">
+   547→                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1a3a6b] to-[#2756a0] flex items-center justify-center shadow-lg shadow-[#1a3a6b]/20 mb-5 group-hover:scale-110 transition-transform duration-300">
+   548→                        <Icon className="h-7 w-7 text-[#f5c518]" />
+   549→                      </div>
+   550→                      <h3 className="text-lg font-bold text-[#1a3a6b] mb-1">
+   551→                        {prog.name}
+   552→                      </h3>
+   553→                      <p className="text-sm text-muted-foreground mb-4 flex-1">
+   554→                        Comprehensive hands-on training leading to a recognized
+   555→                        TVET qualification.
+   556→                      </p>
+   557→                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100">
+   558→                        <div>
+   559→                          <p className="text-xs text-[#f5c518] font-semibold uppercase tracking-wider">
+   560→                            Fees
+   561→                          </p>
+   562→                          <p className="text-sm font-medium text-muted-foreground">
+   563→                            Contact Administration
+   564→                          </p>
+   565→                        </div>
+   566→                        <Button
+   567→                          size="sm"
+   568→                          onClick={() => setCurrentPage('admissions')}
+   569→                          className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold rounded-lg transition-all hover:scale-105"
+   570→                        >
+   571→                          Apply
+   572→                          <ArrowRight className="ml-1 h-4 w-4" />
+   573→                        </Button>
+   574→                      </div>
+   575→                    </CardContent>
+   576→                  </Card>
+   577→                </motion.div>
+   578→              );
+   579→            })}
+   580→          </div>
+   581→
+   582→          <div className="text-center mt-12">
+   583→            <Button
+   584→              variant="outline"
+   585→              onClick={() => setCurrentPage('programs')}
+   586→              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+   587→            >
+   588→              View All Programs
+   589→              <ChevronRight className="ml-2 h-4 w-4" />
+   590→            </Button>
+   591→          </div>
+   592→        </div>
+   593→      </Section>
+   594→
+   595→      {/* ─────────────────────────────────────────────────
+   596→          5. CAMPUS PHOTO STRIP
+   597→          ───────────────────────────────────────────────── */}
+   598→      <Section className="py-12 md:py-16 px-4 overflow-hidden">
+   599→        <div className="max-w-7xl mx-auto">
+   600→          <div className="text-center mb-10">
+   601→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   602→              <Heart className="h-4 w-4" />
+   603→              Life at SKTM
+   604→            </div>
+   605→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   606→              Our Campus in Pictures
+   607→            </h2>
+   608→          </div>
+   609→          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+   610→            {[
+   611→              { src: '/images/campus.png', alt: 'Campus grounds' },
+   612→              { src: '/images/graduation.png', alt: 'Graduation ceremony' },
+   613→              { src: '/images/gallery-openday.png', alt: 'Open day celebrations' },
+   614→              { src: '/images/gallery-outreach.png', alt: 'Community outreach' },
+   615→            ].map((img, i) => (
+   616→              <motion.div
+   617→                key={img.alt}
+   618→                initial={{ opacity: 0, scale: 0.95 }}
+   619→                whileInView={{ opacity: 1, scale: 1 }}
+   620→                viewport={{ once: true }}
+   621→                transition={{ duration: 0.5, delay: i * 0.1 }}
+   622→                className={`relative rounded-2xl overflow-hidden shadow-lg group cursor-pointer ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
+   623→                onClick={() => setCurrentPage('gallery')}
+   624→              >
+   625→                <div className={`relative ${i === 0 ? 'aspect-square' : 'aspect-[4/3]'}`}>
+   626→                  <Image
+   627→                    src={img.src}
+   628→                    alt={img.alt}
+   629→                    fill
+   630→                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+   631→                  />
+   632→                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+   633→                  <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+   634→                    <p className="text-white text-sm font-medium">{img.alt}</p>
+   635→                  </div>
+   636→                </div>
+   637→              </motion.div>
+   638→            ))}
+   639→          </div>
+   640→          <div className="text-center mt-8">
+   641→            <Button
+   642→              variant="outline"
+   643→              onClick={() => setCurrentPage('gallery')}
+   644→              className="border-2 border-[#1a3a6b]/20 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white font-semibold px-6 py-3 rounded-lg transition-all"
+   645→            >
+   646→              View Full Gallery
+   647→              <ChevronRight className="ml-2 h-4 w-4" />
+   648→            </Button>
+   649→          </div>
+   650→        </div>
+   651→      </Section>
+   652→
+   653→      {/* ─────────────────────────────────────────────────
+   654→          6. ADMISSIONS CTA BANNER
+   655→          ───────────────────────────────────────────────── */}
+   656→      <Section className="px-4 py-20 md:py-28">
+   657→        <div className="max-w-6xl mx-auto">
+   658→          <div
+   659→            className="relative rounded-3xl overflow-hidden px-6 py-14 sm:px-12 sm:py-20 text-center"
+   660→            style={{
+   661→              background:
+   662→                'linear-gradient(135deg, #1a3a6b 0%, #2756a0 50%, #1a3a6b 100%)',
+   663→            }}
+   664→          >
+   665→            {/* decorative circles */}
+   666→            <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-[#f5c518]/5 -translate-x-1/2 -translate-y-1/2" />
+   667→            <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#f5c518]/5 translate-x-1/3 translate-y-1/3" />
+   668→            <div className="absolute top-1/2 right-10 w-20 h-20 rounded-full bg-white/5" />
+   669→
+   670→            <div className="relative z-10">
+   671→              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white mb-6 overflow-hidden">
+   672→                <Image src="/images/institute-logo.jpg" alt="SKTM" width={64} height={64} className="object-contain w-full h-full" />
+   673→              </div>
+   674→              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+   675→                Ready to Build Your Future?
+   676→              </h2>
+   677→              <p className="mt-4 text-blue-100/80 max-w-xl mx-auto text-lg">
+   678→                Applications are now open for the {new Date().getFullYear()} intake.
+   679→                Secure your spot and start your journey toward a rewarding career.
+   680→              </p>
+   681→              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+   682→                <Button
+   683→                  size="lg"
+   684→                  onClick={() => setCurrentPage('admissions')}
+   685→                  className="bg-[#f5c518] hover:bg-[#e0b300] text-[#1a3a6b] font-bold text-base px-8 py-6 rounded-lg shadow-lg shadow-[#f5c518]/20 transition-all hover:scale-105"
+   686→                >
+   687→                  Start Application
+   688→                  <ArrowRight className="ml-2 h-5 w-5" />
+   689→                </Button>
+   690→                <Button
+   691→                  size="lg"
+   692→                  variant="outline"
+   693→                  onClick={() => setCurrentPage('contact')}
+   694→                  className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 font-semibold text-base px-8 py-6 rounded-lg transition-all"
+   695→                >
+   696→                  Ask a Question
+   697→                </Button>
+   698→              </div>
+   699→            </div>
+   700→          </div>
+   701→        </div>
+   702→      </Section>
+   703→
+   704→      {/* ─────────────────────────────────────────────────
+   705→          6. TESTIMONIALS
+   706→          ───────────────────────────────────────────────── */}
+   707→      <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
+   708→        <div className="max-w-6xl mx-auto">
+   709→          <div className="text-center mb-14">
+   710→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   711→              <Star className="h-4 w-4" />
+   712→              Testimonials
+   713→            </div>
+   714→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   715→              What Our Graduates Say
+   716→            </h2>
+   717→            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+   718→              Hear from the men and women whose lives were transformed through
+   719→              training at St. Kizito&apos;s.
+   720→            </p>
+   721→          </div>
+   722→
+   723→          <div className="grid md:grid-cols-3 gap-6">
+   724→            {TESTIMONIALS.map((t, i) => (
+   725→              <motion.div
+   726→                key={t.name}
+   727→                initial={{ opacity: 0, y: 30 }}
+   728→                whileInView={{ opacity: 1, y: 0 }}
+   729→                viewport={{ once: true }}
+   730→                transition={{ duration: 0.5, delay: i * 0.1 }}
+   731→              >
+   732→                <Card className="h-full border border-slate-200/80 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 bg-white">
+   733→                  <CardContent className="p-6 flex flex-col h-full">
+   734→                    <Quote className="h-10 w-10 text-[#f5c518]/40 mb-4" />
+   735→                    <p className="text-muted-foreground leading-relaxed flex-1 italic">
+   736→                      &ldquo;{t.quote}&rdquo;
+   737→                    </p>
+   738→                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+   739→                      <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
+   740→                        <Image
+   741→                          src={t.photo}
+   742→                          alt={t.name}
+   743→                          width={44}
+   744→                          height={44}
+   745→                          className="w-full h-full object-cover"
+   746→                        />
+   747→                      </div>
+   748→                      <div>
+   749→                        <p className="font-semibold text-[#1a3a6b] text-sm">
+   750→                          {t.name}
+   751→                        </p>
+   752→                        <p className="text-xs text-muted-foreground">
+   753→                          {t.program} &middot; {t.year}
+   754→                        </p>
+   755→                      </div>
+   756→                    </div>
+   757→                  </CardContent>
+   758→                </Card>
+   759→              </motion.div>
+   760→            ))}
+   761→          </div>
+   762→        </div>
+   763→      </Section>
+   764→
+   765→      {/* ─────────────────────────────────────────────────
+   766→          7. CONTACT SECTION
+   767→          ───────────────────────────────────────────────── */}
+   768→      <Section className="py-20 md:py-28 px-4" id="contact">
+   769→        <div className="max-w-6xl mx-auto">
+   770→          <div className="text-center mb-14">
+   771→            <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
+   772→              <Mail className="h-4 w-4" />
+   773→              Get in Touch
+   774→            </div>
+   775→            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a3a6b]">
+   776→              Contact Us
+   777→            </h2>
+   778→            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+   779→              Have questions? We&apos;d love to hear from you. Send us a message
+   780→              and we&apos;ll respond as soon as possible.
+   781→            </p>
+   782→          </div>
+   783→
+   784→          <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
+   785→            {/* contact info - 2 cols */}
+   786→            <div className="md:col-span-2 space-y-6">
+   787→              {[
+   788→                {
+   789→                  icon: MapPin,
+   790→                  label: 'Address',
+   791→                  value: 'P.O. Box 320, Soroti City,\nUganda',
+   792→                },
+   793→                {
+   794→                  icon: Phone,
+   795→                  label: 'Institute Lines',
+   796→                  value: '+256 752 309 660\n+256 772 309 660',
+   797→                },
+   798→                {
+   799→                  icon: Phone,
+   800→                  label: 'Principal',
+   801→                  value: '+256 772 383 391',
+   802→                },
+   803→                {
+   804→                  icon: Mail,
+   805→                  label: 'Email',
+   806→                  value: 'stkizitmad@gmail.com',
+   807→                },
+   808→                {
+   809→                  icon: Clock,
+   810→                  label: 'Office Hours',
+   811→                  value: 'Mon - Fri: 8:00 AM - 5:00 PM',
+   812→                },
+   813→              ].map((item) => {
+   814→                const Icon = item.icon;
+   815→                return (
+   816→                  <div
+   817→                    key={item.label}
+   818→                    className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+   819→                  >
+   820→                    <div className="w-10 h-10 shrink-0 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center">
+   821→                      <Icon className="h-5 w-5 text-[#1a3a6b]" />
+   822→                    </div>
+   823→                    <div>
+   824→                      <p className="text-sm font-semibold text-[#1a3a6b]">
+   825→                        {item.label}
+   826→                      </p>
+   827→                      <p className="text-sm text-muted-foreground whitespace-pre-line">
+   828→                        {item.value}
+   829→                      </p>
+   830→                    </div>
+   831→                  </div>
+   832→                );
+   833→              })}
+   834→            </div>
+   835→
+   836→            {/* contact form - 3 cols */}
+   837→            <div className="md:col-span-3">
+   838→              <Card className="border border-slate-200/80 rounded-2xl shadow-lg">
+   839→                <CardContent className="p-6 sm:p-8">
+   840→                  <form onSubmit={handleContactSubmit} className="space-y-5">
+   841→                    <div className="grid sm:grid-cols-2 gap-5">
+   842→                      <div className="space-y-2">
+   843→                        <Label htmlFor="contact-name" className="text-sm font-medium text-[#1a3a6b]">
+   844→                          Full Name <span className="text-red-500">*</span>
+   845→                        </Label>
+   846→                        <Input
+   847→                          id="contact-name"
+   848→                          placeholder="John Doe"
+   849→                          required
+   850→                          value={contactForm.name}
+   851→                          onChange={(e) =>
+   852→                            setContactForm((f) => ({ ...f, name: e.target.value }))
+   853→                          }
+   854→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   855→                        />
+   856→                      </div>
+   857→                      <div className="space-y-2">
+   858→                        <Label htmlFor="contact-email" className="text-sm font-medium text-[#1a3a6b]">
+   859→                          Email Address <span className="text-red-500">*</span>
+   860→                        </Label>
+   861→                        <Input
+   862→                          id="contact-email"
+   863→                          type="email"
+   864→                          placeholder="john@example.com"
+   865→                          required
+   866→                          value={contactForm.email}
+   867→                          onChange={(e) =>
+   868→                            setContactForm((f) => ({ ...f, email: e.target.value }))
+   869→                          }
+   870→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   871→                        />
+   872→                      </div>
+   873→                    </div>
+   874→                    <div className="grid sm:grid-cols-2 gap-5">
+   875→                      <div className="space-y-2">
+   876→                        <Label htmlFor="contact-phone" className="text-sm font-medium text-[#1a3a6b]">
+   877→                          Phone Number
+   878→                        </Label>
+   879→                        <Input
+   880→                          id="contact-phone"
+   881→                          placeholder="+256 7XX XXX XXX"
+   882→                          value={contactForm.phone}
+   883→                          onChange={(e) =>
+   884→                            setContactForm((f) => ({ ...f, phone: e.target.value }))
+   885→                          }
+   886→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   887→                        />
+   888→                      </div>
+   889→                      <div className="space-y-2">
+   890→                        <Label htmlFor="contact-subject" className="text-sm font-medium text-[#1a3a6b]">
+   891→                          Subject <span className="text-red-500">*</span>
+   892→                        </Label>
+   893→                        <Input
+   894→                          id="contact-subject"
+   895→                          placeholder="How can we help?"
+   896→                          required
+   897→                          value={contactForm.subject}
+   898→                          onChange={(e) =>
+   899→                            setContactForm((f) => ({ ...f, subject: e.target.value }))
+   900→                          }
+   901→                          className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20"
+   902→                        />
+   903→                      </div>
+   904→                    </div>
+   905→                    <div className="space-y-2">
+   906→                      <Label htmlFor="contact-message" className="text-sm font-medium text-[#1a3a6b]">
+   907→                        Message <span className="text-red-500">*</span>
+   908→                      </Label>
+   909→                      <Textarea
+   910→                        id="contact-message"
+   911→                        placeholder="Tell us more about your inquiry..."
+   912→                        required
+   913→                        rows={5}
+   914→                        value={contactForm.message}
+   915→                        onChange={(e) =>
+   916→                          setContactForm((f) => ({ ...f, message: e.target.value }))
+   917→                        }
+   918→                        className="rounded-lg border-slate-200 focus:border-[#1a3a6b] focus:ring-[#1a3a6b]/20 resize-none"
+   919→                      />
+   920→                    </div>
+   921→                    <Button
+   922→                      type="submit"
+   923→                      disabled={contactSubmitting}
+   924→                      className="w-full sm:w-auto bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold px-8 py-3 rounded-lg transition-all hover:scale-[1.02] disabled:opacity-60"
+   925→                    >
+   926→                      {contactSubmitting ? (
+   927→                        <span className="flex items-center gap-2">
+   928→                          <motion.div
+   929→                            animate={{ rotate: 360 }}
+   930→                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+   931→                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+   932→                          />
+   933→                          Sending...
+   934→                        </span>
+   935→                      ) : (
+   936→                        <span className="flex items-center gap-2">
+   937→                          <Send className="h-4 w-4" />
+   938→                          Send Message
+   939→                        </span>
+   940→                      )}
+   941→                    </Button>
+   942→                  </form>
+   943→                </CardContent>
+   944→              </Card>
+   945→            </div>
+   946→          </div>
+   947→        </div>
+   948→      </Section>
+   949→
+   950→      {/* ─────────────────────────────────────────────────
+   951→          8. FOOTER
+   952→          ───────────────────────────────────────────────── */}
+   953→      <footer className="mt-auto bg-[#0d1b2a] text-white relative overflow-hidden">
+   954→        {/* Footer background image underlay */}
+   955→        <div className="absolute inset-0">
+   956→          <Image src="/images/campus.png" alt="" fill className="object-cover opacity-25" />
+   957→          <div className="absolute inset-0 bg-[#0d1b2a]/65" />
+   958→        </div>
+   959→
+   960→        <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
+   961→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
+   962→            {/* brand column */}
+   963→            <div>
+   964→              <div className="flex items-center gap-3 mb-5">
+   965→                <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+   966→                  <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={40} height={40} className="object-contain w-full h-full" />
+   967→                </div>
+   968→                <div>
+   969→                  <h3 className="font-bold text-base leading-tight text-white">
+   970→                    St. Kizito&apos;s
+   971→                  </h3>
+   972→                  <p className="text-xs text-blue-100">Technical Institute - Madera</p>
+   973→                </div>
+   974→              </div>
+   975→              <p className="text-sm text-blue-100 leading-relaxed mb-6">
+   976→                Building skills and transforming lives since 1947. A government-aided
+   977→                TVET institution anchored on Christian principles in Soroti City,
+   978→                Eastern Uganda.
+   979→              </p>
+   980→              {/* social links */}
+   981→              <div className="flex items-center gap-3">
+   982→                {[Facebook, Twitter, Youtube].map((Icon, i) => (
+   983→                  <a
+   984→                    key={i}
+   985→                    href="#"
+   986→                    className="w-9 h-9 rounded-lg bg-white/10 hover:bg-[#f5c518] hover:text-[#1a3a6b] flex items-center justify-center transition-all duration-200"
+   987→                    aria-label="Social media"
+   988→                  >
+   989→                    <Icon className="h-4 w-4" />
+   990→                  </a>
+   991→                ))}
+   992→              </div>
+   993→            </div>
+   994→
+   995→            {/* quick links */}
+   996→            <div>
+   997→              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+   998→                Quick Links
+   999→              </h4>
+  1000→              <ul className="space-y-3">
+  1001→                {QUICK_LINKS.map((link) => (
+  1002→                  <li key={link.page}>
+  1003→                    <button
+  1004→                      onClick={() => setCurrentPage(link.page)}
+  1005→                      className="flex items-center gap-2 text-sm text-blue-100 hover:text-[#f5c518] transition-colors group"
+  1006→                    >
+  1007→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+  1008→                      {link.label}
+  1009→                    </button>
+  1010→                  </li>
+  1011→                ))}
+  1012→              </ul>
+  1013→            </div>
+  1014→
+  1015→            {/* programs column */}
+  1016→            <div>
+  1017→              <h4 className="font-semibold text-base mb-5 text-[#f5c518]">
+  1018→                Our Programs
+  1019→              </h4>
+  1020→              <ul className="space-y-3">
+  1021→                {PROGRAMS.map((prog) => (
+  1022→                  <li key={prog.name}>
+  1023→                    <button
+  1024→                      onClick={() => setCurrentPage('programs')}
+  1025→                      className="flex items-center gap-2 text-sm text-blue-100 hover:text-[#f5c518] transition-colors group"
+  1026→                    >
+  1027→                      <ChevronRight className="h-3.5 w-3.5 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
+  1028→                      {prog.name}
+  1029→                    </button>
+  1030→                  </li>
+  1031→                ))}
+  1032→              </ul>
+  1033→            </div>
+  1034→          </div>
+  1035→        </div>
+  1036→
+  1037→        {/* bottom bar */}
+  1038→        <div className="border-t border-white/10">
+  1039→          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+  1040→            <p className="text-sm text-blue-100">
+  1041→              &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
+  1042→              All rights reserved.
+  1043→            </p>
+  1044→            <p className="text-xs text-blue-100/80">
+  1045→              Crafted with <Heart className="inline h-3 w-3 text-[#f5c518]" /> for
+  1046→              excellence in TVET education
+  1047→            </p>
+  1048→          </div>
+  1049→        </div>
+  1050→      </footer>
+  1051→    </div>
+  1052→  );
+  1053→}
+  1054→

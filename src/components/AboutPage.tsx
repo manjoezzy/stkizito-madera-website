@@ -97,7 +97,7 @@ export default function AboutPage() {
           <div className="absolute top-10 left-10 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
           <div className="absolute bottom-10 right-10 size-48 rounded-full" style={{ background: GOLD, filter: 'blur(60px)' }} />
         </div>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -113,7 +113,7 @@ export default function AboutPage() {
 
       {/* ═══════════ BRIEF HISTORY ═══════════ */}
       <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -165,7 +165,7 @@ export default function AboutPage() {
 
       {/* ═══════════ ACCORDION SECTIONS ═══════════ */}
       <section className="py-16 px-4 bg-slate-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -226,7 +226,7 @@ export default function AboutPage() {
 
       {/* ═══════════ KEY FACTS ═══════════ */}
       <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { value: '1947', label: 'Year Founded', icon: Clock },

@@ -26,6 +26,7 @@ const CATEGORIES = [
   { value: 'campus', label: 'Campus Life' },
   { value: 'openday', label: 'Open Day' },
   { value: 'general', label: 'General' },
+  { value: 'academic', label: 'Academic' },
 ];
 
 interface GalleryItem {

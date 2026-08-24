@@ -402,7 +402,7 @@ export default function HomePage() {
           2. STATS SECTION
           ───────────────────────────────────────────────── */}
       <section id="stats-section" className="relative -mt-16 z-20 py-12 md:py-16 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {STATS.map((stat, i) => {
               const Icon = stat.icon;
@@ -435,7 +435,7 @@ export default function HomePage() {
           3. WELCOME / ABOUT SECTION
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* left - campus photo */}
           <div className="relative">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-[#1a3a6b]/20">
@@ -514,7 +514,7 @@ export default function HomePage() {
           4. PROGRAMS SHOWCASE
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
               <BookOpen className="h-4 w-4" />
@@ -654,7 +654,7 @@ export default function HomePage() {
           6. ADMISSIONS CTA BANNER
           ───────────────────────────────────────────────── */}
       <Section className="px-4 py-20 md:py-28">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div
             className="relative rounded-3xl overflow-hidden px-6 py-14 sm:px-12 sm:py-20 text-center"
             style={{
@@ -705,7 +705,7 @@ export default function HomePage() {
           6. TESTIMONIALS
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4 bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
               <Star className="h-4 w-4" />
@@ -766,7 +766,7 @@ export default function HomePage() {
           7. CONTACT SECTION
           ───────────────────────────────────────────────── */}
       <Section className="py-20 md:py-28 px-4" id="contact">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 text-[#f5c518] font-semibold text-sm uppercase tracking-widest mb-3">
               <Mail className="h-4 w-4" />
@@ -957,7 +957,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[#0d1b2a]/65" />
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-14 md:py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-14 md:py-20">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
             {/* brand column */}
             <div>
@@ -1036,7 +1036,7 @@ export default function HomePage() {
 
         {/* bottom bar */}
         <div className="border-t border-white/10">
-          <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-sm text-blue-100">
               &copy; {new Date().getFullYear()} St. Kizito&apos;s Technical Institute - Madera.
               All rights reserved.

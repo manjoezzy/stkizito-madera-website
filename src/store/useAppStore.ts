@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Page = 'home' | 'about' | 'programs' | 'admissions' | 'track-application' | 'student-portal' | 'student-login' | 'online-learning' | 'events' | 'admin-login' | 'admin-dashboard' | 'contact' | 'gallery' | 'alumni' | 'graduation';
+export type Page = 'home' | 'about' | 'programs' | 'admissions' | 'track-application' | 'student-portal' | 'student-login' | 'online-learning' | 'events' | 'admin-login' | 'admin-dashboard' | 'contact' | 'gallery' | 'alumni' | 'graduation' | 'enrolled-students';
 
 interface AdminUser {
   id: string;

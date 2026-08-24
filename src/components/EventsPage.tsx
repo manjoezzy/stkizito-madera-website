@@ -38,6 +38,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; bg: string; text: string 
   showcase: { label: 'Showcase', bg: '#ecfdf5', text: '#065f46' },
   assessment: { label: 'Assessment', bg: '#fffbeb', text: '#92400e' },
   campus: { label: 'Campus', bg: '#f5f3ff', text: '#5b21b6' },
+  openday: { label: 'Open Day', bg: '#fef3c7', text: '#92400e' },
   general: { label: 'General', bg: '#f8fafc', text: '#475569' },
 };
 
@@ -195,7 +196,7 @@ export default function EventsPage() {
 
       {/* ── Events Grid ── */}
       <section className="py-16 md:py-20 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-8 h-8 animate-spin mb-4" style={{ color: PRIMARY }} />
