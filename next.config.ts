@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),
+            // Only apply CSP to API routes and pages (not print popups)
           },
         ],
       },

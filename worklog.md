@@ -30,3 +30,22 @@ Stage Summary:
 - Alumni registration: Full public form at /alumni-register with name, email, phone, graduation year, programme, occupation, employer, district, biography
 - Admin alumni: Grouped by class year with collapsible sections, Excel/PDF export buttons, year filter dropdown
 - API: /api/alumni/register (public POST), /api/alumni/export?format=xlsx|pdf (admin GET with year/programme filters)
+
+---
+Task ID: 2
+Agent: Super Z (main)
+Task: Fix 5 bugs: alumni registration Prisma error, gallery images not visible, TVET form upload state, download HTML->PDF, form delete buttons
+
+Work Log:
+- Fixed alumni registration 500: Changed `db.alumni.findUnique({ where: { email } })` to `db.alumni.findFirst({ where: { email } })` because email field is not @unique in schema
+- Fixed gallery images not showing: Replaced Next.js `<Image>` with native `<img>` in GalleryPage.tsx (Next.js Image cannot render base64 data URLs returned by upload API)
+- Fixed TVET form upload not updating UI: Added `currentTvetFormUrl` state, fetched `tvet_form_url` in useEffect, set state after successful upload, added "Current TVET form uploaded" status message
+- Added delete function for both TVET and non-formal forms: `deleteFormSetting()` clears the setting value and updates UI state. Both form sections now show a red "Remove" button when a form is uploaded
+- Fixed download filled form: Replaced HTML blob download with `downloadFormAsPdf()` that opens a print dialog (Save as PDF). Both download buttons (view dialog + expanded row) updated. Fallback to HTML if popup is blocked
+
+Stage Summary:
+- Alumni registration now works (findUnique -> findFirst)
+- Gallery images now visible on public website (native img tag for data URLs)
+- TVET form upload now shows status + updates properly
+- Both forms have delete/remove buttons
+- Download filled form opens print dialog for PDF save instead of downloading .html file

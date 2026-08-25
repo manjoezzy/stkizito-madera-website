@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Check for duplicate email if provided
     if (email && email.trim()) {
- const existing = await db.alumni.findUnique({ where: { email: email.trim().toLowerCase() } });
+ const existing = await db.alumni.findFirst({ where: { email: email.trim().toLowerCase() } });
       if (existing) {
         return NextResponse.json(
           { success: false, message: 'An alumni record with this email already exists. If this is you, please contact the school.' },

@@ -1,0 +1,540 @@
+  1001→            </p>
+  1002→          </motion.div>
+  1003→        </div>
+  1004→      </header>
+  1005→
+  1006→      <main className="flex-1">
+  1007→        {/* ═══════════ PROCESS STEPS ═══════════ */}
+  1008→        <section className="py-16 bg-gray-50">
+  1009→          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+  1010→            <motion.div
+  1011→              initial={{ opacity: 0, y: 20 }}
+  1012→              whileInView={{ opacity: 1, y: 0 }}
+  1013→              viewport={{ once: true }}
+  1014→              transition={{ duration: 0.5 }}
+  1015→              className="text-center mb-12"
+  1016→            >
+  1017→              <h2 className="text-3xl font-bold text-gray-900">Admission Process</h2>
+  1018→              <p className="text-gray-500 mt-2">Follow these simple steps to secure your admission</p>
+  1019→            </motion.div>
+  1020→
+  1021→            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+  1022→              {PROCESS_STEPS.map((step, i) => {
+  1023→                const Icon = step.icon;
+  1024→                return (
+  1025→                  <motion.div
+  1026→                    key={i}
+  1027→                    initial={{ opacity: 0, y: 20 }}
+  1028→                    whileInView={{ opacity: 1, y: 0 }}
+  1029→                    viewport={{ once: true }}
+  1030→                    transition={{ duration: 0.4, delay: i * 0.1 }}
+  1031→                    className="flex flex-col items-center text-center"
+  1032→                  >
+  1033→                    <div
+  1034→                      className="size-16 rounded-full flex items-center justify-center relative mb-3"
+  1035→                      style={{ border: `3px solid ${GOLD}`, background: `${PRIMARY}10` }}
+  1036→                    >
+  1037→                      <Icon className="size-6" style={{ color: PRIMARY }} />
+  1038→                      <span
+  1039→                        className="absolute -top-1 -right-1 size-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+  1040→                        style={{ background: GOLD, color: PRIMARY }}
+  1041→                      >
+  1042→                        {i + 1}
+  1043→                      </span>
+  1044→                    </div>
+  1045→                    <p className="text-sm font-semibold text-gray-800 leading-tight">{step.label}</p>
+  1046→                  </motion.div>
+  1047→                );
+  1048→              })}
+  1049→            </div>
+  1050→          </div>
+  1051→        </section>
+  1052→
+  1053→        {/* ═══════════ ENTRY REQUIREMENTS ═══════════ */}
+  1054→        <section className="py-16">
+  1055→          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+  1056→            <motion.div
+  1057→              initial={{ opacity: 0, y: 20 }}
+  1058→              whileInView={{ opacity: 1, y: 0 }}
+  1059→              viewport={{ once: true }}
+  1060→              transition={{ duration: 0.5 }}
+  1061→              className="text-center mb-12"
+  1062→            >
+  1063→              <h2 className="text-3xl font-bold text-gray-900">Entry Requirements</h2>
+  1064→              <p className="text-gray-500 mt-2">Check the requirements for your preferred programme</p>
+  1065→            </motion.div>
+  1066→
+  1067→            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  1068→              {/* Card 1: National Certificates */}
+  1069→              <motion.div
+  1070→                initial={{ opacity: 0, y: 20 }}
+  1071→                whileInView={{ opacity: 1, y: 0 }}
+  1072→                viewport={{ once: true }}
+  1073→                transition={{ duration: 0.4, delay: 0.1 }}
+  1074→              >
+  1075→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+  1076→                  style={{ borderTopColor: PRIMARY }}
+  1077→                >
+  1078→                  <CardHeader className="pb-3">
+  1079→                    <div className="flex items-center gap-3">
+  1080→                      <div className="size-10 rounded-lg flex items-center justify-center" style={{ background: `${PRIMARY}15` }}>
+  1081→                        <Award className="size-5" style={{ color: PRIMARY }} />
+  1082→                      </div>
+  1083→                      <CardTitle className="text-lg">National Certificates</CardTitle>
+  1084→                    </div>
+  1085→                  </CardHeader>
+  1086→                  <CardContent className="space-y-3">
+  1087→                    <div className="flex items-start gap-2">
+  1088→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1089→                      <p className="text-sm text-gray-600">UCE certificate with at least <strong>3 credits</strong></p>
+  1090→                    </div>
+  1091→                    <div className="flex items-start gap-2">
+  1092→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1093→                      <p className="text-sm text-gray-600">Minimum age of <strong>16 years</strong> at time of admission</p>
+  1094→                    </div>
+  1095→                    <div className="flex items-start gap-2">
+  1096→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1097→                      <p className="text-sm text-gray-600">Duration: <strong>2 years</strong></p>
+  1098→                    </div>
+  1099→                  </CardContent>
+  1100→                </Card>
+  1101→              </motion.div>
+  1102→
+  1103→              {/* Card 2: Vocational Skills */}
+  1104→              <motion.div
+  1105→                initial={{ opacity: 0, y: 20 }}
+  1106→                whileInView={{ opacity: 1, y: 0 }}
+  1107→                viewport={{ once: true }}
+  1108→                transition={{ duration: 0.4, delay: 0.2 }}
+  1109→              >
+  1110→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+  1111→                  style={{ borderTopColor: GOLD }}
+  1112→                >
+  1113→                  <CardHeader className="pb-3">
+  1114→                    <div className="flex items-center gap-3">
+  1115→                      <div className="size-10 rounded-lg flex items-center justify-center" style={{ background: `${GOLD}20` }}>
+  1116→                        <BadgeCheck className="size-5" style={{ color: GOLD }} />
+  1117→                      </div>
+  1118→                      <CardTitle className="text-lg">Vocational Skills</CardTitle>
+  1119→                    </div>
+  1120→                  </CardHeader>
+  1121→                  <CardContent className="space-y-3">
+  1122→                    <div className="flex items-start gap-2">
+  1123→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1124→                      <p className="text-sm text-gray-600"><strong>Open to all</strong> — no formal academic requirements</p>
+  1125→                    </div>
+  1126→                    <div className="flex items-start gap-2">
+  1127→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1128→                      <p className="text-sm text-gray-600"><strong>No age limit</strong> — everyone is welcome</p>
+  1129→                    </div>
+  1130→                    <div className="flex items-start gap-2">
+  1131→                      <CheckCircle className="size-4 text-green-500 mt-0.5 shrink-0" />
+  1132→                      <p className="text-sm text-gray-600">Duration: <strong>3–6 months</strong></p>
+  1133→                    </div>
+  1134→                  </CardContent>
+  1135→                </Card>
+  1136→              </motion.div>
+  1137→
+  1138→              {/* Card 3: Required Documents */}
+  1139→              <motion.div
+  1140→                initial={{ opacity: 0, y: 20 }}
+  1141→                whileInView={{ opacity: 1, y: 0 }}
+  1142→                viewport={{ once: true }}
+  1143→                transition={{ duration: 0.4, delay: 0.3 }}
+  1144→              >
+  1145→                <Card className="h-full border-t-4 hover:shadow-lg transition-shadow duration-300"
+  1146→                  style={{ borderTopColor: '#e11d48' }}
+  1147→                >
+  1148→                  <CardHeader className="pb-3">
+  1149→                    <div className="flex items-center gap-3">
+  1150→                      <div className="size-10 rounded-lg flex items-center justify-center bg-red-50">
+  1151→                        <FileText className="size-5 text-red-500" />
+  1152→                      </div>
+  1153→                      <CardTitle className="text-lg">Required Documents</CardTitle>
+  1154→                    </div>
+  1155→                  </CardHeader>
+  1156→                  <CardContent className="space-y-3">
+  1157→                    <div className="flex items-start gap-2">
+  1158→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+  1159→                      <p className="text-sm text-gray-600">Academic <strong>certificates & transcripts</strong></p>
+  1160→                    </div>
+  1161→                    <div className="flex items-start gap-2">
+  1162→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+  1163→                      <p className="text-sm text-gray-600"><strong>NIN</strong> or Birth Certificate</p>
+  1164→                    </div>
+  1165→                    <div className="flex items-start gap-2">
+  1166→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+  1167→                      <p className="text-sm text-gray-600"><strong>3 passport-size</strong> photographs</p>
+  1168→                    </div>
+  1169→                    <div className="flex items-start gap-2">
+  1170→                      <CircleDot className="size-4 text-gray-400 mt-0.5 shrink-0" />
+  1171→                      <p className="text-sm text-gray-600"><strong>Recommendation letter</strong> from former school or LC1</p>
+  1172→                    </div>
+  1173→                  </CardContent>
+  1174→                </Card>
+  1175→              </motion.div>
+  1176→            </div>
+  1177→          </div>
+  1178→        </section>
+  1179→
+  1180→        {/* ═══════════ DOWNLOAD APPLICATION FORMS ═══════════ */}
+  1181→        <section className="py-16 px-4">
+  1182→          <div className="max-w-4xl mx-auto">
+  1183→            <motion.div
+  1184→              initial={{ opacity: 0, y: 20 }}
+  1185→              whileInView={{ opacity: 1, y: 0 }}
+  1186→              viewport={{ once: true }}
+  1187→              transition={{ duration: 0.5 }}
+  1188→              className="text-center mb-10"
+  1189→            >
+  1190→              <h2 className="text-3xl font-bold text-gray-900">Download Application Forms</h2>
+  1191→              <p className="text-gray-500 mt-2">
+  1192→                Download the appropriate form, fill it in, and submit it to the admissions office.
+  1193→              </p>
+  1194→            </motion.div>
+  1195→
+  1196→            <div className="grid md:grid-cols-2 gap-6">
+  1197→              {/* Formal (TVET) Form */}
+  1198→              <motion.div
+  1199→                initial={{ opacity: 0, y: 20 }}
+  1200→                whileInView={{ opacity: 1, y: 0 }}
+  1201→                viewport={{ once: true }}
+  1202→                transition={{ duration: 0.5, delay: 0.1 }}
+  1203→              >
+  1204→                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+  1205→                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+  1206→                    <div className="flex items-start gap-4 mb-4">
+  1207→                      <div
+  1208→                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+  1209→                        style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+  1210→                      >
+  1211→                        <FileText className="w-6 h-6 text-white" />
+  1212→                      </div>
+  1213→                      <div className="flex-1">
+  1214→                        <h3 className="text-lg font-bold text-gray-900">Formal Admission Form</h3>
+  1215→                        <p className="text-xs text-gray-400 mt-0.5">National Certificate &amp; Diploma Programmes</p>
+  1216→                      </div>
+  1217→                    </div>
+  1218→                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+  1219→                      This is the official TVET admission form for government-recognised programmes
+  1220→                      (2-year certificates and diplomas). Provided by the Ministry of Education &amp; Sports.
+  1221→                    </p>
+  1222→                    <div className="mt-6 space-y-2">
+  1223→                      {tvetFormUrl ? (
+  1224→                        <a
+  1225→                          href={tvetFormUrl}
+  1226→                          download
+  1227→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+  1228→                          style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+  1229→                        >
+  1230→                          <Download className="w-4 h-4" />
+  1231→                          Download TVET Form (PDF)
+  1232→                        </a>
+  1233→                      ) : (
+  1234→                        <div
+  1235→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400"
+  1236→                        >
+  1237→                          <FileText className="w-4 h-4" />
+  1238→                          Form Not Yet Available
+  1239→                        </div>
+  1240→                      )}
+  1241→                    </div>
+  1242→                  </CardContent>
+  1243→                </Card>
+  1244→              </motion.div>
+  1245→
+  1246→              {/* Non-Formal Form */}
+  1247→              <motion.div
+  1248→                initial={{ opacity: 0, y: 20 }}
+  1249→                whileInView={{ opacity: 1, y: 0 }}
+  1250→                viewport={{ once: true }}
+  1251→                transition={{ duration: 0.5, delay: 0.2 }}
+  1252→              >
+  1253→                <Card className="h-full border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
+  1254→                  <CardContent className="p-6 sm:p-8 flex flex-col h-full">
+  1255→                    <div className="flex items-start gap-4 mb-4">
+  1256→                      <div
+  1257→                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+  1258→                        style={{ backgroundColor: '#fef9e7' }}
+  1259→                      >
+  1260→                        <FileText className="w-6 h-6" style={{ color: '#92640a' }} />
+  1261→                      </div>
+  1262→                      <div className="flex-1">
+  1263→                        <h3 className="text-lg font-bold text-gray-900">Non-Formal Admission Form</h3>
+  1264→                        <p className="text-xs text-gray-400 mt-0.5">Short Courses &amp; Vocational Skills</p>
+  1265→                      </div>
+  1266→                    </div>
+  1267→                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
+  1268→                      This form is for short courses (3–6 months) and vocational skills programmes.
+  1269→                      Provided by St. Kizito&apos;s Technical Institute - Madera.
+  1270→                    </p>
+  1271→                    <div className="mt-6 space-y-2">
+  1272→                      {nonFormalFormUrl ? (
+  1273→                        <a
+  1274→                          href={nonFormalFormUrl}
+  1275→                          download
+  1276→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02]"
+  1277→                          style={{ backgroundColor: '#f5c518', color: '#1a3a6b' }}
+  1278→                        >
+  1279→                          <Download className="w-4 h-4" />
+  1280→                          Download Non-Formal Form
+  1281→                        </a>
+  1282→                      ) : (
+  1283→                        <div
+  1284→                          className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm bg-gray-100 text-gray-400"
+  1285→                        >
+  1286→                          <FileText className="w-4 h-4" />
+  1287→                          Form Not Yet Available
+  1288→                        </div>
+  1289→                      )}
+  1290→                    </div>
+  1291→                  </CardContent>
+  1292→                </Card>
+  1293→              </motion.div>
+  1294→            </div>
+  1295→
+  1296→            <p className="text-center text-xs text-gray-400 mt-6">
+  1297→              You may also apply online using the form below, or visit the admissions office in person.
+  1298→            </p>
+  1299→          </div>
+  1300→        </section>
+  1301→
+  1302→        {/* ═══════════ ONLINE APPLICATION FORM ═══════════ */}
+  1303→        <section className="py-16 bg-gray-50">
+  1304→          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+  1305→            <motion.div
+  1306→              initial={{ opacity: 0, y: 20 }}
+  1307→              whileInView={{ opacity: 1, y: 0 }}
+  1308→              viewport={{ once: true }}
+  1309→              transition={{ duration: 0.5 }}
+  1310→              className="text-center mb-12"
+  1311→            >
+  1312→              <h2 className="text-3xl font-bold text-gray-900">Online Application Form</h2>
+  1313→              <p className="text-gray-500 mt-2">Complete all steps to submit your application</p>
+  1314→
+  1315→              {/* TVET Formal Application CTA */}
+  1316→              <div className="mt-6 max-w-xl mx-auto">
+  1317→                <button
+  1318→                  onClick={() => setCurrentPage('tvet-form')}
+  1319→                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.02] hover:shadow-lg"
+  1320→                  style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+  1321→                >
+  1322→                  <GraduationCap className="w-4 h-4" />
+  1323→                  Apply for TVET Programmes (Formal)
+  1324→                  <ArrowRight className="w-4 h-4" />
+  1325→                </button>
+  1326→                <p className="text-[11px] text-gray-400 mt-2">Official Ministry of Education TVET application form for National Certificates & Diplomas</p>
+  1327→              </div>
+  1328→            </motion.div>
+  1329→
+  1330→            <motion.div
+  1331→              initial={{ opacity: 0, y: 20 }}
+  1332→              whileInView={{ opacity: 1, y: 0 }}
+  1333→              viewport={{ once: true }}
+  1334→              transition={{ duration: 0.5, delay: 0.2 }}
+  1335→              className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+  1336→            >
+  1337→              <div className="flex flex-col lg:flex-row">
+  1338→                {/* ──── LEFT SIDEBAR: Step Indicator ──── */}
+  1339→                <aside
+  1340→                  className="lg:w-64 shrink-0 p-6 lg:p-8 lg:border-r border-b lg:border-b-0 border-gray-100"
+  1341→                  style={{ background: `linear-gradient(180deg, ${PRIMARY}08, white)` }}
+  1342→                >
+  1343→                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-6">
+  1344→                    Application Steps
+  1345→                  </h3>
+  1346→                  <nav className="space-y-1">
+  1347→                    {FORM_STEPS_META.map((step) => {
+  1348→                      const Icon = step.icon;
+  1349→                      const active = currentStep === step.id;
+  1350→                      const completed = isStepCompleted(step.id);
+  1351→                      return (
+  1352→                        <button
+  1353→                          key={step.id}
+  1354→                          type="button"
+  1355→                          onClick={() => {
+  1356→                            if (step.id < currentStep || completed) setCurrentStep(step.id);
+  1357→                          }}
+  1358→                          disabled={step.id > currentStep && !completed}
+  1359→                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+  1360→                            active
+  1361→                              ? 'text-white shadow-md'
+  1362→                              : completed
+  1363→                              ? 'text-gray-700 hover:bg-gray-50'
+  1364→                              : 'text-gray-400'
+  1365→                          }`}
+  1366→                          style={
+  1367→                            active
+  1368→                              ? { background: PRIMARY }
+  1369→                              : undefined
+  1370→                          }
+  1371→                        >
+  1372→                          <div
+  1373→                            className={`size-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
+  1374→                              active
+  1375→                                ? 'border-white bg-white/20'
+  1376→                                : completed
+  1377→                                ? 'border-green-400 bg-green-50'
+  1378→                                : 'border-gray-200 bg-gray-50'
+  1379→                            }`}
+  1380→                          >
+  1381→                            {completed && !active ? (
+  1382→                              <Check className="size-4 text-green-500" />
+  1383→                            ) : (
+  1384→                              <Icon className={`size-3.5 ${active ? 'text-white' : 'text-gray-400'}`} />
+  1385→                            )}
+  1386→                          </div>
+  1387→                          <span className="text-sm font-medium leading-tight">{step.label}</span>
+  1388→                        </button>
+  1389→                      );
+  1390→                    })}
+  1391→                  </nav>
+  1392→
+  1393→                  {/* Mobile step indicator */}
+  1394→                  <div className="lg:hidden mt-6 pt-4 border-t border-gray-100">
+  1395→                    <div className="flex items-center justify-between gap-2">
+  1396→                      {FORM_STEPS_META.map((step) => (
+  1397→                        <div key={step.id} className="flex-1 flex justify-center">
+  1398→                          <div
+  1399→                            className={`size-3 rounded-full transition-colors ${
+  1400→                              currentStep === step.id
+  1401→                                ? 'ring-2 ring-offset-2'
+  1402→                                : isStepCompleted(step.id)
+  1403→                                ? 'bg-green-500'
+  1404→                                : 'bg-gray-200'
+  1405→                            }`}
+  1406→                            style={
+  1407→                              currentStep === step.id
+  1408→                                ? { background: GOLD, ringColor: GOLD }
+  1409→                                : undefined
+  1410→                            }
+  1411→                          />
+  1412→                        </div>
+  1413→                      ))}
+  1414→                    </div>
+  1415→                    <p className="text-xs text-center text-gray-400 mt-2">
+  1416→                      Step {currentStep} of 5
+  1417→                    </p>
+  1418→                  </div>
+  1419→                </aside>
+  1420→
+  1421→                {/* ──── RIGHT CONTENT AREA ──── */}
+  1422→                <div className="flex-1 p-6 sm:p-8 lg:p-10 min-h-[480px]">
+  1423→                  <AnimatePresence mode="wait">
+  1424→                    {renderStepContent()}
+  1425→                  </AnimatePresence>
+  1426→
+  1427→                  {/* Navigation Buttons */}
+  1428→                  {currentStep < 5 && (
+  1429→                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+  1430→                      <Button
+  1431→                        variant="outline"
+  1432→                        onClick={goPrev}
+  1433→                        disabled={currentStep === 1}
+  1434→                        className="cursor-pointer disabled:opacity-40"
+  1435→                      >
+  1436→                        <ChevronLeft className="size-4 mr-1" />
+  1437→                        Previous
+  1438→                      </Button>
+  1439→
+  1440→                      <div className="flex items-center gap-2">
+  1441→                        {FORM_STEPS_META.map((step) => (
+  1442→                          <div
+  1443→                            key={step.id}
+  1444→                            className={`h-1.5 rounded-full transition-all duration-300 ${
+  1445→                              step.id === currentStep
+  1446→                                ? 'w-8'
+  1447→                                : step.id < currentStep
+  1448→                                ? 'w-4 bg-green-400'
+  1449→                                : 'w-4 bg-gray-200'
+  1450→                            }`}
+  1451→                            style={step.id === currentStep ? { background: GOLD } : undefined}
+  1452→                          />
+  1453→                        ))}
+  1454→                      </div>
+  1455→
+  1456→                      <Button
+  1457→                        onClick={goNext}
+  1458→                        disabled={submitting}
+  1459→                        className="cursor-pointer"
+  1460→                        style={{ background: PRIMARY }}
+  1461→                      >
+  1462→                        {submitting ? (
+  1463→                          <>
+  1464→                            <Loader2 className="size-4 mr-2 animate-spin" />
+  1465→                            Submitting...
+  1466→                          </>
+  1467→                        ) : currentStep === 4 ? (
+  1468→                          <>
+  1469→                            Submit Application
+  1470→                            <ArrowRight className="size-4 ml-1" />
+  1471→                          </>
+  1472→                        ) : (
+  1473→                          <>
+  1474→                            Next
+  1475→                            <ChevronRight className="size-4 ml-1" />
+  1476→                          </>
+  1477→                        )}
+  1478→                      </Button>
+  1479→                    </div>
+  1480→                  )}
+  1481→                </div>
+  1482→              </div>
+  1483→            </motion.div>
+  1484→          </div>
+  1485→        </section>
+  1486→
+  1487→        {/* ═══════════ NEED HELP SECTION ═══════════ */}
+  1488→        <section className="py-16">
+  1489→          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+  1490→            <motion.div
+  1491→              initial={{ opacity: 0, y: 20 }}
+  1492→              whileInView={{ opacity: 1, y: 0 }}
+  1493→              viewport={{ once: true }}
+  1494→              transition={{ duration: 0.5 }}
+  1495→              className="rounded-2xl overflow-hidden shadow-xl"
+  1496→              style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})` }}
+  1497→            >
+  1498→              <div className="p-8 sm:p-12 text-center relative">
+  1499→                <div className="absolute inset-0 opacity-5">
+  1500→                  <div className="absolute top-0 right-0 size-64 rounded-full" style={{ background: GOLD, filter: 'blur(80px)' }} />
+  1501→                </div>
+  1502→                <div className="relative z-10">
+  1503→                  <div className="mx-auto size-14 rounded-full flex items-center justify-center mb-4" style={{ background: GOLD }}>
+  1504→                    <HelpCircle className="size-7" style={{ color: PRIMARY }} />
+  1505→                  </div>
+  1506→                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Need Help With Your Application?</h2>
+  1507→                  <p className="text-blue-100 max-w-xl mx-auto mb-8">
+  1508→                    Our admissions team is here to assist you every step of the way. Reach out to us through any of the channels below.
+  1509→                  </p>
+  1510→                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+  1511→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1512→                      <Phone className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1513→                      <p className="text-white font-semibold text-sm">Call Us</p>
+  1514→                      <p className="text-blue-200 text-sm mt-1">+256 752 309 660</p>
+  1515→                    </div>
+  1516→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1517→                      <Mail className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1518→                      <p className="text-white font-semibold text-sm">Email</p>
+  1519→                      <p className="text-blue-200 text-sm mt-1">stkizitmad@gmail.com</p>
+  1520→                    </div>
+  1521→                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 text-center">
+  1522→                      <MapPin className="size-6 mx-auto mb-2" style={{ color: GOLD }} />
+  1523→                      <p className="text-white font-semibold text-sm">Visit Us</p>
+  1524→                      <p className="text-blue-200 text-sm mt-1">Madera, Soroti City</p>
+  1525→                    </div>
+  1526→                  </div>
+  1527→                  <div className="flex items-center justify-center gap-2 mt-6 text-blue-200 text-sm">
+  1528→                    <Clock className="size-4" style={{ color: GOLD }} />
+  1529→                    Office Hours: Mon–Fri, 8:00 AM – 5:00 PM
+  1530→                  </div>
+  1531→                </div>
+  1532→              </div>
+  1533→            </motion.div>
+  1534→          </div>
+  1535→        </section>
+  1536→      </main>
+  1537→    </div>
+  1538→  );
+  1539→}
+  1540→

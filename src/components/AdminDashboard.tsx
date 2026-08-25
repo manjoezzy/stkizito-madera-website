@@ -1108,17 +1108,11 @@ export default function AdminDashboard() {
                   variant="outline"
                   onClick={() => {
                     const html = generateFilledFormHtml(viewApplicant);
-                    const blob = new Blob([html], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Application_${viewApplicant.referenceNumber}.html`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                    downloadFormAsPdf(html, `Application_${viewApplicant.referenceNumber}.pdf`);
                   }}
                 >
                   <Download className="w-4 h-4 mr-1" />
-                  Download Filled Form
+                  Download Filled Form (PDF)
                 </Button>
                 {viewApplicant.status === 'pending' && (
                   <>
@@ -1416,17 +1410,11 @@ export default function AdminDashboard() {
                   variant="outline"
                   onClick={() => {
                     const html = generateFilledFormHtml(expandedApp);
-                    const blob = new Blob([html], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Application_${expandedApp.referenceNumber}.html`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                    downloadFormAsPdf(html, `Application_${expandedApp.referenceNumber}.pdf`);
                   }}
                 >
                   <Download className="w-4 h-4 mr-1" />
-                  Download Filled Form
+                  Download Filled Form (PDF)
                 </Button>
                 {(expandedApp.status === 'pending' || expandedApp.status === 'rejected') && (
                   <Button
@@ -2985,6 +2973,7 @@ function SettingsSection() {
   const [currentFormUrl, setCurrentFormUrl] = useState<string | null>(null);
   const [tvetFormFile, setTvetFormFile] = useState<File | null>(null);
   const [tvetUploading, setTvetUploading] = useState(false);
+  const [currentTvetFormUrl, setCurrentTvetFormUrl] = useState<string | null>(null);
   const [appFee, setAppFee] = useState('50000');
   const [savingFee, setSavingFee] = useState(false);
   const [feeSaved, setFeeSaved] = useState(false);
@@ -2992,9 +2981,11 @@ function SettingsSection() {
   useEffect(() => {
     Promise.all([
       fetch('/api/settings?key=non_formal_form_url').then((r) => r.json()),
+      fetch('/api/settings?key=tvet_form_url').then((r) => r.json()),
       fetch('/api/settings?key=application_fee').then((r) => r.json()),
-    ]).then(([nf, af]) => {
+    ]).then(([nf, tf, af]) => {
       if (nf.value) setCurrentFormUrl(nf.value);
+      if (tf.value) setCurrentTvetFormUrl(tf.value);
       if (af.value) setAppFee(af.value);
     }).catch(() => {});
   }, []);
@@ -3056,6 +3047,7 @@ function SettingsSection() {
           credentials: 'include',
           body: JSON.stringify({ key: 'tvet_form_url', value: data.url }),
         });
+        setCurrentTvetFormUrl(data.url);
         setTvetFormFile(null);
         addToast('TVET form uploaded', 'success');
       } else if (res.status === 401) {
@@ -3064,6 +3056,27 @@ function SettingsSection() {
         addToast('Upload failed', 'error');
       }
     } catch {} finally { setTvetUploading(false); }
+  };
+
+  const deleteFormSetting = async (key: string, stateSetter: (v: null) => void) => {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ key, value: '' }),
+      });
+      if (res.ok) {
+        stateSetter(null);
+        addToast('Form removed successfully', 'success');
+      } else if (res.status === 401) {
+        addToast('Session expired. Please log in again.', 'error');
+      } else {
+        addToast('Failed to remove form', 'error');
+      }
+    } catch {
+      addToast('Failed to remove form', 'error');
+    }
   };
 
   return (
@@ -3147,8 +3160,21 @@ function SettingsSection() {
         <CardContent className="space-y-6">
           {/* TVET Form */}
           <div className="p-4 rounded-xl border border-slate-200">
-            <h4 className="text-sm font-semibold text-slate-700 mb-1">Formal Admission Form (TVET)</h4>
+            <div className="flex items-center justify-between mb-1">
+              <h4 className="text-sm font-semibold text-slate-700">Formal Admission Form (TVET)</h4>
+              {currentTvetFormUrl && (
+                <button
+                  onClick={() => deleteFormSetting('tvet_form_url', setCurrentTvetFormUrl)}
+                  className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium hover:underline cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" /> Remove
+                </button>
+              )}
+            </div>
             <p className="text-xs text-slate-400 mb-4">The official TVET admission form for national certificate programmes.</p>
+            {currentTvetFormUrl && (
+              <p className="text-xs text-emerald-600 mb-3 font-medium">Current TVET form uploaded. Students can now download this form.</p>
+            )}
             <div className="flex items-center gap-3">
               <label className="flex-1 cursor-pointer">
                 <input
@@ -3195,7 +3221,17 @@ function SettingsSection() {
 
           {/* Non-Formal Form */}
           <div className="p-4 rounded-xl border border-slate-200">
-            <h4 className="text-sm font-semibold text-slate-700 mb-1">Non-Formal Admission Form (School)</h4>
+            <div className="flex items-center justify-between mb-1">
+              <h4 className="text-sm font-semibold text-slate-700">Non-Formal Admission Form (School)</h4>
+              {currentFormUrl && (
+                <button
+                  onClick={() => deleteFormSetting('non_formal_form_url', setCurrentFormUrl)}
+                  className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium hover:underline cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" /> Remove
+                </button>
+              )}
+            </div>
             <p className="text-xs text-slate-400 mb-4">The institute&apos;s own application form for short courses and vocational skills programmes.</p>
             {currentFormUrl && (
               <p className="text-xs text-emerald-600 mb-3 font-medium">Current file uploaded. Students can now download this form.</p>
@@ -3257,6 +3293,27 @@ function SettingsSection() {
       </Card>
     </div>
   );
+}
+
+// ---- Download Form as PDF via Print ----
+function downloadFormAsPdf(html: string, filename: string) {
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    // Fallback: download as HTML if popup blocked
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.replace('.pdf', '.html');
+    a.click();
+    URL.revokeObjectURL(url);
+    return;
+  }
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.onload = () => {
+    printWindow.print();
+  };
 }
 
 // ---- Generate Filled Form HTML ----

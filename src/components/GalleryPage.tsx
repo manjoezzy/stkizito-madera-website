@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import {
   X,
   Camera,
@@ -195,13 +194,11 @@ export default function GalleryPage() {
                   onClick={() => openLightbox(item)}
                 >
                   <div className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-                    <div className="relative aspect-[4/3]">
-                      <Image
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img
                         src={item.imageUrl}
                         alt={item.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
@@ -289,11 +286,9 @@ export default function GalleryPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative w-full max-h-[70vh]">
-                <Image
+                <img
                   src={selectedItem.imageUrl}
                   alt={selectedItem.title}
-                  width={1200}
-                  height={800}
                   className="max-h-[70vh] w-auto mx-auto object-contain rounded-lg"
                 />
               </div>
