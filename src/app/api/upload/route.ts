@@ -1,118 +1,118 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, unauthorized } from '@/lib/auth';
+import { getSession, hasMinRole, unauthorized, forbidden } from '@/lib/auth';
+import { auditLog } from '@/lib/audit';
+import { AUDIT_ACTIONS } from '@/lib/audit';
 
-// Vercel-compatible upload: returns base64 data URLs (no filesystem writes needed)
-// This works in serverless environments where /public is read-only.
-
-const TYPE_CONFIG: Record<string, { maxSize: number; allowedMime: string[]; subfolder: string }> = {
+// ─── Configuration per upload type ─────────────────────────────────
+const UPLOAD_CONFIG: Record<string, { maxSizeBytes: number; allowedMime: string[]; label: string }> = {
   event: {
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSizeBytes: 5 * 1024 * 1024, // 5 MB
     allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    subfolder: 'events',
+    label: 'Event',
   },
   gallery: {
-    maxSize: 10 * 1024 * 1024,
-    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jfif'],
-    subfolder: 'gallery',
+    maxSizeBytes: 5 * 1024 * 1024,
+    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    label: 'Gallery',
   },
   admission: {
-    maxSize: 2 * 1024 * 1024, // 2MB for admission docs
+    maxSizeBytes: 2 * 1024 * 1024,
     allowedMime: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
-    subfolder: 'admissions',
+    label: 'Admission document',
   },
   graduation: {
-    maxSize: 10 * 1024 * 1024,
-    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/ogg'],
-    subfolder: 'graduation',
+    maxSizeBytes: 5 * 1024 * 1024,
+    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    label: 'Graduation',
   },
   form: {
-    maxSize: 5 * 1024 * 1024, // 5MB for form PDFs
+    maxSizeBytes: 10 * 1024 * 1024, // 10 MB for form PDFs
     allowedMime: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    subfolder: 'forms',
+    label: 'Form',
   },
   general: {
-    maxSize: 10 * 1024 * 1024,
-    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'],
-    subfolder: 'general',
+    maxSizeBytes: 5 * 1024 * 1024,
+    allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    label: 'General',
   },
 };
 
-// Fallback for unknown types
-const DEFAULT_CONFIG = {
-  maxSize: 10 * 1024 * 1024,
-  allowedMime: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'],
-  subfolder: 'uploads',
-};
+const DEFAULT_CONFIG = UPLOAD_CONFIG.general;
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result); // data:mime;base64,...
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function getFileName(file: File): string {
-  const ext = file.name.split('.').pop() || 'bin';
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 8);
-  return `${timestamp}_${random}.${ext}`;
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth check (middleware already verified, but double-check)
     const session = await getSession();
     if (!session) return unauthorized();
+    if (!hasMinRole(session, 'admissions-staff')) return forbidden();
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const type = (formData.get('type') as string) || 'general';
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
-
-    const config = TYPE_CONFIG[type] || DEFAULT_CONFIG;
-
-    // Validate file type
-    const mimeToCheck = file.type || `application/octet-stream`;
-    if (!config.allowedMime.includes(mimeToCheck)) {
       return NextResponse.json(
-        { error: `File type not allowed. Allowed: ${config.allowedMime.join(', ')}` },
+        { success: false, error: 'No file provided' },
         { status: 400 }
       );
     }
+
+    const config = UPLOAD_CONFIG[type] || DEFAULT_CONFIG;
 
     // Validate file size
-    if (file.size > config.maxSize) {
-      const maxMB = (config.maxSize / (1024 * 1024)).toFixed(1);
+    if (file.size > config.maxSizeBytes) {
+      const maxMB = (config.maxSizeBytes / (1024 * 1024)).toFixed(1);
       return NextResponse.json(
-        { error: `File too large. Maximum size: ${maxMB}MB` },
+        { success: false, error: `File too large. Maximum ${maxMB}MB allowed for ${config.label.toLowerCase()} uploads.` },
         { status: 400 }
       );
     }
 
-    // Convert to base64 data URL for Vercel compatibility (no filesystem writes)
-    const base64Url = await fileToBase64(file);
-    const fileName = getFileName(file);
+    // Validate MIME type
+    if (!config.allowedMime.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid file type '${file.type}'. Allowed: ${config.allowedMime.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Convert to base64 data URL
+    const buffer = await file.arrayBuffer();
+    const base64 = toBase64(buffer);
+    const dataUrl = `data:${file.type};base64,${base64}`;
+
+    // Audit log
+    await auditLog(
+      session.userId,
+      session.role,
+      {
+        action: AUDIT_ACTIONS.DOCUMENT_UPLOADED,
+        resource: 'upload',
+        result: 'success',
+        metadata: JSON.stringify({ fileName: file.name, fileSize: file.size, mimeType: file.type, uploadType: type }),
+      }
+    );
 
     return NextResponse.json({
-      url: base64Url,
-      fileName,
-      originalName: file.name,
+      success: true,
+      url: dataUrl,
+      fileName: file.name,
       size: file.size,
       mimeType: file.type,
-      type,
-      subfolder: config.subfolder,
     });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Upload failed. Please try again.' },
+      { success: false, error: 'Upload failed. Please try again.' },
       { status: 500 }
     );
   }

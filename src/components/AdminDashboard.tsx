@@ -608,6 +608,7 @@ export default function AdminDashboard() {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('type', 'gallery');
       const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
@@ -3018,6 +3019,7 @@ function SettingsSection() {
     try {
       const formData = new FormData();
       formData.append('file', formFile);
+      formData.append('type', 'form');
       const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
@@ -3044,6 +3046,7 @@ function SettingsSection() {
     try {
       const formData = new FormData();
       formData.append('file', tvetFormFile);
+      formData.append('type', 'form');
       const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
