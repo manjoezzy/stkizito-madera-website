@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if account is disabled
-      if ((admin as Record<string, unknown>).disabled === true) {
+      if (admin.disabled === true) {
         return NextResponse.json(
           { success: false, message: 'This account has been disabled. Contact the system administrator.' },
           { status: 403 }
@@ -92,10 +92,9 @@ export async function POST(request: NextRequest) {
 
       clearFailedLogins(email);
 
-      // Validate role
+      // Determine role (use stored or default)
       const role = (admin.role || 'admissions-staff') as UserRole;
       if (!VALID_ROLES.includes(role)) {
-        admin.role = 'admissions-staff';
         await db.admin.update({ where: { id: admin.id }, data: { role: 'admissions-staff' } });
       }
 
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
         userId: admin.id,
         email: admin.email,
         name: admin.name,
-        role,
+        role: VALID_ROLES.includes(role) ? role : 'admissions-staff',
       });
 
       const response = NextResponse.json({
@@ -114,7 +113,7 @@ export async function POST(request: NextRequest) {
           id: admin.id,
           email: admin.email,
           name: admin.name,
-          role,
+          role: VALID_ROLES.includes(role) ? role : 'admissions-staff',
         },
       });
 
@@ -126,11 +125,15 @@ export async function POST(request: NextRequest) {
         maxAge: 8 * 60 * 60, // 8 hours
       });
 
-      // Update last login
-      await db.admin.update({
-        where: { id: admin.id },
-        data: { lastLogin: new Date() },
-      });
+      // Update last login (non-blocking — don't fail login if column missing)
+      try {
+        await db.admin.update({
+          where: { id: admin.id },
+          data: { lastLogin: new Date() },
+        });
+      } catch {
+        // Ignore — lastLogin is informational only
+      }
 
       return response;
     }
@@ -234,9 +237,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Admin API error:', msg);
+    console.error('Admin API error:', msg, error);
     return NextResponse.json(
-      { success: false, message: 'Server error' },
+      { success: false, message: 'Server error. Please try again.' },
       { status: 500 }
     );
   }

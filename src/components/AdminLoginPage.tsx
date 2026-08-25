@@ -122,36 +122,36 @@ export default function AdminLoginPage() {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative z-10 w-full max-w-[420px]"
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-[400px] mx-4"
       >
-        <Card className="border-0 shadow-2xl overflow-hidden w-full">
+        <Card className="border-0 shadow-2xl overflow-hidden">
           {/* Top accent bar */}
           <div
             className="h-1.5 shrink-0"
             style={{ background: `linear-gradient(90deg, ${PRIMARY}, ${GOLD}, ${PRIMARY})` }}
           />
 
-          <CardContent className="p-5 sm:p-6">
-            {/* School Badge */}
-            <div className="text-center mb-4">
+          <CardContent className="px-6 py-5">
+            {/* Header — icon + title + divider in one tight block */}
+            <div className="text-center mb-3">
               <motion.div
                 key={showForgot ? 'forgot' : 'login'}
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-3"
+                className="w-11 h-11 rounded-full mx-auto flex items-center justify-center mb-2.5"
                 style={{
                   background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})`,
-                  boxShadow: `0 4px 20px ${PRIMARY}40`,
+                  boxShadow: `0 4px 16px ${PRIMARY}40`,
                 }}
               >
                 {showForgot ? (
-                  <KeyRound className="w-6 h-6 text-white" />
+                  <KeyRound className="w-5 h-5 text-white" />
                 ) : (
-                  <ShieldCheck className="w-6 h-6 text-white" />
+                  <ShieldCheck className="w-5 h-5 text-white" />
                 )}
               </motion.div>
 
@@ -164,8 +164,8 @@ export default function AdminLoginPage() {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <h1 className="text-xl font-bold text-gray-900">Reset Password</h1>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <h1 className="text-lg font-bold text-gray-900">Reset Password</h1>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
                       Enter your email to receive reset instructions
                     </p>
                   </motion.div>
@@ -177,17 +177,16 @@ export default function AdminLoginPage() {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <h1 className="text-xl font-bold text-gray-900">Admin Portal</h1>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <h1 className="text-lg font-bold text-gray-900">Admin Portal</h1>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
                       St. Kizito&apos;s Technical Institute &mdash; Madera
                     </p>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Gold divider */}
               <div
-                className="mx-auto mt-3 mb-4 h-0.5 w-20 rounded-full"
+                className="mx-auto mt-2.5 mb-3 h-0.5 w-16 rounded-full"
                 style={{ backgroundColor: GOLD }}
               />
             </div>
@@ -204,7 +203,6 @@ export default function AdminLoginPage() {
                   onSubmit={handleSubmit}
                   className="space-y-3"
                 >
-                  {/* Error message */}
                   {error && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -270,19 +268,25 @@ export default function AdminLoginPage() {
                     )}
                   </Button>
 
-                  {/* Forgot Password Link */}
-                  <div className="text-center pt-1">
+                  <div className="flex items-center justify-center gap-4 pt-0.5">
                     <button
                       type="button"
                       onClick={switchToForgot}
-                      className="text-xs font-medium hover:underline transition-colors"
+                      className="text-[11px] font-medium hover:underline transition-colors"
                       style={{ color: PRIMARY }}
                     >
                       Forgot Password?
                     </button>
+                    <span className="text-gray-200">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage('home')}
+                      className="text-[11px] text-gray-400 hover:text-gray-600 transition-colors inline-flex items-center gap-1"
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      Back to Website
+                    </button>
                   </div>
-
-
                 </motion.form>
               ) : resetSuccess ? (
                 /* ══════════ RESET SUCCESS ══════════ */
@@ -292,19 +296,19 @@ export default function AdminLoginPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.25 }}
-                  className="text-center py-4"
+                  className="text-center py-2"
                 >
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
-                    className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"
+                    className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3"
                     style={{ backgroundColor: '#ecfdf5' }}
                   >
-                    <AlertCircle className="w-8 h-8 text-emerald-500" style={{ color: '#059669' }} />
+                    <AlertCircle className="w-7 h-7" style={{ color: '#059669' }} />
                   </motion.div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Check Your Email</h3>
-                  <p className="text-sm text-gray-500 mb-6">
+                  <h3 className="text-base font-bold text-gray-900 mb-1.5">Check Your Email</h3>
+                  <p className="text-xs text-gray-500 mb-5">
                     If an account exists with <span className="font-medium text-gray-700">{resetEmail}</span>,
                     you will receive password reset instructions shortly.
                   </p>
@@ -332,7 +336,6 @@ export default function AdminLoginPage() {
                   onSubmit={handleResetSubmit}
                   className="space-y-3"
                 >
-                  {/* Reset error */}
                   {resetError && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -383,56 +386,24 @@ export default function AdminLoginPage() {
                     )}
                   </Button>
 
-                  {/* Back to Login */}
-                  <div className="text-center pt-1">
+                  <div className="text-center pt-0.5">
                     <button
                       type="button"
                       onClick={switchToLogin}
-                      className="inline-flex items-center gap-1.5 text-xs font-medium hover:underline transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-medium hover:underline transition-colors"
                       style={{ color: PRIMARY }}
                     >
-                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <ArrowLeft className="w-3 h-3" />
                       Back to Login
                     </button>
                   </div>
                 </motion.form>
               )}
             </AnimatePresence>
-
-            {/* Links - compact (shown only on login view) */}
-            {!showForgot && !resetSuccess && (
-              <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
-                <button
-                  onClick={() => setCurrentPage('home')}
-                  className="w-full flex items-center justify-center gap-2 text-xs text-gray-500 hover:text-gray-700 transition-colors py-1"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  Back to Website
-                </button>
-                <div className="flex items-center justify-center gap-3">
-                  <button
-                    onClick={() => setCurrentPage('student-portal')}
-                    className="text-xs font-medium hover:underline transition-colors"
-                    style={{ color: PRIMARY }}
-                  >
-                    Student Portal
-                  </button>
-                  <span className="text-gray-300">|</span>
-                  <button
-                    onClick={() => setCurrentPage('admissions')}
-                    className="text-xs font-medium hover:underline transition-colors"
-                    style={{ color: PRIMARY }}
-                  >
-                    Admissions
-                  </button>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {/* Footer branding */}
-        <p className="text-center text-[10px] text-white/40 mt-4">
+        <p className="text-center text-[10px] text-white/30 mt-3">
           St. Kizito&apos;s Technical Institute &mdash; Madera
         </p>
       </motion.div>
