@@ -35,9 +35,9 @@ function recordFailedLogin(email: string) {
     return;
   }
   entry.count++;
-  // Lock after 5 failed attempts for 15 minutes
-  if (entry.count >= 5) {
-    entry.lockedUntil = Date.now() + 15 * 60 * 1000;
+  // Lock after 10 failed attempts for 10 minutes
+  if (entry.count >= 10) {
+    entry.lockedUntil = Date.now() + 10 * 60 * 1000;
   }
 }
 

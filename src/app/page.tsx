@@ -107,9 +107,10 @@ export default function MainApp() {
 
   const config = PAGE_CONFIG[currentPage];
   const PageComponent = PAGE_COMPONENTS[currentPage];
+  const isFullScreen = config.fullWidth && !config.showNav;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={isFullScreen ? '' : 'min-h-screen bg-white'}>
       {config.showNav && <Navigation />}
 
       <AnimatePresence mode="wait">

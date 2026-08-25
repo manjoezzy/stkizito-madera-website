@@ -42,12 +42,12 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (res.status === 429) {
-        setError('Too many attempts. Please wait.');
+        setError(data.message || 'Too many failed attempts. Please wait 15 minutes before trying again.');
         return;
       }
 
       if (!res.ok || !data.success) {
-        setError(data.message || 'Invalid credentials. Please try again.');
+        setError(data.message || `Login failed (${res.status}). Please try again.`);
         return;
       }
 
