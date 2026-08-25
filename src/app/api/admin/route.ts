@@ -3,15 +3,13 @@ import { db } from '@/lib/db';
 import { hashSync, compareSync } from 'bcrypt-ts';
 import {
   createToken,
-  setSessionCookie,
-  clearSessionCookie,
   getSession,
   isSuperAdmin,
   hasMinRole,
-  checkRateLimit,
   unauthorized,
   forbidden,
 } from '@/lib/auth';
+import { getSessionCookieName } from '@/lib/auth';
 import type { UserRole } from '@/lib/auth';
 
 const VALID_ROLES: UserRole[] = ['super-admin', 'admissions-staff'];
@@ -97,21 +95,19 @@ export async function POST(request: NextRequest) {
       // Validate role
       const role = (admin.role || 'admissions-staff') as UserRole;
       if (!VALID_ROLES.includes(role)) {
-        // Default to admissions-staff if role is invalid
         admin.role = 'admissions-staff';
         await db.admin.update({ where: { id: admin.id }, data: { role: 'admissions-staff' } });
       }
 
-      // Create JWT and set cookie
+      // Create JWT and set cookie directly on the response
       const token = await createToken({
         userId: admin.id,
         email: admin.email,
         name: admin.name,
         role,
       });
-      await setSessionCookie(token);
 
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: true,
         message: 'Login successful',
         data: {
@@ -121,12 +117,29 @@ export async function POST(request: NextRequest) {
           role,
         },
       });
+
+      response.cookies.set(getSessionCookieName(), token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 8 * 60 * 60, // 8 hours
+      });
+
+      // Update last login
+      await db.admin.update({
+        where: { id: admin.id },
+        data: { lastLogin: new Date() },
+      });
+
+      return response;
     }
 
     // ── LOGOUT ──
     if (action === 'logout') {
-      await clearSessionCookie();
-      return NextResponse.json({ success: true, message: 'Logged out' });
+      const response = NextResponse.json({ success: true, message: 'Logged out' });
+      response.cookies.delete(getSessionCookieName());
+      return response;
     }
 
     // ── CREATE ADMIN (super-admin only) ──

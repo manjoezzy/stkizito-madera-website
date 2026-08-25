@@ -46,7 +46,6 @@ import {
   Upload,
   Search,
   Users,
-  Edit3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -192,7 +191,7 @@ export default function AdmissionsPage() {
   const { addToast, setCurrentPage } = useAppStore();
 
   const [nonFormalFormUrl, setNonFormalFormUrl] = useState<string | null>(null);
-  const [tvetFormUrl, setTvetFormUrl] = useState<string>('/forms/tvet-admission-form.pdf');
+  const [tvetFormUrl, setTvetFormUrl] = useState<string | null>(null);
   const [applicationFee, setApplicationFee] = useState<number>(50000);
   useEffect(() => {
     Promise.all([
@@ -1239,14 +1238,6 @@ export default function AdmissionsPage() {
                           Form Not Yet Available
                         </div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => useAppStore.getState().setCurrentPage('tvet-form')}
-                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm border-2 border-[#1a3a6b] text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white transition-all"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        Fill TVET Form Online
-                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -1296,15 +1287,6 @@ export default function AdmissionsPage() {
                           Form Not Yet Available
                         </div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => document.getElementById('online-application')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-lg font-semibold text-sm border-2 text-[#1a3a6b] hover:bg-[#1a3a6b] hover:text-white transition-all"
-                        style={{ borderColor: '#f5c518' }}
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        Fill Non-Formal Form Online
-                      </button>
                     </div>
                   </CardContent>
                 </Card>
