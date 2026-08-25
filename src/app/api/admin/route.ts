@@ -237,9 +237,10 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
+    const stack = error instanceof Error ? error.stack?.split('\n').slice(0, 3).join(' | ') : '';
     console.error('Admin API error:', msg, error);
     return NextResponse.json(
-      { success: false, message: 'Server error. Please try again.' },
+      { success: false, message: 'Server error. Please try again.', debug: msg, debugStack: stack },
       { status: 500 }
     );
   }

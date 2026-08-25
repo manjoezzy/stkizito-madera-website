@@ -47,7 +47,8 @@ export default function AdminLoginPage() {
       }
 
       if (!res.ok || !data.success) {
-        setError(data.message || `Login failed (${res.status}). Please try again.`);
+        const debugInfo = data.debug ? ` [${data.debug}]` : '';
+        setError(data.message || `Login failed (${res.status}). Please try again.${debugInfo}`);
         return;
       }
 
@@ -104,7 +105,7 @@ export default function AdminLoginPage() {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center relative overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, ${PRIMARY} 0%, ${PRIMARY_LIGHT} 50%, #1e4d8a 100%)`,
       }}
