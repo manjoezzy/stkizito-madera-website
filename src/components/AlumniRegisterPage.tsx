@@ -102,7 +102,7 @@ export default function AlumniRegisterPage() {
 
       if (!res.ok || !data.success) {
         const dbg = data.debug ? ` [${data.debug}]` : '';
-        setError(data.message || `Registration failed.${dbg}`);
+        setError((data.message || 'Registration failed.') + dbg);
         return;
       }
 

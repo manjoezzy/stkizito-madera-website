@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Include the SQLite database file in the standalone build
+  serverExternalPackages: [],
+  experimental: {
+    outputFileTracingIncludes: {
+      '*': ['./db/**'],
+    },
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

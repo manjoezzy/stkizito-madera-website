@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
 
       if (!res.ok || !data.success) {
         const debugInfo = data.debug ? ` [${data.debug}]` : '';
-        setError(data.message || `Login failed (${res.status}). Please try again.${debugInfo}`);
+        setError((data.message || `Login failed (${res.status}).`) + debugInfo);
         return;
       }
 
