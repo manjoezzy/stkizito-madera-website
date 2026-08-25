@@ -72,9 +72,29 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const admin = await db.admin.findUnique({ where: { email: email.toLowerCase() } });
+      let admin;
+      try {
+        admin = await db.admin.findUnique({ where: { email: email.toLowerCase() } });
+      } catch (dbErr: unknown) {
+        const dbMsg = dbErr instanceof Error ? dbErr.message : 'Database query failed';
+        return NextResponse.json(
+          { success: false, message: 'Server error. Please try again.', debug: `DB lookup: ${dbMsg}` },
+          { status: 500 }
+        );
+      }
 
-      if (!admin || !compareSync(password, admin.password)) {
+      let passwordValid = false;
+      try {
+        passwordValid = admin ? compareSync(password, admin.password) : false;
+      } catch (bcryptErr: unknown) {
+        const bMsg = bcryptErr instanceof Error ? bcryptErr.message : 'bcrypt error';
+        return NextResponse.json(
+          { success: false, message: 'Server error. Please try again.', debug: `Password check: ${bMsg}` },
+          { status: 500 }
+        );
+      }
+
+      if (!admin || !passwordValid) {
         recordFailedLogin(email);
         return NextResponse.json(
           { success: false, message: 'Invalid email or password' },
@@ -95,16 +115,27 @@ export async function POST(request: NextRequest) {
       // Determine role (use stored or default)
       const role = (admin.role || 'admissions-staff') as UserRole;
       if (!VALID_ROLES.includes(role)) {
-        await db.admin.update({ where: { id: admin.id }, data: { role: 'admissions-staff' } });
+        try {
+          await db.admin.update({ where: { id: admin.id }, data: { role: 'admissions-staff' } });
+        } catch { /* ignore */ }
       }
 
       // Create JWT and set cookie directly on the response
-      const token = await createToken({
-        userId: admin.id,
-        email: admin.email,
-        name: admin.name,
-        role: VALID_ROLES.includes(role) ? role : 'admissions-staff',
-      });
+      let token: string;
+      try {
+        token = await createToken({
+          userId: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: VALID_ROLES.includes(role) ? role : 'admissions-staff',
+        });
+      } catch (jwtErr: unknown) {
+        const jMsg = jwtErr instanceof Error ? jwtErr.message : 'JWT creation failed';
+        return NextResponse.json(
+          { success: false, message: 'Server error. Please try again.', debug: `JWT: ${jMsg}` },
+          { status: 500 }
+        );
+      }
 
       const response = NextResponse.json({
         success: true,
