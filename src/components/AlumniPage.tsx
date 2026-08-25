@@ -382,7 +382,7 @@ export default function AlumniPage() {
                   events, mentorship opportunities, and career resources.
                 </p>
                 <Button
-                  onClick={() => setCurrentPage('contact')}
+                  onClick={() => setCurrentPage('alumni-register')}
                   size="lg"
                   className="font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   style={{ backgroundColor: GOLD, color: PRIMARY }}

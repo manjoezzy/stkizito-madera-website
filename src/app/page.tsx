@@ -18,6 +18,7 @@ import GalleryPage from '@/components/GalleryPage';
 import NewsPage from '@/components/NewsPage';
 import AboutPage from '@/components/AboutPage';
 import AlumniPage from '@/components/AlumniPage';
+import AlumniRegisterPage from '@/components/AlumniRegisterPage';
 import GraduationPage from '@/components/GraduationPage';
 import AdmissionsEnrolledPage from '@/components/AdmissionsEnrolledPage';
 import TvetApplicationForm from '@/components/TvetApplicationForm';
@@ -39,6 +40,7 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   'admin-dashboard': AdminDashboard,
   about: AboutPage,
   alumni: AlumniPage,
+  'alumni-register': AlumniRegisterPage,
   graduation: GraduationPage,
   'enrolled-students': AdmissionsEnrolledPage,
   'tvet-form': TvetApplicationForm,
@@ -60,6 +62,7 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
   'admin-dashboard': { showNav: false, fullWidth: true },
   about: { showNav: true, fullWidth: false },
   alumni: { showNav: true, fullWidth: false },
+  'alumni-register': { showNav: false, fullWidth: true },
   graduation: { showNav: true, fullWidth: false },
   'enrolled-students': { showNav: true, fullWidth: false },
   'tvet-form': { showNav: true, fullWidth: false },

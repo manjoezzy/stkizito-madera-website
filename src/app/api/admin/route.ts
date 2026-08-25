@@ -47,8 +47,19 @@ function clearFailedLogins(email: string) {
 
 // ─── POST handler ─────────────────────────────────────
 export async function POST(request: NextRequest) {
+  // Parse body with explicit error handling
+  let body: Record<string, unknown>;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch (parseErr: unknown) {
+    const pMsg = parseErr instanceof Error ? parseErr.message : 'Failed to parse request';
+    return NextResponse.json(
+      { success: false, message: 'Server error. Please try again.', debug: `Request parse: ${pMsg}` },
+      { status: 500 }
+    );
+  }
+
+  try {
     const { action } = body;
 
     // ── LOGIN (public, no auth required) ──

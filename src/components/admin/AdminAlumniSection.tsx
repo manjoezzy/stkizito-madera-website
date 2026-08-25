@@ -3,105 +3,55 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search,
-  Plus,
-  Trash2,
-  Pencil,
-  Eye,
-  EyeOff,
-  ChevronLeft,
-  ChevronRight,
-  Users,
-  CheckCircle2,
-  BookOpen,
-  Loader2,
-  GraduationCap,
-  MapPin,
-  Phone,
-  Mail,
-  Building2,
-  Briefcase,
-  X,
+  Search, Plus, Trash2, Pencil, Eye, EyeOff, Users, CheckCircle2,
+  BookOpen, Loader2, GraduationCap, MapPin, Phone, Mail, Building2,
+  Briefcase, X, Download, FileSpreadsheet, FileText, ChevronDown,
+  ChevronUp, Filter,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 
 // ===================== TYPES =====================
 
 interface Alumni {
-  id: string;
-  fullName: string;
-  email: string | null;
-  phone: string | null;
-  graduationYear: string | null;
-  programme: string | null;
-  occupation: string | null;
-  employer: string | null;
-  district: string | null;
-  biography: string | null;
-  isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string; fullName: string; email: string | null; phone: string | null;
+  graduationYear: string | null; programme: string | null; occupation: string | null;
+  employer: string | null; district: string | null; biography: string | null;
+  isPublished: boolean; createdAt: string; updatedAt: string;
 }
 
-interface AlumniApiResponse {
-  data: Alumni[];
-  total: number;
-  page: number;
-  totalPages: number;
+interface YearGroup {
+  year: string;
+  count: number;
+  alumni: Alumni[];
 }
 
 interface AlumniFormData {
-  fullName: string;
-  email: string;
-  phone: string;
-  graduationYear: string;
-  programme: string;
-  occupation: string;
-  employer: string;
-  district: string;
-  biography: string;
-  isPublished: boolean;
+  fullName: string; email: string; phone: string; graduationYear: string;
+  programme: string; occupation: string; employer: string; district: string;
+  biography: string; isPublished: boolean;
 }
 
 // ===================== CONSTANTS =====================
 
 const PROGRAMMES = [
-  'Electrical Installation',
-  'Plumbing',
-  'Carpentry & Joinery',
-  'Bricklaying & Concrete Practice',
-  'Motor Vehicle Mechanics',
-  'Welding & Fabrication',
-  'Fashion & Design',
-  'Cosmetology',
-  'Other',
+  'Electrical Installation', 'Plumbing', 'Carpentry & Joinery',
+  'Bricklaying & Concrete Practice', 'Motor Vehicle Mechanics',
+  'Welding & Fabrication', 'Fashion & Design', 'Cosmetology', 'Other',
 ] as const;
 
 const BLUE = '#1a3a6b';
@@ -111,124 +61,120 @@ const BLUE_LIGHT = 'rgba(26, 58, 107, 0.08)';
 const GOLD_LIGHT = 'rgba(245, 197, 24, 0.12)';
 
 const EMPTY_FORM: AlumniFormData = {
-  fullName: '',
-  email: '',
-  phone: '',
-  graduationYear: '',
-  programme: '',
-  occupation: '',
-  employer: '',
-  district: '',
-  biography: '',
-  isPublished: true,
+  fullName: '', email: '', phone: '', graduationYear: '', programme: '',
+  occupation: '', employer: '', district: '', biography: '', isPublished: true,
 };
-
-// ===================== HELPERS =====================
-
-function computeProgrammeSummary(alumni: Alumni[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const a of alumni) {
-    const p = a.programme || 'Unspecified';
-    counts[p] = (counts[p] || 0) + 1;
-  }
-  return counts;
-}
 
 // ===================== COMPONENT =====================
 
 export default function AdminAlumniSection() {
   // Data state
-  const [alumni, setAlumni] = useState<Alumni[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [allAlumni, setAllAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
-  // Filter / pagination state
+  // Filter state
   const [search, setSearch] = useState('');
+  const [yearFilter, setYearFilter] = useState('all');
   const [programmeFilter, setProgrammeFilter] = useState('all');
   const [publishedFilter, setPublishedFilter] = useState<string>('all');
-  const [page, setPage] = useState(1);
-  const limit = 20;
+
+  // View state
+  const [viewMode, setViewMode] = useState<'grouped' | 'flat'>('grouped');
+  const [expandedYears, setExpandedYears] = useState<Set<string>>(new Set());
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<AlumniFormData>({ ...EMPTY_FORM });
 
-  // Available programmes for filter (derived from data)
-  const [availableProgrammes, setAvailableProgrammes] = useState<string[]>([]);
-
-  // ---------- Fetch ----------
+  // ---------- Fetch all alumni ----------
   const fetchAlumni = useCallback(async () => {
     setLoading(true);
     try {
+      // Fetch all records (for grouping + export)
       const params = new URLSearchParams();
+      params.set('limit', '9999');
       if (search.trim()) params.set('q', search.trim());
-      params.set('page', String(page));
-      params.set('limit', String(limit));
       if (programmeFilter !== 'all') params.set('programme', programmeFilter);
       if (publishedFilter === 'published') params.set('isPublished', 'true');
       if (publishedFilter === 'draft') params.set('isPublished', 'false');
 
       const res = await fetch(`/api/alumni?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch alumni');
-      const json: AlumniApiResponse = await res.json();
-      setAlumni(json.data);
-      setTotal(json.total);
-      setTotalPages(json.totalPages);
-
-      // Collect unique programmes from all data for filter
-      const progs = Array.from(new Set(json.data.map((a) => a.programme).filter(Boolean) as string[])).sort();
-      setAvailableProgrammes(progs);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const json = await res.json();
+      setAllAlumni(json.data || []);
     } catch (err) {
-      console.error('Failed to fetch alumni:', err);
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
-  }, [search, page, programmeFilter, publishedFilter]);
-
-  useEffect(() => {
-    fetchAlumni();
-  }, [fetchAlumni]);
-
-  // ---------- Reset to page 1 on filter change ----------
-  useEffect(() => {
-    setPage(1);
   }, [search, programmeFilter, publishedFilter]);
 
-  // ---------- Stats ----------
-  const publishedCount = alumni.filter((a) => a.isPublished).length;
-  const programmeSummary = computeProgrammeSummary(alumni);
-  const topProgrammes = Object.entries(programmeSummary)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3);
+  useEffect(() => { fetchAlumni(); }, [fetchAlumni]);
+
+  // ---------- Derived data ----------
+  const filtered = allAlumni.filter((a) => {
+    if (yearFilter !== 'all' && a.graduationYear !== yearFilter) return false;
+    return true;
+  });
+
+  // Get available years
+  const availableYears = Array.from(
+    new Set(allAlumni.map((a) => a.graduationYear).filter(Boolean) as string[])
+  ).sort((a, b) => b.localeCompare(a));
+
+  const availableProgrammes = Array.from(
+    new Set(allAlumni.map((a) => a.programme).filter(Boolean) as string[])
+  ).sort();
+
+  // Group by year
+  const yearGroups: YearGroup[] = (() => {
+    const map = new Map<string, Alumni[]>();
+    for (const a of filtered) {
+      const yr = a.graduationYear || 'Unknown Year';
+      if (!map.has(yr)) map.set(yr, []);
+      map.get(yr)!.push(a);
+    }
+    return Array.from(map.entries())
+      .map(([year, alumni]) => ({ year, count: alumni.length, alumni }))
+      .sort((a, b) => {
+        if (a.year === 'Unknown Year') return 1;
+        if (b.year === 'Unknown Year') return -1;
+        return b.year.localeCompare(a.year);
+      });
+  })();
+
+  // Stats
+  const total = allAlumni.length;
+  const publishedCount = allAlumni.filter((a) => a.isPublished).length;
+  const topProgrammes = Object.entries(
+    allAlumni.reduce<Record<string, number>>((acc, a) => {
+      const p = a.programme || 'Unspecified';
+      acc[p] = (acc[p] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort(([, a], [, b]) => b - a).slice(0, 3);
 
   // ---------- Dialog helpers ----------
-  const openAdd = () => {
-    setEditingId(null);
-    setForm({ ...EMPTY_FORM });
-    setDialogOpen(true);
-  };
-
+  const openAdd = () => { setEditingId(null); setForm({ ...EMPTY_FORM }); setDialogOpen(true); };
   const openEdit = (a: Alumni) => {
     setEditingId(a.id);
     setForm({
-      fullName: a.fullName,
-      email: a.email || '',
-      phone: a.phone || '',
-      graduationYear: a.graduationYear || '',
-      programme: a.programme || '',
-      occupation: a.occupation || '',
-      employer: a.employer || '',
-      district: a.district || '',
-      biography: a.biography || '',
-      isPublished: a.isPublished,
+      fullName: a.fullName, email: a.email || '', phone: a.phone || '',
+      graduationYear: a.graduationYear || '', programme: a.programme || '',
+      occupation: a.occupation || '', employer: a.employer || '',
+      district: a.district || '', biography: a.biography || '', isPublished: a.isPublished,
     });
     setDialogOpen(true);
   };
 
-  // ---------- Save (create / update) ----------
+  const updateForm = (key: keyof AlumniFormData, value: string | boolean) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // ---------- CRUD ----------
   const handleSave = async () => {
     if (!form.fullName.trim()) return;
     setSaving(true);
@@ -245,62 +191,108 @@ export default function AdminAlumniSection() {
         ...(form.biography ? { biography: form.biography.trim() } : {}),
         isPublished: form.isPublished,
       };
+      if (editingId) payload.id = editingId;
 
-      if (editingId) {
-        payload.id = editingId;
-      }
-
-      const method = editingId ? 'PUT' : 'POST';
       const res = await fetch('/api/alumni', {
-        method,
+        method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to save alumni');
+      if (!res.ok) throw new Error('Failed');
       setDialogOpen(false);
       fetchAlumni();
-    } catch (err) {
-      console.error('Save error:', err);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err) { console.error('Save error:', err); }
+    finally { setSaving(false); }
   };
 
-  // ---------- Delete ----------
   const handleDelete = async (a: Alumni) => {
-    if (!window.confirm(`Are you sure you want to delete "${a.fullName}"? This action cannot be undone.`)) return;
+    if (!window.confirm(`Delete "${a.fullName}"? This cannot be undone.`)) return;
     try {
       const res = await fetch('/api/alumni', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: a.id }),
       });
-      if (!res.ok) throw new Error('Failed to delete alumni');
+      if (!res.ok) throw new Error();
       fetchAlumni();
-    } catch (err) {
-      console.error('Delete error:', err);
-    }
+    } catch (err) { console.error('Delete error:', err); }
   };
 
-  // ---------- Publish toggle ----------
   const handleTogglePublish = async (a: Alumni) => {
     try {
       const res = await fetch('/api/alumni', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: a.id, isPublished: !a.isPublished }),
       });
-      if (!res.ok) throw new Error('Failed to update status');
+      if (!res.ok) throw new Error();
       fetchAlumni();
+    } catch (err) { console.error('Toggle error:', err); }
+  };
+
+  // ---------- Export ----------
+  const handleExport = async (format: 'xlsx' | 'pdf') => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams({ format });
+      if (yearFilter !== 'all') params.set('year', yearFilter);
+      if (programmeFilter !== 'all') params.set('programme', programmeFilter);
+
+      const res = await fetch(`/api/alumni/export?${params.toString()}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || 'Export failed.');
+        return;
+      }
+
+      const contentDisposition = res.headers.get('content-disposition') || '';
+      const match = contentDisposition.match(/filename="?(.+)"?/);
+      const filename = match ? match[1] : `SKTIM_Alumni.${format === 'xlsx' ? 'xlsx' : 'pdf'}`;
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Toggle publish error:', err);
+      console.error('Export error:', err);
+      alert('Export failed. Please try again.');
+    } finally {
+      setExporting(false);
     }
   };
 
-  // ---------- Form field updater ----------
-  const updateForm = (key: keyof AlumniFormData, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  // Toggle year group expand/collapse
+  const toggleYear = (year: string) => {
+    setExpandedYears((prev) => {
+      const next = new Set(prev);
+      if (next.has(year)) next.delete(year); else next.add(year);
+      return next;
+    });
   };
+
+  // ---------- Render helpers ----------
+  const blueBtn = { backgroundColor: BLUE };
+  const blueHover = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.backgroundColor = BLUE_HOVER; };
+  const blueLeave = (e: React.MouseEvent<HTMLElement>) => { e.currentTarget.style.backgroundColor = BLUE; };
+
+  const initials = (name: string) =>
+    name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
+
+  const statusBadge = (a: Alumni) => (
+    <button onClick={() => handleTogglePublish(a)} className="cursor-pointer" title={a.isPublished ? 'Unpublish' : 'Publish'}>
+      <Badge
+        className="cursor-pointer transition-colors"
+        style={a.isPublished
+          ? { backgroundColor: 'rgba(34,197,94,0.1)', color: '#16a34a', border: '1px solid rgba(34,197,94,0.2)' }
+          : { backgroundColor: 'rgba(156,163,175,0.1)', color: '#6b7280', border: '1px solid rgba(156,163,175,0.2)' }
+        }
+      >
+        {a.isPublished ? <Eye className="size-3 mr-1" /> : <EyeOff className="size-3 mr-1" />}
+        {a.isPublished ? 'Published' : 'Draft'}
+      </Badge>
+    </button>
+  );
 
   // ===================== RENDER =====================
   return (
@@ -308,85 +300,76 @@ export default function AdminAlumniSection() {
       {/* ---------- HEADER ---------- */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight" style={{ color: BLUE }}>
-            Alumni Management
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight" style={{ color: BLUE }}>Alumni Management</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage registered alumni members that appear on the public alumni page.
+            Manage alumni records. Grouped by class year of completion.
           </p>
         </div>
-        <Button
-          onClick={openAdd}
-          className="text-white font-medium gap-2 shrink-0"
-          style={{ backgroundColor: BLUE, hover: { backgroundColor: BLUE_HOVER } }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = BLUE_HOVER)}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BLUE)}
-        >
-          <Plus className="size-4" />
-          Add Alumni
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Export Buttons */}
+          <Button
+            variant="outline" size="sm" className="gap-1.5 text-xs font-medium"
+            onClick={() => handleExport('xlsx')} disabled={exporting || total === 0}
+          >
+            <FileSpreadsheet className="size-3.5" />
+            {exporting ? 'Exporting...' : 'Export Excel'}
+          </Button>
+          <Button
+            variant="outline" size="sm" className="gap-1.5 text-xs font-medium"
+            onClick={() => handleExport('pdf')} disabled={exporting || total === 0}
+          >
+            <FileText className="size-3.5" />
+            {exporting ? 'Exporting...' : 'Export PDF'}
+          </Button>
+          <Button
+            onClick={openAdd} className="text-white font-medium gap-2"
+            style={blueBtn} onMouseEnter={blueHover} onMouseLeave={blueLeave}
+          >
+            <Plus className="size-4" /> Add Alumni
+          </Button>
+        </div>
       </div>
 
       {/* ---------- STATS ROW ---------- */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 flex items-center gap-4">
-            <div
-              className="flex items-center justify-center size-11 rounded-lg shrink-0"
-              style={{ backgroundColor: BLUE_LIGHT }}
-            >
+            <div className="flex items-center justify-center size-11 rounded-lg shrink-0" style={{ backgroundColor: BLUE_LIGHT }}>
               <Users className="size-5" style={{ color: BLUE }} />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Alumni</p>
-              <p className="text-2xl font-bold" style={{ color: BLUE }}>
-                {total}
-              </p>
+              <p className="text-2xl font-bold" style={{ color: BLUE }}>{total}</p>
             </div>
           </CardContent>
         </Card>
-
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 flex items-center gap-4">
-            <div
-              className="flex items-center justify-center size-11 rounded-lg shrink-0"
-              style={{ backgroundColor: 'rgba(34, 197, 94, 0.08)' }}
-            >
+            <div className="flex items-center justify-center size-11 rounded-lg shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.08)' }}>
               <CheckCircle2 className="size-5 text-green-600" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Published</p>
-              <p className="text-2xl font-bold text-green-600">
-                {publishedCount}
-              </p>
+              <p className="text-2xl font-bold text-green-600">{publishedCount}</p>
             </div>
           </CardContent>
         </Card>
-
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 flex items-center gap-4">
-            <div
-              className="flex items-center justify-center size-11 rounded-lg shrink-0"
-              style={{ backgroundColor: GOLD_LIGHT }}
-            >
-              <BookOpen className="size-5" style={{ color: '#b8960f' }} />
+            <div className="flex items-center justify-center size-11 rounded-lg shrink-0" style={{ backgroundColor: GOLD_LIGHT }}>
+              <GraduationCap className="size-5" style={{ color: '#b8960f' }} />
             </div>
             <div className="min-w-0">
-              <p className="text-sm text-muted-foreground">By Programme</p>
+              <p className="text-sm text-muted-foreground">Class Years</p>
               <div className="flex flex-wrap gap-1 mt-0.5">
-                {topProgrammes.length > 0 ? (
-                  topProgrammes.map(([prog, count]) => (
-                    <span
-                      key={prog}
-                      className="text-xs font-medium px-2 py-0.5 rounded-full"
-                      style={{ backgroundColor: GOLD_LIGHT, color: '#b8960f' }}
-                    >
-                      {prog.length > 16 ? prog.slice(0, 16) + '…' : prog}: {count}
+                {availableYears.length > 0
+                  ? availableYears.slice(0, 4).map((y) => (
+                    <span key={y} className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: GOLD_LIGHT, color: '#b8960f' }}>
+                      {y}
                     </span>
                   ))
-                ) : (
-                  <span className="text-xs text-muted-foreground">No data yet</span>
-                )}
+                  : <span className="text-xs text-muted-foreground">No data yet</span>}
+                {availableYears.length > 4 && <span className="text-xs text-muted-foreground">+{availableYears.length - 4} more</span>}
               </div>
             </div>
           </CardContent>
@@ -397,18 +380,22 @@ export default function AdminAlumniSection() {
       <Card className="border-0 shadow-sm">
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {/* Search */}
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <Input
-                placeholder="Search name, email, phone, programme, occupation..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 w-full"
-              />
+              <Input placeholder="Search name, email, phone, programme, occupation..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 w-full" />
             </div>
-
-            {/* Programme Filter */}
+            <Select value={yearFilter} onValueChange={setYearFilter}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <GraduationCap className="size-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue placeholder="Class Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Years</SelectItem>
+                {availableYears.map((y) => (
+                  <SelectItem key={y} value={y}>Class of {y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={programmeFilter} onValueChange={setProgrammeFilter}>
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Programme" />
@@ -416,16 +403,12 @@ export default function AdminAlumniSection() {
               <SelectContent>
                 <SelectItem value="all">All Programmes</SelectItem>
                 {availableProgrammes.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Published Filter */}
             <Select value={publishedFilter} onValueChange={setPublishedFilter}>
-              <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectTrigger className="w-full sm:w-[130px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -438,7 +421,7 @@ export default function AdminAlumniSection() {
         </CardContent>
       </Card>
 
-      {/* ---------- MAIN TABLE / CARD LIST ---------- */}
+      {/* ---------- MAIN CONTENT ---------- */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
           {loading ? (
@@ -446,394 +429,163 @@ export default function AdminAlumniSection() {
               <Loader2 className="size-6 animate-spin" style={{ color: BLUE }} />
               <span className="ml-2 text-muted-foreground">Loading alumni...</span>
             </div>
-          ) : alumni.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-              <div
-                className="flex items-center justify-center size-16 rounded-full mb-4"
-                style={{ backgroundColor: BLUE_LIGHT }}
-              >
+              <div className="flex items-center justify-center size-16 rounded-full mb-4" style={{ backgroundColor: BLUE_LIGHT }}>
                 <GraduationCap className="size-8" style={{ color: BLUE, opacity: 0.5 }} />
               </div>
-              <h3 className="text-lg font-semibold" style={{ color: BLUE }}>
-                No Alumni Found
-              </h3>
+              <h3 className="text-lg font-semibold" style={{ color: BLUE }}>No Alumni Found</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                {search || programmeFilter !== 'all' || publishedFilter !== 'all'
-                  ? 'Try adjusting your search or filters to find what you\'re looking for.'
-                  : 'Get started by adding the first alumni member to the directory.'}
+                {search || yearFilter !== 'all' || programmeFilter !== 'all'
+                  ? 'Try adjusting your search or filters.'
+                  : 'Get started by adding the first alumni member.'}
               </p>
-              {!search && programmeFilter === 'all' && publishedFilter === 'all' && (
-                <Button
-                  onClick={openAdd}
-                  className="mt-4 text-white gap-2 font-medium"
-                  style={{ backgroundColor: BLUE }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = BLUE_HOVER)}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BLUE)}
-                >
-                  <Plus className="size-4" />
-                  Add First Alumni
+              {!search && yearFilter === 'all' && programmeFilter === 'all' && (
+                <Button onClick={openAdd} className="mt-4 text-white gap-2 font-medium" style={blueBtn} onMouseEnter={blueHover} onMouseLeave={blueLeave}>
+                  <Plus className="size-4" /> Add First Alumni
                 </Button>
               )}
             </div>
           ) : (
             <>
-              {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow
-                      className="hover:bg-transparent"
-                      style={{ borderBottom: `2px solid ${BLUE_LIGHT}` }}
+              {/* Grouped View */}
+              {yearGroups.map((group) => {
+                const isExpanded = expandedYears.has(group.year) || yearGroups.length === 1 || yearFilter !== 'all';
+                return (
+                  <div key={group.year} className="border-b last:border-0">
+                    {/* Year Group Header */}
+                    <button
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+                      onClick={() => toggleYear(group.year)}
                     >
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Name
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Programme
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Year
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Occupation
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Contact
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        District
-                      </TableHead>
-                      <TableHead className="font-semibold" style={{ color: BLUE }}>
-                        Status
-                      </TableHead>
-                      <TableHead className="font-semibold text-right" style={{ color: BLUE }}>
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <AnimatePresence mode="popLayout">
-                      {alumni.map((a) => (
-                        <motion.tr
-                          key={a.id}
-                          layout
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.2 }}
-                          className="border-b last:border-0 hover:bg-muted/50 transition-colors"
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center size-9 rounded-lg" style={{ backgroundColor: BLUE_LIGHT }}>
+                          <GraduationCap className="size-4" style={{ color: BLUE }} />
+                        </div>
+                        <div className="text-left">
+                          <h4 className="text-sm font-bold" style={{ color: BLUE }}>
+                            Class of {group.year}
+                          </h4>
+                          <p className="text-xs text-muted-foreground">
+                            {group.count} {group.count === 1 ? 'alumnus' : 'alumni'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs font-medium" style={{ backgroundColor: GOLD_LIGHT, color: '#b8960f' }}>
+                          {group.count}
+                        </Badge>
+                        {isExpanded ? <ChevronUp className="size-4 text-muted-foreground" /> : <ChevronDown className="size-4 text-muted-foreground" />}
+                      </div>
+                    </button>
+
+                    {/* Group Members (Desktop) */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
                         >
-                          <TableCell className="font-medium py-3">
-                            <div className="flex items-center gap-2 min-w-[140px]">
-                              <div
-                                className="flex items-center justify-center size-8 rounded-full text-white text-xs font-bold shrink-0"
-                                style={{ backgroundColor: BLUE }}
-                              >
-                                {a.fullName
-                                  .split(' ')
-                                  .map((n) => n[0])
-                                  .slice(0, 2)
-                                  .join('')
-                                  .toUpperCase()}
+                          {/* Desktop Table */}
+                          <div className="hidden md:block">
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="hover:bg-transparent" style={{ borderBottom: `1px solid ${BLUE_LIGHT}` }}>
+                                  <TableHead className="text-xs font-semibold pl-4" style={{ color: BLUE }}>Name</TableHead>
+                                  <TableHead className="text-xs font-semibold" style={{ color: BLUE }}>Programme</TableHead>
+                                  <TableHead className="text-xs font-semibold" style={{ color: BLUE }}>Occupation</TableHead>
+                                  <TableHead className="text-xs font-semibold" style={{ color: BLUE }}>Contact</TableHead>
+                                  <TableHead className="text-xs font-semibold" style={{ color: BLUE }}>District</TableHead>
+                                  <TableHead className="text-xs font-semibold" style={{ color: BLUE }}>Status</TableHead>
+                                  <TableHead className="text-xs font-semibold text-right pr-4" style={{ color: BLUE }}>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {group.alumni.map((a) => (
+                                  <TableRow key={a.id} className="hover:bg-muted/50 transition-colors">
+                                    <TableCell className="font-medium py-2.5 pl-4">
+                                      <div className="flex items-center gap-2">
+                                        <div className="flex items-center justify-center size-7 rounded-full text-white text-[10px] font-bold shrink-0" style={{ backgroundColor: BLUE }}>
+                                          {initials(a.fullName)}
+                                        </div>
+                                        <span className="truncate text-sm">{a.fullName}</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="py-2.5"><span className="text-xs">{a.programme || '—'}</span></TableCell>
+                                    <TableCell className="py-2.5"><span className="text-xs">{a.occupation || '—'}</span></TableCell>
+                                    <TableCell className="py-2.5">
+                                      <div className="flex flex-col gap-0.5">
+                                        {a.email && <span className="text-[11px] text-muted-foreground truncate max-w-[150px]">{a.email}</span>}
+                                        {a.phone && <span className="text-[11px] text-muted-foreground">{a.phone}</span>}
+                                        {!a.email && !a.phone && <span className="text-xs text-muted-foreground">—</span>}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="py-2.5">
+                                      {a.district ? (
+                                        <span className="text-xs flex items-center gap-1"><MapPin className="size-3 text-muted-foreground" />{a.district}</span>
+                                      ) : <span className="text-xs text-muted-foreground">—</span>}
+                                    </TableCell>
+                                    <TableCell className="py-2.5">{statusBadge(a)}</TableCell>
+                                    <TableCell className="py-2.5 text-right pr-4">
+                                      <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" className="size-7 hover:bg-blue-50 hover:text-blue-700" onClick={() => openEdit(a)} title="Edit"><Pencil className="size-3.5" /></Button>
+                                        <Button variant="ghost" size="icon" className="size-7 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete(a)} title="Delete"><Trash2 className="size-3.5" /></Button>
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+
+                          {/* Mobile Cards */}
+                          <div className="md:hidden divide-y">
+                            {group.alumni.map((a) => (
+                              <div key={a.id} className="p-4 space-y-2">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="flex items-center justify-center size-9 rounded-full text-white text-xs font-bold shrink-0" style={{ backgroundColor: BLUE }}>
+                                      {initials(a.fullName)}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="font-semibold text-sm truncate">{a.fullName}</p>
+                                      {a.programme && (
+                                        <span className="text-[11px] px-1.5 py-0.5 rounded-full" style={{ backgroundColor: BLUE_LIGHT, color: BLUE }}>{a.programme}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {statusBadge(a)}
+                                </div>
+                                <div className="grid grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                                  {a.occupation && <div className="flex items-center gap-1 truncate"><Briefcase className="size-3 shrink-0" />{a.occupation}</div>}
+                                  {a.employer && <div className="flex items-center gap-1 truncate"><Building2 className="size-3 shrink-0" />{a.employer}</div>}
+                                  {a.phone && <div className="flex items-center gap-1 truncate"><Phone className="size-3 shrink-0" />{a.phone}</div>}
+                                  {a.district && <div className="flex items-center gap-1 truncate"><MapPin className="size-3 shrink-0" />{a.district}</div>}
+                                  {a.email && <div className="flex items-center gap-1 truncate col-span-2"><Mail className="size-3 shrink-0" />{a.email}</div>}
+                                </div>
+                                <div className="flex items-center justify-end gap-1 pt-1">
+                                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] hover:bg-blue-50 hover:text-blue-700" onClick={() => openEdit(a)}><Pencil className="size-3" />Edit</Button>
+                                  <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete(a)}><Trash2 className="size-3" />Delete</Button>
+                                </div>
                               </div>
-                              <span className="truncate">{a.fullName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {a.programme ? (
-                              <span className="text-sm">{a.programme}</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {a.graduationYear ? (
-                              <span className="text-sm">{a.graduationYear}</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {a.occupation ? (
-                              <span className="text-sm">{a.occupation}</span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <div className="flex flex-col gap-0.5 min-w-[150px]">
-                              {a.email && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                                  <Mail className="size-3 shrink-0" /> {a.email}
-                                </span>
-                              )}
-                              {a.phone && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Phone className="size-3 shrink-0" /> {a.phone}
-                                </span>
-                              )}
-                              {!a.email && !a.phone && (
-                                <span className="text-xs text-muted-foreground">—</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {a.district ? (
-                              <span className="text-sm flex items-center gap-1">
-                                <MapPin className="size-3 text-muted-foreground" />
-                                {a.district}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <button
-                              onClick={() => handleTogglePublish(a)}
-                              className="cursor-pointer"
-                              title={a.isPublished ? 'Unpublish' : 'Publish'}
-                            >
-                              <Badge
-                                className="cursor-pointer transition-colors"
-                                style={
-                                  a.isPublished
-                                    ? { backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#16a34a', border: '1px solid rgba(34, 197, 94, 0.2)' }
-                                    : { backgroundColor: 'rgba(156, 163, 175, 0.1)', color: '#6b7280', border: '1px solid rgba(156, 163, 175, 0.2)' }
-                                }
-                              >
-                                {a.isPublished ? (
-                                  <Eye className="size-3 mr-1" />
-                                ) : (
-                                  <EyeOff className="size-3 mr-1" />
-                                )}
-                                {a.isPublished ? 'Published' : 'Draft'}
-                              </Badge>
-                            </button>
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 hover:bg-blue-50 hover:text-blue-700"
-                                onClick={() => openEdit(a)}
-                                title="Edit"
-                              >
-                                <Pencil className="size-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 hover:bg-red-50 hover:text-red-600"
-                                onClick={() => handleDelete(a)}
-                                title="Delete"
-                              >
-                                <Trash2 className="size-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </motion.tr>
-                      ))}
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
                     </AnimatePresence>
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Card View */}
-              <div className="md:hidden divide-y">
-                <AnimatePresence mode="popLayout">
-                  {alumni.map((a) => (
-                    <motion.div
-                      key={a.id}
-                      layout
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                      className="p-4 space-y-3"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className="flex items-center justify-center size-10 rounded-full text-white text-sm font-bold shrink-0"
-                            style={{ backgroundColor: BLUE }}
-                          >
-                            {a.fullName
-                              .split(' ')
-                              .map((n) => n[0])
-                              .slice(0, 2)
-                              .join('')
-                              .toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold truncate">{a.fullName}</p>
-                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                              {a.programme && (
-                                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: BLUE_LIGHT, color: BLUE }}>
-                                  {a.programme}
-                                </span>
-                              )}
-                              {a.graduationYear && (
-                                <span className="text-xs text-muted-foreground">Class of {a.graduationYear}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button onClick={() => handleTogglePublish(a)} className="cursor-pointer">
-                            <Badge
-                              className="cursor-pointer text-[10px] px-1.5 py-0"
-                              style={
-                                a.isPublished
-                                  ? { backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#16a34a', border: '1px solid rgba(34, 197, 94, 0.2)' }
-                                  : { backgroundColor: 'rgba(156, 163, 175, 0.1)', color: '#6b7280', border: '1px solid rgba(156, 163, 175, 0.2)' }
-                              }
-                            >
-                              {a.isPublished ? <Eye className="size-2.5 mr-0.5" /> : <EyeOff className="size-2.5 mr-0.5" />}
-                              {a.isPublished ? 'Published' : 'Draft'}
-                            </Badge>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        {a.occupation && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Briefcase className="size-3.5 shrink-0" />
-                            <span className="truncate">{a.occupation}</span>
-                          </div>
-                        )}
-                        {a.employer && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Building2 className="size-3.5 shrink-0" />
-                            <span className="truncate">{a.employer}</span>
-                          </div>
-                        )}
-                        {a.district && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <MapPin className="size-3.5 shrink-0" />
-                            <span className="truncate">{a.district}</span>
-                          </div>
-                        )}
-                        {a.phone && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Phone className="size-3.5 shrink-0" />
-                            <span className="truncate">{a.phone}</span>
-                          </div>
-                        )}
-                        {a.email && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
-                            <Mail className="size-3.5 shrink-0" />
-                            <span className="truncate">{a.email}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-end gap-1 pt-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 gap-1.5 text-xs hover:bg-blue-50 hover:text-blue-700"
-                          onClick={() => openEdit(a)}
-                        >
-                          <Pencil className="size-3.5" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 gap-1.5 text-xs hover:bg-red-50 hover:text-red-600"
-                          onClick={() => handleDelete(a)}
-                        >
-                          <Trash2 className="size-3.5" />
-                          Delete
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-
-              {/* ---------- PAGINATION ---------- */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {((page - 1) * limit) + 1}–{Math.min(page * limit, total)} of {total}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-8"
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                      <ChevronLeft className="size-4" />
-                    </Button>
-
-                    {/* Page number buttons */}
-                    <div className="hidden sm:flex items-center gap-1">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((p) => {
-                          // Show first, last, and pages around current
-                          if (p === 1 || p === totalPages) return true;
-                          if (Math.abs(p - page) <= 1) return true;
-                          return false;
-                        })
-                        .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
-                          if (idx > 0 && p - arr[idx - 1] > 1) {
-                            acc.push('ellipsis');
-                          }
-                          acc.push(p);
-                          return acc;
-                        }, [])
-                        .map((item, idx) =>
-                          item === 'ellipsis' ? (
-                            <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">
-                              …
-                            </span>
-                          ) : (
-                            <Button
-                              key={item}
-                              variant={page === item ? 'default' : 'outline'}
-                              size="icon"
-                              className="size-8"
-                              style={
-                                page === item
-                                  ? { backgroundColor: BLUE, borderColor: BLUE, hover: { backgroundColor: BLUE_HOVER } }
-                                  : {}
-                              }
-                              onMouseEnter={(e) => {
-                                if (page === item) e.currentTarget.style.backgroundColor = BLUE_HOVER;
-                              }}
-                              onMouseLeave={(e) => {
-                                if (page === item) e.currentTarget.style.backgroundColor = BLUE;
-                              }}
-                              onClick={() => setPage(item)}
-                            >
-                              {item}
-                            </Button>
-                          )
-                        )}
-                    </div>
-
-                    {/* Mobile page indicator */}
-                    <span className="sm:hidden text-sm text-muted-foreground">
-                      Page {page} / {totalPages}
-                    </span>
-
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-8"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    >
-                      <ChevronRight className="size-4" />
-                    </Button>
                   </div>
-                </div>
-              )}
+                );
+              })}
+
+              {/* Summary footer */}
+              <div className="px-4 py-3 bg-muted/30 text-xs text-muted-foreground">
+                Showing {filtered.length} of {total} alumni
+                {yearFilter !== 'all' && ` (Class of ${yearFilter})`}
+                {programmeFilter !== 'all' && ` (${programmeFilter})`}
+              </div>
             </>
           )}
         </CardContent>
@@ -843,183 +595,65 @@ export default function AdminAlumniSection() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl" style={{ color: BLUE }}>
-              {editingId ? 'Edit Alumni' : 'Add New Alumni'}
-            </DialogTitle>
+            <DialogTitle className="text-xl" style={{ color: BLUE }}>{editingId ? 'Edit Alumni' : 'Add New Alumni'}</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 pt-2">
-            {/* Full Name (required) */}
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">
-                Full Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="fullName"
-                placeholder="e.g. John Mukasa"
-                value={form.fullName}
-                onChange={(e) => updateForm('fullName', e.target.value)}
-              />
+              <Label className="text-sm font-medium">Full Name <span className="text-red-500">*</span></Label>
+              <Input placeholder="e.g. John Mukasa" value={form.fullName} onChange={(e) => updateForm('fullName', e.target.value)} />
             </div>
-
-            {/* Email & Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={form.email}
-                  onChange={(e) => updateForm('email', e.target.value)}
-                />
+                <Label className="text-sm font-medium">Email</Label>
+                <Input type="email" placeholder="name@example.com" value={form.email} onChange={(e) => updateForm('email', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium">
-                  Phone
-                </Label>
-                <Input
-                  id="phone"
-                  placeholder="e.g. 0771234567"
-                  value={form.phone}
-                  onChange={(e) => updateForm('phone', e.target.value)}
-                />
+                <Label className="text-sm font-medium">Phone</Label>
+                <Input placeholder="0771234567" value={form.phone} onChange={(e) => updateForm('phone', e.target.value)} />
               </div>
             </div>
-
-            {/* Graduation Year & Programme */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="graduationYear" className="text-sm font-medium">
-                  Graduation Year
-                </Label>
-                <Input
-                  id="graduationYear"
-                  placeholder="e.g. 2020"
-                  value={form.graduationYear}
-                  onChange={(e) => updateForm('graduationYear', e.target.value)}
-                />
+                <Label className="text-sm font-medium">Graduation Year</Label>
+                <Input placeholder="e.g. 2020" value={form.graduationYear} onChange={(e) => updateForm('graduationYear', e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Programme</Label>
                 <Select value={form.programme} onValueChange={(v) => updateForm('programme', v)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select programme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PROGRAMMES.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Select programme" /></SelectTrigger>
+                  <SelectContent>{PROGRAMMES.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}</SelectContent>
                 </Select>
               </div>
             </div>
-
-            {/* Occupation & Employer */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="occupation" className="text-sm font-medium">
-                  Occupation
-                </Label>
-                <Input
-                  id="occupation"
-                  placeholder="e.g. Electrician"
-                  value={form.occupation}
-                  onChange={(e) => updateForm('occupation', e.target.value)}
-                />
+                <Label className="text-sm font-medium">Occupation</Label>
+                <Input placeholder="e.g. Electrician" value={form.occupation} onChange={(e) => updateForm('occupation', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="employer" className="text-sm font-medium">
-                  Employer
-                </Label>
-                <Input
-                  id="employer"
-                  placeholder="e.g. Uganda Electricity Co."
-                  value={form.employer}
-                  onChange={(e) => updateForm('employer', e.target.value)}
-                />
+                <Label className="text-sm font-medium">Employer</Label>
+                <Input placeholder="e.g. Umeme Ltd" value={form.employer} onChange={(e) => updateForm('employer', e.target.value)} />
               </div>
             </div>
-
-            {/* District */}
             <div className="space-y-2">
-              <Label htmlFor="district" className="text-sm font-medium">
-                District
-              </Label>
-              <Input
-                id="district"
-                placeholder="e.g. Kampala"
-                value={form.district}
-                onChange={(e) => updateForm('district', e.target.value)}
-              />
+              <Label className="text-sm font-medium">District</Label>
+              <Input placeholder="e.g. Soroti" value={form.district} onChange={(e) => updateForm('district', e.target.value)} />
             </div>
-
-            {/* Biography */}
             <div className="space-y-2">
-              <Label htmlFor="biography" className="text-sm font-medium">
-                Biography
-              </Label>
-              <Textarea
-                id="biography"
-                placeholder="Brief biography or achievements..."
-                value={form.biography}
-                onChange={(e) => updateForm('biography', e.target.value)}
-                rows={3}
-                className="resize-none"
-              />
+              <Label className="text-sm font-medium">Biography</Label>
+              <Textarea placeholder="Brief biography or achievements..." value={form.biography} onChange={(e) => updateForm('biography', e.target.value)} rows={3} className="resize-none" />
             </div>
-
-            {/* Publish Toggle */}
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
                 <Label className="text-sm font-medium">Published</Label>
-                <p className="text-xs text-muted-foreground">
-                  {form.isPublished
-                    ? 'Visible on the public alumni page'
-                    : 'Hidden from the public alumni page'}
-                </p>
+                <p className="text-xs text-muted-foreground">{form.isPublished ? 'Visible on the public page' : 'Hidden from public page'}</p>
               </div>
-              <Switch
-                checked={form.isPublished}
-                onCheckedChange={(checked) => updateForm('isPublished', checked)}
-              />
+              <Switch checked={form.isPublished} onCheckedChange={(c) => updateForm('isPublished', c)} />
             </div>
-
-            {/* Actions */}
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                disabled={saving}
-                className="gap-2"
-              >
-                <X className="size-4" />
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={saving || !form.fullName.trim()}
-                className="text-white font-medium gap-2"
-                style={{
-                  backgroundColor: BLUE,
-                  opacity: !form.fullName.trim() ? 0.5 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (form.fullName.trim()) e.currentTarget.style.backgroundColor = BLUE_HOVER;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = BLUE;
-                }}
-              >
-                {saving ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="size-4" />
-                )}
+              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving} className="gap-2"><X className="size-4" />Cancel</Button>
+              <Button onClick={handleSave} disabled={saving || !form.fullName.trim()} className="text-white font-medium gap-2" style={{ backgroundColor: BLUE, opacity: !form.fullName.trim() ? 0.5 : 1 }} onMouseEnter={(e) => { if (form.fullName.trim()) e.currentTarget.style.backgroundColor = BLUE_HOVER; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = BLUE; }}>
+                {saving ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
                 {editingId ? 'Update' : 'Save'}
               </Button>
             </div>

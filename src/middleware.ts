@@ -5,10 +5,10 @@ import { verifyToken } from '@/lib/auth';
 const PUBLIC_GET_PATHS = ['/api/events', '/api/gallery', '/api/graduation', '/api/alumni', '/api/settings', '/api/settings/bulk', '/api/auth/session'];
 
 // Public POST routes (no auth required)
-const PUBLIC_POST_PATHS = ['/api/contact', '/api/admissions/tvet', '/api/admin', '/api/admin/reset-password', '/api/admin/reset-password/confirm'];
+const PUBLIC_POST_PATHS = ['/api/contact', '/api/admissions/tvet', '/api/admin', '/api/admin/reset-password', '/api/admin/reset-password/confirm', '/api/alumni/register'];
 
 // Admin-only route prefixes (require super-admin or admissions-staff)
-const ADMIN_PATHS = ['/api/admin', '/api/admissions', '/api/upload', '/api/payments'];
+const ADMIN_PATHS = ['/api/admin', '/api/admissions', '/api/upload', '/api/payments', '/api/alumni/export'];
 
 function isExactPath(pathname: string, paths: string[]): boolean {
   return paths.some((p) => pathname === p || pathname.startsWith(p + '/'));
