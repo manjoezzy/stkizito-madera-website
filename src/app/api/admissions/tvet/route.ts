@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       institutionChoices, reasonForCourse,
       declarationName, declarationDate,
       passportPhotoUrl,
+      documents,
     } = body;
 
     const fullName = `${surname || ''} ${otherNames || ''}`.trim();
@@ -91,6 +92,23 @@ export async function POST(request: NextRequest) {
       },
       include: { documents: true },
     });
+
+    // Create admission document records from base64 data URLs
+    if (Array.isArray(documents) && documents.length > 0) {
+      for (const doc of documents) {
+        if (doc.dataUrl && doc.fileName) {
+          await db.admissionDocument.create({
+            data: {
+              applicationId: application.id,
+              fileName: doc.fileName,
+              fileUrl: doc.dataUrl,
+              fileSize: 0,
+              documentType: doc.type || 'other',
+            },
+          });
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import {
   Newspaper,
   CalendarDays,
@@ -55,6 +54,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; bg: string; text: string 
   campus: { label: 'Campus', bg: '#f5f3ff', text: '#5b21b6' },
   openday: { label: 'Open Day', bg: '#fef3c7', text: '#92400e' },
   general: { label: 'General', bg: '#f8fafc', text: '#475569' },
+  news: { label: 'News', bg: '#fef2f2', text: '#991b1b' },
 };
 
 const containerVariants = {
@@ -291,12 +291,10 @@ export default function NewsPage() {
                       {/* Image */}
                       {img && (
                         <div className="relative w-full h-52 overflow-hidden">
-                          <Image
+                          <img
                             src={img}
                             alt={event.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 1024px) 100vw, 33vw"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                           <Badge
@@ -399,12 +397,10 @@ export default function NewsPage() {
                       {/* Image or Placeholder */}
                       <div className="relative w-full h-44 overflow-hidden bg-gray-100">
                         {img ? (
-                          <Image
+                          <img
                             src={img}
                             alt={event.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center">
@@ -519,12 +515,10 @@ export default function NewsPage() {
                     className="w-full text-left group"
                   >
                     <div className="relative w-full h-48 sm:h-56 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-                      <Image
+                      <img
                         src={item.imageUrl}
                         alt={item.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">

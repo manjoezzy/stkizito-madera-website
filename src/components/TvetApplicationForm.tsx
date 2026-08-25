@@ -29,6 +29,7 @@ import {
   Award,
   Camera,
   Upload,
+  Paperclip,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -223,6 +224,9 @@ export default function TvetApplicationForm() {
   const [result, setResult] = useState<{ referenceNumber: string; schoolpayCode: string; programme: string } | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoDragOver, setPhotoDragOver] = useState(false);
+  const [documents, setDocuments] = useState<{type: string; file: File; preview: string}[]>([]);
+  const docInputRef = useRef<HTMLInputElement>(null);
+  const [pendingDocType, setPendingDocType] = useState('national_id');
 
   /* ──────── passport photo handling ──────── */
 
@@ -267,6 +271,35 @@ export default function TvetApplicationForm() {
     e.stopPropagation();
     setPhotoDragOver(false);
   }, []);
+
+  const DOC_TYPES = [
+    { value: 'national_id', label: 'National ID' },
+    { value: 'academic_transcript', label: 'Academic Transcript / Certificate' },
+    { value: 'passport_photo', label: 'Passport Photo (additional)' },
+    { value: 'other', label: 'Other Document' },
+  ];
+
+  const addDocument = (type: string, file: File) => {
+    const allowedTypes = ['image/jpeg','image/png','image/webp','application/pdf'];
+    if (!allowedTypes.includes(file.type)) { addToast('Invalid file type. Use PDF, JPEG, PNG, or WebP.', 'error'); return; }
+    if (file.size > 2 * 1024 * 1024) { addToast('File too large. Maximum 2MB.', 'error'); return; }
+    const preview = URL.createObjectURL(file);
+    setDocuments((prev) => [...prev, { type, file, preview }]);
+  };
+
+  const removeDocument = (index: number) => {
+    setDocuments((prev) => {
+      const item = prev[index];
+      if (item) URL.revokeObjectURL(item.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleDocSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && pendingDocType) { addDocument(pendingDocType, file); }
+    if (e.target) e.target.value = '';
+  };
 
   const updateField = <K extends keyof TvetFormData>(field: K, value: TvetFormData[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -422,12 +455,23 @@ export default function TvetApplicationForm() {
         }
       }
 
-      // 2. Submit application with form data + photo URL
+      // 2. Convert documents to base64 data URLs
+      const docsBase64: { type: string; fileName: string; dataUrl: string }[] = [];
+      for (const doc of documents) {
+        const buffer = await doc.file.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        const base64 = btoa(binary);
+        docsBase64.push({ type: doc.type, fileName: doc.file.name, dataUrl: `data:${doc.file.type};base64,${base64}` });
+      }
+
+      // 3. Submit application with form data + photo URL + documents
       const programme = form.institutionChoices[0].courseI || 'TVET Programme';
       const res = await fetch('/api/admissions/tvet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, passportPhotoUrl }),
+        body: JSON.stringify({ ...form, passportPhotoUrl, documents: docsBase64 }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1217,6 +1261,47 @@ export default function TvetApplicationForm() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Supporting Documents */}
+          <SectionTitle code="ATTACHMENTS" title="Supporting Documents" />
+          <Card className="border-2" style={{ borderColor: `${PRIMARY}30` }}>
+            <CardContent className="pt-6">
+              <p className="text-sm text-gray-500 mb-4">Attach supporting documents (National ID, academic transcripts, certificates). PDF, JPEG, PNG, or WebP up to 2MB each.</p>
+              <div className="space-y-3 mb-4">
+                {documents.map((doc, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                    <Paperclip size={16} className="text-gray-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700 truncate">{doc.file.name}</p>
+                      <p className="text-xs text-gray-400">{DOC_TYPES.find(d => d.value === doc.type)?.label || doc.type}</p>
+                    </div>
+                    <button type="button" onClick={() => removeDocument(i)} className="text-red-400 hover:text-red-600 transition-colors">
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                {documents.length === 0 && (
+                  <p className="text-sm text-gray-400 text-center py-4">No documents attached yet.</p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <select
+                  className="h-9 text-sm rounded-md border border-gray-200 px-3 bg-white"
+                  value={pendingDocType}
+                  onChange={(e) => setPendingDocType(e.target.value)}
+                >
+                  {DOC_TYPES.map((dt) => <option key={dt.value} value={dt.value}>{dt.label}</option>)}
+                </select>
+                <label className="flex-1 cursor-pointer">
+                  <input ref={docInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" className="hidden" onChange={handleDocSelect} />
+                  <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed border-gray-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 transition-colors">
+                    <Upload size={16} className="text-gray-400" />
+                    <span className="text-sm text-gray-500">Click to select file</span>
+                  </div>
+                </label>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Declaration */}
           <SectionTitle code="SECTION D" title="Declaration" />
