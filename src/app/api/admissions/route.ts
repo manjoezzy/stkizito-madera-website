@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession, hasMinRole, forbidden, unauthorized } from '@/lib/auth';
-import { generateAdmissionRef, generateTransactionRef, generateSchoolPayCode } from '@/lib/schoolpay';
+import { generateAdmissionRef, generateSchoolPayCode } from '@/lib/schoolpay';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       fullName, dob, gender, nationality, religion, nin,
       phone, email, district, address, nextOfKin, nextOfKinPhone,
       lastSchool, yearCompleted, qualification, institutionLevel, grades,
-      programme, intakeYear,
+      programme, intakeYear, uploadedDocuments,
     } = body;
 
     if (!fullName || !phone || !email || !programme) {
@@ -49,6 +49,19 @@ export async function POST(request: NextRequest) {
       },
       include: { documents: true },
     });
+
+    // Save uploaded documents linked to this application
+    if (Array.isArray(uploadedDocuments) && uploadedDocuments.length > 0) {
+      await db.admissionDocument.createMany({
+        data: uploadedDocuments.map((doc: { fileName: string; fileUrl: string; fileSize: number; documentType: string }) => ({
+          applicationId: application.id,
+          fileName: doc.fileName,
+          fileUrl: doc.fileUrl,
+          fileSize: doc.fileSize,
+          documentType: doc.documentType,
+        })),
+      });
+    }
 
     return NextResponse.json({
       success: true,

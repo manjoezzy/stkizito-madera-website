@@ -129,6 +129,9 @@ const DOCUMENT_TYPES = [
   { key: 'national_id', label: 'National ID / Passport', required: true },
   { key: 'academic_transcript', label: 'Academic Transcripts / Certificates', required: true },
   { key: 'passport_photo', label: 'Passport Photo', required: true },
+  { key: 'recommendation_letter', label: 'Recommendation Letter', required: false },
+  { key: 'medical_certificate', label: 'Medical Certificate', required: false },
+  { key: 'other_certificate', label: 'Other Certificates (e.g. short course certs)', required: false },
 ] as const;
 
 interface FormData {
@@ -303,10 +306,10 @@ export default function AdmissionsPage() {
       if (!form.programme) e.programme = 'Select a programme';
       if (!form.intakeYear) e.intakeYear = 'Select intake year';
 
-      // Validate documents
+      // Validate documents (only required ones)
       const de: Record<string, string> = {};
       DOCUMENT_TYPES.forEach((dt) => {
-        if (!uploadedDocs.find((d) => d.key === dt.key)) {
+        if (dt.required && !uploadedDocs.find((d) => d.key === dt.key)) {
           de[dt.key] = `${dt.label} is required`;
         }
       });
@@ -747,9 +750,9 @@ export default function AdmissionsPage() {
             <div className="pt-4 border-t border-gray-100">
               <h4 className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
                 <FileText className="size-4" style={{ color: PRIMARY }} />
-                Upload Required Documents
+                Upload Documents
               </h4>
-              <p className="text-xs text-gray-400 mb-4">Upload images, PDFs, or Word documents. Maximum 1.5MB per file.</p>
+              <p className="text-xs text-gray-400 mb-4">Upload images, PDFs, or Word documents. Maximum 1.5MB per file. Required documents are marked with *.</p>
 
               {errors._docs && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-4">
@@ -764,6 +767,7 @@ export default function AdmissionsPage() {
                     <div key={dt.key} className="space-y-1.5">
                       <Label className="text-sm font-medium text-gray-700">
                         {dt.label} {dt.required && <span className="text-red-500">*</span>}
+                        {!dt.required && <span className="text-xs text-gray-400 font-normal ml-1.5">(optional)</span>}
                       </Label>
 
                       {existing ? (

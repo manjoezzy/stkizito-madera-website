@@ -49,3 +49,23 @@ Stage Summary:
 - TVET form upload now shows status + updates properly
 - Both forms have delete/remove buttons
 - Download filled form opens print dialog for PDF save instead of downloading .html file
+---
+Task ID: 1
+Agent: Main Agent
+Task: Document attachments on TVET form + Wire news page to admin portal
+
+Work Log:
+- Restored AdminDashboard.tsx from .bak (3841 lines) — had been truncated to 21 lines
+- Fixed missing </div> closing tag in EventsSection renderEventCard function
+- Changed create event dialog description field from <Input> to <textarea> for richer news content
+- Fixed /api/admissions POST to save uploadedDocuments to AdmissionDocument table (was being ignored)
+- Added 3 optional document types to TVET form: Recommendation Letter, Medical Certificate, Other Certificates
+- Updated document validation to only check required documents (dt.required)
+- Updated document section UI labels to show "(optional)" for non-required docs
+- Build verified successful
+
+Stage Summary:
+- AdminDashboard fully restored with complete news/events CRUD management (create, edit, delete, publish/unpublish, banner support, attachments)
+- TVET application form now properly saves document attachments to the database
+- 3 new optional document types added: recommendation_letter, medical_certificate, other_certificate
+- News page already wired to /api/events — admin can now manage all news content from the dashboard
