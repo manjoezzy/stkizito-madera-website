@@ -69,3 +69,33 @@ Stage Summary:
 - TVET application form now properly saves document attachments to the database
 - 3 new optional document types added: recommendation_letter, medical_certificate, other_certificate
 - News page already wired to /api/events — admin can now manage all news content from the dashboard
+---
+Task ID: 2
+Agent: Main Agent
+Task: Enhance messages page handling and bulk handling
+
+Work Log:
+- Enhanced /api/contact with PATCH (single mark read/unread, bulk mark-read, mark-unread, delete, mark-all-read) and DELETE methods
+- Added search and filter params to GET endpoint (search by name/email/subject/message, filter all/unread/read)
+- Added message handler functions in AdminDashboard: markMessageRead, deleteMessage, bulkMessagesAction, markAllRead
+- Completely rewrote MessagesSection component with:
+  - Search bar (searches name, email, subject, message content)
+  - Filter dropdown (All, Unread, Read) with counts
+  - Checkbox selection on each message row
+  - Select All / Deselect All toggle
+  - Animated bulk action bar (mark read, mark unread, delete) with counts
+  - Mark All Read button on unread banner
+  - Hover quick actions per message (toggle read, reply email, delete)
+  - Smart empty states for search/filter
+- Enhanced expanded message dialog with:
+  - Unread badge indicator
+  - Auto mark-as-read on close
+  - Reply via Email button (opens mailto: link)
+  - Mark Read/Unread toggle
+  - Delete button with red styling
+
+Stage Summary:
+- Full CRUD + bulk operations for contact messages
+- Search and filter capabilities
+- Selection-based bulk actions with visual feedback
+- Build verified successful

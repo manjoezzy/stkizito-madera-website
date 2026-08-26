@@ -44,6 +44,10 @@ import {
   Share2,
   Send,
   Edit3,
+  CheckCheck,
+  MailOpen,
+  SquarePen,
+  CheckSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +78,7 @@ import {
 import { formatCurrency } from '@/lib/schoolpay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import AdminWebsiteSettings from '@/components/admin/AdminWebsiteSettings';
 import AdminGraduationSection from '@/components/admin/AdminGraduationSection';
 import AdminAlumniSection from '@/components/admin/AdminAlumniSection';
@@ -433,9 +438,12 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (search = '', filter = 'all') => {
     try {
-      const res = await fetch('/api/contact');
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (filter !== 'all') params.set('filter', filter);
+      const res = await fetch(`/api/contact?${params.toString()}`);
       const json = await res.json();
       if (json.success) {
         setMessages(json.data);
@@ -443,6 +451,74 @@ export default function AdminDashboard() {
       }
     } catch {
       addToast('Failed to load messages', 'error');
+    }
+  };
+
+  const markMessageRead = async (id: string, isRead: boolean) => {
+    try {
+      await fetch('/api/contact', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id, isRead }),
+      });
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, isRead } : m)));
+      setUnreadCount((prev) => prev + (isRead ? -1 : 1));
+    } catch {
+      addToast('Failed to update message', 'error');
+    }
+  };
+
+  const deleteMessage = async (id: string) => {
+    try {
+      await fetch(`/api/contact?id=${id}`, { method: 'DELETE', credentials: 'include' });
+      setMessages((prev) => {
+        const msg = prev.find((m) => m.id === id);
+        if (msg && !msg.isRead) setUnreadCount((c) => c - 1);
+        return prev.filter((m) => m.id !== id);
+      });
+      addToast('Message deleted', 'success');
+    } catch {
+      addToast('Failed to delete message', 'error');
+    }
+  };
+
+  const bulkMessagesAction = async (ids: string[], action: string) => {
+    if (ids.length === 0) return;
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ids, action }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        addToast(json.message, 'success');
+        fetchMessages(); // refresh
+      } else {
+        addToast(json.message || 'Bulk action failed', 'error');
+      }
+    } catch {
+      addToast('Bulk action failed', 'error');
+    }
+  };
+
+  const markAllRead = async () => {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ids: [], action: 'mark-all-read' }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        addToast(json.message, 'success');
+        fetchMessages();
+      }
+    } catch {
+      addToast('Failed to mark all as read', 'error');
     }
   };
 
@@ -1068,6 +1144,11 @@ export default function AdminDashboard() {
                   messages={messages}
                   unreadCount={unreadCount}
                   onExpand={setExpandedMessage}
+                  onMarkRead={markMessageRead}
+                  onDelete={deleteMessage}
+                  onBulkAction={bulkMessagesAction}
+                  onMarkAllRead={markAllRead}
+                  onFetch={fetchMessages}
                   formatDate={formatDate}
                 />
               ) : activeSection === 'alumni' ? (
@@ -1236,11 +1317,22 @@ export default function AdminDashboard() {
       </Dialog>
 
       {/* ===== EXPANDED MESSAGE DIALOG ===== */}
-      <Dialog open={!!expandedMessage} onOpenChange={() => setExpandedMessage(null)}>
+      <Dialog open={!!expandedMessage} onOpenChange={(open) => {
+        if (!open) {
+          // Auto-mark as read when closing
+          if (expandedMessage && !expandedMessage.isRead) {
+            markMessageRead(expandedMessage.id, true);
+          }
+          setExpandedMessage(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+            <DialogTitle className="text-lg font-bold text-[#1a3a6b] flex items-center gap-2">
               {expandedMessage?.subject || 'Message'}
+              {expandedMessage && !expandedMessage.isRead && (
+                <Badge className="bg-blue-100 text-blue-700 text-xs">Unread</Badge>
+              )}
             </DialogTitle>
             <DialogDescription>
               From {expandedMessage?.name} on {expandedMessage ? formatDate(expandedMessage.createdAt) : ''}
@@ -1261,9 +1353,40 @@ export default function AdminDashboard() {
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
                 <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{expandedMessage.message}</p>
               </div>
-              <Button variant="outline" onClick={() => setExpandedMessage(null)} className="w-full">
-                Close
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href={`mailto:${expandedMessage.email}?subject=Re: ${expandedMessage.subject || 'Your inquiry'}&body=\n\n---\nOriginal message:\n${encodeURIComponent(expandedMessage.message)}`}
+                  className="flex-1"
+                >
+                  <Button variant="outline" className="w-full gap-2">
+                    <Send className="w-3.5 h-3.5" /> Reply via Email
+                  </Button>
+                </a>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    markMessageRead(expandedMessage.id, !expandedMessage.isRead);
+                    setExpandedMessage({ ...expandedMessage, isRead: !expandedMessage.isRead });
+                  }}
+                >
+                  {expandedMessage.isRead ? (
+                    <><Mail className="w-3.5 h-3.5" /> Mark Unread</>
+                  ) : (
+                    <><CheckCheck className="w-3.5 h-3.5" /> Mark Read</>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 gap-2"
+                  onClick={() => {
+                    deleteMessage(expandedMessage.id);
+                    setExpandedMessage(null);
+                  }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
@@ -3000,57 +3123,217 @@ interface MessagesProps {
   messages: ContactMsg[];
   unreadCount: number;
   onExpand: (msg: ContactMsg | null) => void;
+  onMarkRead: (id: string, isRead: boolean) => void;
+  onDelete: (id: string) => void;
+  onBulkAction: (ids: string[], action: string) => void;
+  onMarkAllRead: () => void;
+  onFetch: (search?: string, filter?: string) => void;
   formatDate: (s: string) => string;
 }
 
-function MessagesSection({ messages, unreadCount, onExpand, formatDate }: MessagesProps) {
+function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete, onBulkAction, onMarkAllRead, onFetch, formatDate }: MessagesProps) {
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === messages.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(messages.map((m) => m.id)));
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    onFetch(value, filter);
+  };
+
+  const handleFilter = (value: string) => {
+    setFilter(value as 'all' | 'unread' | 'read');
+    onFetch(search, value);
+  };
+
+  const handleBulk = async (action: string) => {
+    setBulkLoading(true);
+    await onBulkAction(Array.from(selected), action);
+    setSelected(new Set());
+    setBulkLoading(false);
+  };
+
+  const handleMarkAllRead = async () => {
+    setBulkLoading(true);
+    await onMarkAllRead();
+    setBulkLoading(false);
+  };
+
+  const allSelected = messages.length > 0 && selected.size === messages.length;
+  const someSelected = selected.size > 0;
+  const selectedUnread = messages.filter((m) => !m.isRead && selected.has(m.id)).length;
+  const selectedRead = messages.filter((m) => m.isRead && selected.has(m.id)).length;
+
   return (
     <div className="space-y-4">
-      {/* Unread count banner */}
+      {/* Top Bar: Search, Filter, Bulk Actions */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input
+            placeholder="Search messages..."
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+        <Select value={filter} onValueChange={handleFilter}>
+          <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All ({messages.length})</SelectItem>
+            <SelectItem value="unread">Unread ({unreadCount})</SelectItem>
+            <SelectItem value="read">Read ({messages.length - unreadCount})</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Unread banner + Mark All Read */}
       {unreadCount > 0 && (
-        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <div className="bg-amber-100 p-2 rounded-lg">
-            <Mail className="w-5 h-5 text-amber-600" />
+        <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div className="flex items-center gap-3">
+            <div className="bg-amber-100 p-2 rounded-lg">
+              <Mail className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-amber-800">{unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}</p>
+              <p className="text-sm text-amber-600">Click a message to read it</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-amber-800">{unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}</p>
-            <p className="text-sm text-amber-600">Click on a message to read it</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-amber-300 text-amber-700 hover:bg-amber-100 gap-1.5"
+            onClick={handleMarkAllRead}
+            disabled={bulkLoading}
+          >
+            <CheckCheck className="w-3.5 h-3.5" />
+            Mark All Read
+          </Button>
         </div>
       )}
+
+      {/* Bulk Action Bar (appears when items selected) */}
+      <AnimatePresence>
+        {someSelected && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center gap-2 p-3 bg-[#1a3a6b] text-white rounded-xl"
+          >
+            <span className="text-sm font-medium mr-2">{selected.size} selected</span>
+            <div className="flex-1" />
+            {selectedUnread > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8"
+                onClick={() => handleBulk('mark-read')}
+                disabled={bulkLoading}
+              >
+                <CheckCheck className="w-3.5 h-3.5" /> Mark Read ({selectedUnread})
+              </Button>
+            )}
+            {selectedRead > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8"
+                onClick={() => handleBulk('mark-unread')}
+                disabled={bulkLoading}
+              >
+                <Mail className="w-3.5 h-3.5" /> Mark Unread ({selectedRead})
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-200 hover:text-white hover:bg-red-500/30 gap-1.5 h-8"
+              onClick={() => handleBulk('delete')}
+              disabled={bulkLoading}
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete ({selected.size})
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages List */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-[#1a3a6b]" />
-            Contact Messages
-            <Badge variant="secondary" className="ml-2 bg-slate-100 text-slate-600">
-              {messages.length} total
-            </Badge>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-[#1a3a6b]" />
+              Contact Messages
+              <Badge variant="secondary" className="ml-1 bg-slate-100 text-slate-600">
+                {messages.length} total
+              </Badge>
+            </CardTitle>
+            {messages.length > 0 && (
+              <button
+                onClick={toggleSelectAll}
+                className="text-xs text-slate-500 hover:text-[#1a3a6b] transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <CheckSquare className="w-3.5 h-3.5" />
+                {allSelected ? 'Deselect All' : 'Select All'}
+              </button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           {messages.length === 0 ? (
             <div className="py-16 text-center">
               <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-400 font-medium">No messages yet</p>
+              <p className="text-slate-400 font-medium">No messages {filter !== 'all' ? `in ${filter}` : 'yet'}</p>
               <p className="text-slate-300 text-sm mt-1">
-                Contact messages will appear here
+                {search ? 'Try a different search term' : 'Contact messages will appear here'}
               </p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
               {messages.map((msg) => (
-                <button
+                <div
                   key={msg.id}
-                  onClick={() => onExpand(msg)}
                   className={`
-                    w-full text-left p-4 hover:bg-slate-50 transition-colors
+                    group flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors cursor-pointer
                     ${!msg.isRead ? 'bg-blue-50/40' : ''}
+                    ${selected.has(msg.id) ? 'bg-[#1a3a6b]/5 border-l-2 border-l-[#1a3a6b]' : ''}
                   `}
                 >
-                  <div className="flex items-start gap-3">
+                  {/* Checkbox */}
+                  <div className="pt-1 flex-shrink-0">
+                    <Checkbox
+                      checked={selected.has(msg.id)}
+                      onCheckedChange={() => toggleSelect(msg.id)}
+                      className="data-[state=checked]:bg-[#1a3a6b] data-[state=checked]:border-[#1a3a6b]"
+                    />
+                  </div>
+
+                  {/* Avatar + Content (clickable) */}
+                  <div
+                    className="flex-1 min-w-0 flex items-start gap-3"
+                    onClick={() => onExpand(msg)}
+                  >
                     <div
                       className={`
                         w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold
@@ -3079,7 +3362,33 @@ function MessagesSection({ messages, unreadCount, onExpand, formatDate }: Messag
                       <p className="text-xs text-slate-400 truncate mt-1">{msg.message}</p>
                     </div>
                   </div>
-                </button>
+
+                  {/* Quick Actions (appear on hover) */}
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity pt-0.5 flex-shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onMarkRead(msg.id, !msg.isRead); }}
+                      className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
+                      title={msg.isRead ? 'Mark as unread' : 'Mark as read'}
+                    >
+                      {msg.isRead ? <Mail className="w-3.5 h-3.5" /> : <CheckCheck className="w-3.5 h-3.5" />}
+                    </button>
+                    <a
+                      href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Your inquiry'}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
+                      title="Reply via email"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onDelete(msg.id); }}
+                      className="h-7 w-7 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors rounded"
+                      title="Delete message"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
