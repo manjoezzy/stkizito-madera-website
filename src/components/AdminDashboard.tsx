@@ -474,11 +474,10 @@ export default function AdminDashboard() {
       });
       const json = await res.json();
       if (json.success) {
-        addToast(json.message, sendEmail && json.emailSent === false ? 'warning' : 'success');
+        addToast(json.message, json.emailSent === false ? 'info' : 'success');
         setReplyModalMsg(null);
         setReplyText('');
         fetchMessages();
-        // Also update expanded message if it's the same one
         setExpandedMessage((prev) => prev && prev.id === msgId ? { ...prev, replyText: text, status: json.data?.status || prev.status, repliedAt: new Date().toISOString() } : prev);
       } else {
         addToast(json.message || 'Reply failed', 'error');
@@ -612,7 +611,7 @@ export default function AdminDashboard() {
       }
       if (contactJson.success) {
         setMessages(contactJson.data);
-        setUnreadCount(contactJson.unread || 0);
+        setMsgCounts(contactJson.counts || { unread: 0, read: 0, replied: 0, total: 0 });
       }
       setLoading(false);
     }).catch(() => {
