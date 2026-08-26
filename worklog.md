@@ -99,3 +99,26 @@ Stage Summary:
 - Search and filter capabilities
 - Selection-based bulk actions with visual feedback
 - Build verified successful
+---
+Task ID: 3
+Agent: Main Agent
+Task: Organize messages by status (unread/read/replied) + Gmail reply from institute email
+
+Work Log:
+- Updated ContactMessage model: added status (unread/read/replied/replied-sent), replyText, repliedAt, repliedBy, updatedAt fields
+- Migrated SQLite database manually (added 5 new columns, backfilled updatedAt)
+- Installed nodemailer for Gmail SMTP
+- Created /lib/email.ts: Gmail transporter setup with styled HTML email template
+- Added GMAIL_ADDRESS and GMAIL_APP_PASSWORD to .env
+- Rewrote /api/contact route with status-based filtering, reply/send-reply actions
+- Replaced MessagesSection with tab-based UI (All/Unread/Read/Replied) and status badges
+- Added Reply Modal with Send via Gmail and Save as Draft buttons
+- Updated expanded message dialog with status badges and reply display
+- Build verified successful
+
+Stage Summary:
+- Messages organized by status: unread, read, replied-draft, replied-sent
+- Tab filtering with real-time counts
+- In-app reply composition via Gmail (stkizitmad@gmail.com)
+- Draft reply support
+- Admin needs to set GMAIL_APP_PASSWORD in .env for email sending

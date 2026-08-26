@@ -48,6 +48,7 @@ import {
   MailOpen,
   SquarePen,
   CheckSquare,
+  Save,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -202,6 +203,10 @@ interface ContactMsg {
   subject: string | null;
   message: string;
   isRead: boolean;
+  status: string; // unread, read, replied, replied-sent
+  replyText: string | null;
+  repliedAt: string | null;
+  repliedBy: string | null;
   createdAt: string;
 }
 
@@ -308,7 +313,10 @@ export default function AdminDashboard() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [messages, setMessages] = useState<ContactMsg[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [msgCounts, setMsgCounts] = useState<{ unread: number; read: number; replied: number; total: number }>({ unread: 0, read: 0, replied: 0, total: 0 });
+  const [replyModalMsg, setReplyModalMsg] = useState<ContactMsg | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   // Filters
   const [appSearch, setAppSearch] = useState('');
@@ -447,10 +455,38 @@ export default function AdminDashboard() {
       const json = await res.json();
       if (json.success) {
         setMessages(json.data);
-        setUnreadCount(json.unread || 0);
+        setMsgCounts(json.counts || { unread: 0, read: 0, replied: 0, total: 0 });
       }
     } catch {
       addToast('Failed to load messages', 'error');
+    }
+  };
+
+  const sendReply = async (msgId: string, text: string, sendEmail: boolean) => {
+    setSendingReply(true);
+    try {
+      const action = sendEmail ? 'send-reply' : 'reply';
+      const res = await fetch('/api/contact', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: msgId, action, replyText: text }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        addToast(json.message, sendEmail && json.emailSent === false ? 'warning' : 'success');
+        setReplyModalMsg(null);
+        setReplyText('');
+        fetchMessages();
+        // Also update expanded message if it's the same one
+        setExpandedMessage((prev) => prev && prev.id === msgId ? { ...prev, replyText: text, status: json.data?.status || prev.status, repliedAt: new Date().toISOString() } : prev);
+      } else {
+        addToast(json.message || 'Reply failed', 'error');
+      }
+    } catch {
+      addToast('Failed to send reply', 'error');
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -462,8 +498,9 @@ export default function AdminDashboard() {
         credentials: 'include',
         body: JSON.stringify({ id, isRead }),
       });
-      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, isRead } : m)));
-      setUnreadCount((prev) => prev + (isRead ? -1 : 1));
+      const newStatus = isRead ? 'read' : 'unread';
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, isRead, status: newStatus } : m)));
+      setMsgCounts((prev) => ({ ...prev, unread: prev.unread + (isRead ? -1 : 1) }));
     } catch {
       addToast('Failed to update message', 'error');
     }
@@ -474,7 +511,7 @@ export default function AdminDashboard() {
       await fetch(`/api/contact?id=${id}`, { method: 'DELETE', credentials: 'include' });
       setMessages((prev) => {
         const msg = prev.find((m) => m.id === id);
-        if (msg && !msg.isRead) setUnreadCount((c) => c - 1);
+        if (msg && msg.status === 'unread') setMsgCounts((c) => ({ ...c, unread: c.unread - 1 }));
         return prev.filter((m) => m.id !== id);
       });
       addToast('Message deleted', 'success');
@@ -958,9 +995,9 @@ export default function AdminDashboard() {
                 >
                   <Icon className="w-[18px] h-[18px] flex-shrink-0" />
                   <span>{item.label}</span>
-                  {item.section === 'messages' && unreadCount > 0 && (
+                  {item.section === 'messages' && msgCounts.unread > 0 && (
                     <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {msgCounts.unread > 9 ? '9+' : msgCounts.unread}
                     </span>
                   )}
                 </button>
@@ -1142,13 +1179,14 @@ export default function AdminDashboard() {
               ) : activeSection === 'messages' ? (
                 <MessagesSection
                   messages={messages}
-                  unreadCount={unreadCount}
+                  counts={msgCounts}
                   onExpand={setExpandedMessage}
                   onMarkRead={markMessageRead}
                   onDelete={deleteMessage}
                   onBulkAction={bulkMessagesAction}
                   onMarkAllRead={markAllRead}
                   onFetch={fetchMessages}
+                  onReply={(msg: ContactMsg) => { setReplyModalMsg(msg); setReplyText(msg.replyText || ''); }}
                   formatDate={formatDate}
                 />
               ) : activeSection === 'alumni' ? (
@@ -1319,19 +1357,27 @@ export default function AdminDashboard() {
       {/* ===== EXPANDED MESSAGE DIALOG ===== */}
       <Dialog open={!!expandedMessage} onOpenChange={(open) => {
         if (!open) {
-          // Auto-mark as read when closing
-          if (expandedMessage && !expandedMessage.isRead) {
+          if (expandedMessage && expandedMessage.status === 'unread') {
             markMessageRead(expandedMessage.id, true);
           }
           setExpandedMessage(null);
         }
       }}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh]">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-[#1a3a6b] flex items-center gap-2">
               {expandedMessage?.subject || 'Message'}
-              {expandedMessage && !expandedMessage.isRead && (
+              {expandedMessage?.status === 'unread' && (
                 <Badge className="bg-blue-100 text-blue-700 text-xs">Unread</Badge>
+              )}
+              {expandedMessage?.status === 'read' && (
+                <Badge className="bg-slate-100 text-slate-600 text-xs">Read</Badge>
+              )}
+              {expandedMessage?.status === 'replied' && (
+                <Badge className="bg-amber-100 text-amber-700 text-xs">Replied (draft)</Badge>
+              )}
+              {expandedMessage?.status === 'replied-sent' && (
+                <Badge className="bg-emerald-100 text-emerald-700 text-xs">Replied</Badge>
               )}
             </DialogTitle>
             <DialogDescription>
@@ -1353,27 +1399,43 @@ export default function AdminDashboard() {
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
                 <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{expandedMessage.message}</p>
               </div>
+              {/* Show previous reply if exists */}
+              {expandedMessage.replyText && (
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="text-xs font-semibold text-blue-600 mb-2 flex items-center gap-1.5">
+                    <Send className="w-3 h-3" /> Your Reply
+                    {expandedMessage.repliedAt && <span className="font-normal text-blue-400">— {formatDate(expandedMessage.repliedAt)}</span>}
+                    {expandedMessage.status === 'replied' && (
+                      <Badge className="bg-amber-200 text-amber-800 text-[10px] ml-1">Draft</Badge>
+                    )}
+                  </p>
+                  <p className="text-slate-700 whitespace-pre-wrap text-sm leading-relaxed">{expandedMessage.replyText}</p>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
-                <a
-                  href={`mailto:${expandedMessage.email}?subject=Re: ${expandedMessage.subject || 'Your inquiry'}&body=\n\n---\nOriginal message:\n${encodeURIComponent(expandedMessage.message)}`}
-                  className="flex-1"
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 bg-[#1a3a6b] text-white hover:bg-[#1a3a6b]/90 border-[#1a3a6b]"
+                  onClick={() => {
+                    setReplyModalMsg(expandedMessage);
+                    setReplyText(expandedMessage.replyText || '');
+                  }}
                 >
-                  <Button variant="outline" className="w-full gap-2">
-                    <Send className="w-3.5 h-3.5" /> Reply via Email
-                  </Button>
-                </a>
+                  <SquarePen className="w-3.5 h-3.5" /> {expandedMessage.replyText ? 'Edit Reply' : 'Compose Reply'}
+                </Button>
                 <Button
                   variant="outline"
                   className="gap-2"
                   onClick={() => {
-                    markMessageRead(expandedMessage.id, !expandedMessage.isRead);
-                    setExpandedMessage({ ...expandedMessage, isRead: !expandedMessage.isRead });
+                    const newRead = expandedMessage.status === 'unread';
+                    markMessageRead(expandedMessage.id, newRead);
+                    setExpandedMessage({ ...expandedMessage, isRead: newRead, status: newRead ? 'read' : 'unread' });
                   }}
                 >
-                  {expandedMessage.isRead ? (
-                    <><Mail className="w-3.5 h-3.5" /> Mark Unread</>
-                  ) : (
+                  {expandedMessage.status === 'unread' ? (
                     <><CheckCheck className="w-3.5 h-3.5" /> Mark Read</>
+                  ) : (
+                    <><Mail className="w-3.5 h-3.5" /> Mark Unread</>
                   )}
                 </Button>
                 <Button
@@ -1385,6 +1447,68 @@ export default function AdminDashboard() {
                   }}
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== REPLY MODAL ===== */}
+      <Dialog open={!!replyModalMsg} onOpenChange={(open) => { if (!open) { setReplyModalMsg(null); setReplyText(''); } }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-[#1a3a6b] flex items-center gap-2">
+              <Send className="w-4 h-4" /> Reply to {replyModalMsg?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {replyModalMsg?.subject ? `Re: ${replyModalMsg.subject}` : 'Compose your reply'}
+            </DialogDescription>
+          </DialogHeader>
+          {replyModalMsg && (
+            <div className="space-y-4">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500 max-h-32 overflow-y-auto">
+                <p className="font-medium text-slate-600 mb-1">Original message from {replyModalMsg.name}:</p>
+                <p className="whitespace-pre-wrap">{replyModalMsg.message}</p>
+              </div>
+              <div>
+                <textarea
+                  className="w-full min-h-[160px] p-3 border border-slate-200 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#1a3a6b]/30 focus:border-[#1a3a6b]"
+                  placeholder="Type your reply here..."
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Mail className="w-3 h-3" />
+                Reply will be sent from <span className="font-medium text-slate-600">stkizitmad@gmail.com</span>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  className="flex-1 gap-2 bg-[#1a3a6b] hover:bg-[#1a3a6b]/90"
+                  onClick={() => sendReply(replyModalMsg.id, replyText, true)}
+                  disabled={!replyText.trim() || sendingReply}
+                >
+                  {sendingReply ? (
+                    <><span className="animate-spin">*</span> Sending...</>
+                  ) : (
+                    <><Send className="w-3.5 h-3.5" /> Send via Gmail</>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={() => sendReply(replyModalMsg.id, replyText, false)}
+                  disabled={!replyText.trim() || sendingReply}
+                >
+                  <Save className="w-3.5 h-3.5" /> Save as Draft
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => { setReplyModalMsg(null); setReplyText(''); }}
+                  disabled={sendingReply}
+                >
+                  Cancel
                 </Button>
               </div>
             </div>
@@ -3121,19 +3245,27 @@ function EventsSection({ events, onCreateNew, onDelete, onTogglePublish, onEdit,
 // ---- Messages Section ----
 interface MessagesProps {
   messages: ContactMsg[];
-  unreadCount: number;
+  counts: { unread: number; read: number; replied: number; total: number };
   onExpand: (msg: ContactMsg | null) => void;
   onMarkRead: (id: string, isRead: boolean) => void;
   onDelete: (id: string) => void;
   onBulkAction: (ids: string[], action: string) => void;
   onMarkAllRead: () => void;
   onFetch: (search?: string, filter?: string) => void;
+  onReply: (msg: ContactMsg) => void;
   formatDate: (s: string) => string;
 }
 
-function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete, onBulkAction, onMarkAllRead, onFetch, formatDate }: MessagesProps) {
+const MSG_STATUS_BADGE: Record<string, { className: string; label: string }> = {
+  unread: { className: 'bg-blue-100 text-blue-700', label: 'Unread' },
+  read: { className: 'bg-slate-100 text-slate-600', label: 'Read' },
+  replied: { className: 'bg-amber-100 text-amber-700', label: 'Draft' },
+  'replied-sent': { className: 'bg-emerald-100 text-emerald-700', label: 'Replied' },
+};
+
+function MessagesSection({ messages, counts, onExpand, onMarkRead, onDelete, onBulkAction, onMarkAllRead, onFetch, onReply, formatDate }: MessagesProps) {
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
@@ -3160,7 +3292,8 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
   };
 
   const handleFilter = (value: string) => {
-    setFilter(value as 'all' | 'unread' | 'read');
+    setFilter(value);
+    setSelected(new Set());
     onFetch(search, value);
   };
 
@@ -3179,12 +3312,19 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
 
   const allSelected = messages.length > 0 && selected.size === messages.length;
   const someSelected = selected.size > 0;
-  const selectedUnread = messages.filter((m) => !m.isRead && selected.has(m.id)).length;
-  const selectedRead = messages.filter((m) => m.isRead && selected.has(m.id)).length;
+  const selectedUnread = messages.filter((m) => m.status === 'unread' && selected.has(m.id)).length;
+  const selectedRead = messages.filter((m) => m.status === 'read' && selected.has(m.id)).length;
+
+  const tabFilters = [
+    { key: 'all', label: 'All', count: counts.total },
+    { key: 'unread', label: 'Unread', count: counts.unread },
+    { key: 'read', label: 'Read', count: counts.read },
+    { key: 'replied', label: 'Replied', count: counts.replied },
+  ] as const;
 
   return (
     <div className="space-y-4">
-      {/* Top Bar: Search, Filter, Bulk Actions */}
+      {/* Tab Filters + Search */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -3195,27 +3335,34 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
             className="pl-9 h-9 text-sm"
           />
         </div>
-        <Select value={filter} onValueChange={handleFilter}>
-          <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All ({messages.length})</SelectItem>
-            <SelectItem value="unread">Unread ({unreadCount})</SelectItem>
-            <SelectItem value="read">Read ({messages.length - unreadCount})</SelectItem>
-          </SelectContent>
-        </Select>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+        {tabFilters.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleFilter(tab.key)}
+            className={`flex-1 text-center py-2 px-3 rounded-md text-sm font-medium transition-all ${
+              filter === tab.key
+                ? 'bg-white text-[#1a3a6b] shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
       </div>
 
       {/* Unread banner + Mark All Read */}
-      {unreadCount > 0 && (
+      {counts.unread > 0 && (
         <div className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="bg-amber-100 p-2 rounded-lg">
               <Mail className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="font-semibold text-amber-800">{unreadCount} Unread Message{unreadCount !== 1 ? 's' : ''}</p>
+              <p className="font-semibold text-amber-800">{counts.unread} Unread Message{counts.unread !== 1 ? 's' : ''}</p>
               <p className="text-sm text-amber-600">Click a message to read it</p>
             </div>
           </div>
@@ -3232,7 +3379,7 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
         </div>
       )}
 
-      {/* Bulk Action Bar (appears when items selected) */}
+      {/* Bulk Action Bar */}
       <AnimatePresence>
         {someSelected && (
           <motion.div
@@ -3244,34 +3391,16 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
             <span className="text-sm font-medium mr-2">{selected.size} selected</span>
             <div className="flex-1" />
             {selectedUnread > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8"
-                onClick={() => handleBulk('mark-read')}
-                disabled={bulkLoading}
-              >
+              <Button variant="ghost" size="sm" className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8" onClick={() => handleBulk('mark-read')} disabled={bulkLoading}>
                 <CheckCheck className="w-3.5 h-3.5" /> Mark Read ({selectedUnread})
               </Button>
             )}
             {selectedRead > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8"
-                onClick={() => handleBulk('mark-unread')}
-                disabled={bulkLoading}
-              >
+              <Button variant="ghost" size="sm" className="text-white/90 hover:text-white hover:bg-white/10 gap-1.5 h-8" onClick={() => handleBulk('mark-unread')} disabled={bulkLoading}>
                 <Mail className="w-3.5 h-3.5" /> Mark Unread ({selectedRead})
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-red-200 hover:text-white hover:bg-red-500/30 gap-1.5 h-8"
-              onClick={() => handleBulk('delete')}
-              disabled={bulkLoading}
-            >
+            <Button variant="ghost" size="sm" className="text-red-200 hover:text-white hover:bg-red-500/30 gap-1.5 h-8" onClick={() => handleBulk('delete')} disabled={bulkLoading}>
               <Trash2 className="w-3.5 h-3.5" /> Delete ({selected.size})
             </Button>
           </motion.div>
@@ -3286,14 +3415,11 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
               <MessageSquare className="w-4 h-4 text-[#1a3a6b]" />
               Contact Messages
               <Badge variant="secondary" className="ml-1 bg-slate-100 text-slate-600">
-                {messages.length} total
+                {messages.length}
               </Badge>
             </CardTitle>
             {messages.length > 0 && (
-              <button
-                onClick={toggleSelectAll}
-                className="text-xs text-slate-500 hover:text-[#1a3a6b] transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
+              <button onClick={toggleSelectAll} className="text-xs text-slate-500 hover:text-[#1a3a6b] transition-colors flex items-center gap-1.5 cursor-pointer">
                 <CheckSquare className="w-3.5 h-3.5" />
                 {allSelected ? 'Deselect All' : 'Select All'}
               </button>
@@ -3305,91 +3431,75 @@ function MessagesSection({ messages, unreadCount, onExpand, onMarkRead, onDelete
             <div className="py-16 text-center">
               <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-400 font-medium">No messages {filter !== 'all' ? `in ${filter}` : 'yet'}</p>
-              <p className="text-slate-300 text-sm mt-1">
-                {search ? 'Try a different search term' : 'Contact messages will appear here'}
-              </p>
+              <p className="text-slate-300 text-sm mt-1">{search ? 'Try a different search term' : 'Contact messages will appear here'}</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`
-                    group flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors cursor-pointer
-                    ${!msg.isRead ? 'bg-blue-50/40' : ''}
-                    ${selected.has(msg.id) ? 'bg-[#1a3a6b]/5 border-l-2 border-l-[#1a3a6b]' : ''}
-                  `}
-                >
-                  {/* Checkbox */}
-                  <div className="pt-1 flex-shrink-0">
-                    <Checkbox
-                      checked={selected.has(msg.id)}
-                      onCheckedChange={() => toggleSelect(msg.id)}
-                      className="data-[state=checked]:bg-[#1a3a6b] data-[state=checked]:border-[#1a3a6b]"
-                    />
-                  </div>
-
-                  {/* Avatar + Content (clickable) */}
+              {messages.map((msg) => {
+                const badge = MSG_STATUS_BADGE[msg.status] || MSG_STATUS_BADGE.unread;
+                const isUnread = msg.status === 'unread';
+                return (
                   <div
-                    className="flex-1 min-w-0 flex items-start gap-3"
-                    onClick={() => onExpand(msg)}
+                    key={msg.id}
+                    className={`
+                      group flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors cursor-pointer
+                      ${isUnread ? 'bg-blue-50/40' : ''}
+                      ${selected.has(msg.id) ? 'bg-[#1a3a6b]/5 border-l-2 border-l-[#1a3a6b]' : ''}
+                    `}
                   >
-                    <div
-                      className={`
-                        w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold
-                        ${!msg.isRead ? 'bg-[#1a3a6b] text-white' : 'bg-slate-200 text-slate-500'}
-                      `}
-                    >
-                      {msg.name.charAt(0).toUpperCase()}
+                    <div className="pt-1 flex-shrink-0">
+                      <Checkbox
+                        checked={selected.has(msg.id)}
+                        onCheckedChange={() => toggleSelect(msg.id)}
+                        className="data-[state=checked]:bg-[#1a3a6b] data-[state=checked]:border-[#1a3a6b]"
+                      />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p
-                          className={`text-sm truncate ${!msg.isRead ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}
-                        >
-                          {msg.name}
-                          {!msg.isRead && (
-                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2" />
-                          )}
-                        </p>
-                        <span className="text-xs text-slate-400 flex-shrink-0">
-                          {formatDate(msg.createdAt)}
-                        </span>
+                    <div className="flex-1 min-w-0 flex items-start gap-3" onClick={() => onExpand(msg)}>
+                      <div className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold ${isUnread ? 'bg-[#1a3a6b] text-white' : 'bg-slate-200 text-slate-500'}`}>
+                        {msg.name.charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
-                        {msg.subject || 'No subject'}
-                      </p>
-                      <p className="text-xs text-slate-400 truncate mt-1">{msg.message}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`text-sm truncate ${isUnread ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}>
+                            {msg.name}
+                          </p>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {msg.status !== 'unread' && (
+                              <Badge className={`${badge.className} text-[10px] px-1.5 py-0`}>{badge.label}</Badge>
+                            )}
+                            <span className="text-xs text-slate-400">{formatDate(msg.createdAt)}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium truncate mt-0.5">{msg.subject || 'No subject'}</p>
+                        <p className="text-xs text-slate-400 truncate mt-1">{msg.message}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity pt-0.5 flex-shrink-0">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onMarkRead(msg.id, msg.status === 'unread'); }}
+                        className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
+                        title={isUnread ? 'Mark as read' : 'Mark as unread'}
+                      >
+                        {isUnread ? <CheckCheck className="w-3.5 h-3.5" /> : <Mail className="w-3.5 h-3.5" />}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onReply(msg); }}
+                        className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
+                        title="Reply"
+                      >
+                        <SquarePen className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onDelete(msg.id); }}
+                        className="h-7 w-7 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors rounded"
+                        title="Delete message"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Quick Actions (appear on hover) */}
-                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity pt-0.5 flex-shrink-0">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onMarkRead(msg.id, !msg.isRead); }}
-                      className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
-                      title={msg.isRead ? 'Mark as unread' : 'Mark as read'}
-                    >
-                      {msg.isRead ? <Mail className="w-3.5 h-3.5" /> : <CheckCheck className="w-3.5 h-3.5" />}
-                    </button>
-                    <a
-                      href={`mailto:${msg.email}?subject=Re: ${msg.subject || 'Your inquiry'}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-7 w-7 flex items-center justify-center text-slate-400 hover:text-[#1a3a6b] transition-colors rounded"
-                      title="Reply via email"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </a>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onDelete(msg.id); }}
-                      className="h-7 w-7 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors rounded"
-                      title="Delete message"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

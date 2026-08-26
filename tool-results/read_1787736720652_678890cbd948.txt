@@ -1,0 +1,2002 @@
+     1→'use client';
+     2→
+     3→import React, { useState, useEffect } from 'react';
+     4→import { useAppStore } from '@/store/useAppStore';
+     5→import { motion, AnimatePresence } from 'framer-motion';
+     6→import {
+     7→  LayoutDashboard,
+     8→  Users,
+     9→  FileText,
+    10→  CreditCard,
+    11→  Calendar,
+    12→  MessageSquare,
+    13→  LogOut,
+    14→  ChevronLeft,
+    15→  Search,
+    16→  Filter,
+    17→  CheckCircle,
+    18→  XCircle,
+    19→  Clock,
+    20→  TrendingUp,
+    21→  ArrowUpRight,
+    22→  Eye,
+    23→  MoreHorizontal,
+    24→  Settings,
+    25→  UserPlus,
+    26→  GraduationCap,
+    27→  School,
+    28→  Banknote,
+    29→  Plus,
+    30→  Trash2,
+    31→  Mail,
+    32→  Phone,
+    33→  MapPin,
+    34→  ChevronDown,
+    35→  Menu,
+    36→  X,
+    37→  ImageIcon,
+    38→  Upload,
+    39→  Paperclip,
+    40→  Download,
+    41→  Copy,
+    42→  FileCheck,
+    43→  Globe,
+    44→  Share2,
+    45→  Send,
+    46→  Edit3,
+    47→  CheckCheck,
+    48→  MailOpen,
+    49→  SquarePen,
+    50→  CheckSquare,
+    51→} from 'lucide-react';
+    52→import { Button } from '@/components/ui/button';
+    53→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+    54→import { Input } from '@/components/ui/input';
+    55→import { Badge } from '@/components/ui/badge';
+    56→import {
+    57→  Select,
+    58→  SelectContent,
+    59→  SelectItem,
+    60→  SelectTrigger,
+    61→  SelectValue,
+    62→} from '@/components/ui/select';
+    63→import {
+    64→  Table,
+    65→  TableBody,
+    66→  TableCell,
+    67→  TableHead,
+    68→  TableHeader,
+    69→  TableRow,
+    70→} from '@/components/ui/table';
+    71→import {
+    72→  Dialog,
+    73→  DialogContent,
+    74→  DialogHeader,
+    75→  DialogTitle,
+    76→  DialogDescription,
+    77→} from '@/components/ui/dialog';
+    78→import { formatCurrency } from '@/lib/schoolpay';
+    79→import { Skeleton } from '@/components/ui/skeleton';
+    80→import { Switch } from '@/components/ui/switch';
+    81→import { Checkbox } from '@/components/ui/checkbox';
+    82→import AdminWebsiteSettings from '@/components/admin/AdminWebsiteSettings';
+    83→import AdminGraduationSection from '@/components/admin/AdminGraduationSection';
+    84→import AdminAlumniSection from '@/components/admin/AdminAlumniSection';
+    85→
+    86→// ===================== TYPES =====================
+    87→
+    88→type Section =
+    89→  | 'dashboard'
+    90→  | 'applications'
+    91→  | 'students'
+    92→  | 'payments'
+    93→  | 'events'
+    94→  | 'gallery'
+    95→  | 'messages'
+    96→  | 'alumni'
+    97→  | 'graduation'
+    98→  | 'website'
+    99→  | 'settings';
+   100→
+   101→interface DashboardStats {
+   102→  totalApplications: number;
+   103→  totalStudents: number;
+   104→  totalPayments: number;
+   105→  totalRevenue: number;
+   106→  pendingApplications: number;
+   107→}
+   108→
+   109→interface Application {
+   110→  id: string;
+   111→  referenceNumber: string;
+   112→  status: string;
+   113→  fullName: string;
+   114→  dob: string | null;
+   115→  gender: string | null;
+   116→  nationality: string | null;
+   117→  religion: string | null;
+   118→  nin: string | null;
+   119→  phone: string;
+   120→  email: string;
+   121→  district: string | null;
+   122→  address: string | null;
+   123→  nextOfKin: string | null;
+   124→  nextOfKinPhone: string | null;
+   125→  lastSchool: string | null;
+   126→  yearCompleted: string | null;
+   127→  qualification: string | null;
+   128→  institutionLevel: string | null;
+   129→  grades: string | null;
+   130→  programme: string | null;
+   131→  intakeYear: string | null;
+   132→  schoolpayCode: string | null;
+   133→  paymentStatus: string;
+   134→  paymentRef: string | null;
+   135→  paymentAmount: number | null;
+   136→  paymentMethod: string | null;
+   137→  paidAt: string | null;
+   138→  documents: {
+   139→    id: string;
+   140→    fileName: string;
+   141→    fileUrl: string;
+   142→    fileSize: number;
+   143→    documentType: string;
+   144→    createdAt: string;
+   145→  }[];
+   146→  createdAt: string;
+   147→  updatedAt: string;
+   148→}
+   149→
+   150→interface Payment {
+   151→  id: string;
+   152→  transactionRef: string;
+   153→  applicationRef: string | null;
+   154→  fullName: string;
+   155→  phone: string;
+   156→  email: string;
+   157→  amount: number;
+   158→  status: string;
+   159→  paymentMethod: string;
+   160→  schoolpayTxRef: string | null;
+   161→  schoolpayStatus: string | null;
+   162→  createdAt: string;
+   163→  updatedAt: string;
+   164→}
+   165→
+   166→interface Student {
+   167→  id: string;
+   168→  studentNumber: string;
+   169→  applicationId: string | null;
+   170→  fullName: string;
+   171→  phone: string;
+   172→  email: string;
+   173→  programme: string;
+   174→  intakeYear: string;
+   175→  status: string;
+   176→  createdAt: string;
+   177→  updatedAt: string;
+   178→}
+   179→
+   180→interface EventItem {
+   181→  id: string;
+   182→  title: string;
+   183→  description: string | null;
+   184→  category: string;
+   185→  eventDate: string | null;
+   186→  eventTime: string | null;
+   187→  location: string | null;
+   188→  isBanner: boolean;
+   189→  bannerUrl: string;
+   190→  attachmentUrl: string;
+   191→  attachmentName: string;
+   192→  isPublished: boolean;
+   193→  createdAt: string;
+   194→  updatedAt: string;
+   195→}
+   196→
+   197→interface ContactMsg {
+   198→  id: string;
+   199→  name: string;
+   200→  email: string;
+   201→  phone: string | null;
+   202→  subject: string | null;
+   203→  message: string;
+   204→  isRead: boolean;
+   205→  createdAt: string;
+   206→}
+   207→
+   208→interface GalleryItem {
+   209→  id: string;
+   210→  title: string;
+   211→  description: string | null;
+   212→  imageUrl: string;
+   213→  category: string;
+   214→  eventDate: string | null;
+   215→  isPublished: boolean;
+   216→  createdAt: string;
+   217→}
+   218→
+   219→// ===================== CONSTANTS =====================
+   220→
+   221→const NAV_ITEMS: { section: Section; label: string; icon: React.ElementType }[] = [
+   222→  { section: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+   223→  { section: 'applications', label: 'Applications', icon: FileText },
+   224→  { section: 'students', label: 'Students', icon: Users },
+   225→  { section: 'payments', label: 'Payments', icon: CreditCard },
+   226→  { section: 'events', label: 'News & Events', icon: Calendar },
+   227→  { section: 'gallery', label: 'Gallery', icon: ImageIcon },
+   228→  { section: 'messages', label: 'Messages', icon: MessageSquare },
+   229→  { section: 'alumni', label: 'Alumni', icon: Users },
+   230→  { section: 'graduation', label: 'Graduation', icon: GraduationCap },
+   231→  { section: 'website', label: 'Website', icon: Globe },
+   232→  { section: 'settings', label: 'Settings', icon: Settings },
+   233→];
+   234→
+   235→const STATUS_BADGE: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string }> = {
+   236→  pending: { variant: 'outline', className: 'border-amber-400 text-amber-700 bg-amber-50' },
+   237→  approved: { variant: 'default', className: 'bg-blue-100 text-blue-800 hover:bg-blue-100' },
+   238→  rejected: { variant: 'destructive', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
+   239→  enrolled: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   240→  successful: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   241→  failed: { variant: 'destructive', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
+   242→  paid: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   243→  active: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   244→};
+   245→
+   246→const EVENT_CATEGORIES = [
+   247→  { value: 'general', label: 'General' },
+   248→  { value: 'academic', label: 'Academic' },
+   249→  { value: 'news', label: 'News' },
+   250→  { value: 'showcase', label: 'Showcase' },
+   251→  { value: 'assessment', label: 'Assessment' },
+   252→  { value: 'campus', label: 'Campus' },
+   253→];
+   254→
+   255→const GALLERY_CATEGORIES = [
+   256→  { value: 'general', label: 'General' },
+   257→  { value: 'outreach', label: 'Outreach' },
+   258→  { value: 'sports', label: 'Sports' },
+   259→  { value: 'graduation', label: 'Graduation' },
+   260→  { value: 'campus', label: 'Campus Life' },
+   261→  { value: 'openday', label: 'Open Day' },
+   262→];
+   263→
+   264→// ===================== ANIMATION VARIANTS =====================
+   265→
+   266→const pageVariants = {
+   267→  initial: { opacity: 0, y: 12 },
+   268→  animate: { opacity: 1, y: 0 },
+   269→  exit: { opacity: 0, y: -12 },
+   270→};
+   271→
+   272→const staggerContainer = {
+   273→  animate: { transition: { staggerChildren: 0.06 } },
+   274→};
+   275→
+   276→const staggerItem = {
+   277→  initial: { opacity: 0, y: 16 },
+   278→  animate: { opacity: 1, y: 0 },
+   279→};
+   280→
+   281→// ===================== MAIN COMPONENT =====================
+   282→
+   283→export default function AdminDashboard() {
+   284→  const { adminUser, setAdminUser, setCurrentPage, addToast } = useAppStore();
+   285→
+   286→  // ---- State ----
+   287→  const [activeSection, setActiveSection] = useState<Section>('dashboard');
+   288→  const [sidebarOpen, setSidebarOpen] = useState(false);
+   289→  const [globalSearch, setGlobalSearch] = useState('');
+   290→
+   291→  // Data
+   292→  const [stats, setStats] = useState<DashboardStats | null>(null);
+   293→  const [recentApps, setRecentApps] = useState<Application[]>([]);
+   294→  const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
+   295→  const [paymentsByStatus, setPaymentsByStatus] = useState<
+   296→    { status: string; _sum: { amount: number | null }; _count: number }[]
+   297→  >([]);
+   298→  const [appsByStatus, setAppsByStatus] = useState<
+   299→    { status: string; _count: number }[]
+   300→  >([]);
+   301→
+   302→  // Full lists
+   303→  const [applications, setApplications] = useState<Application[]>([]);
+   304→  const [appCounts, setAppCounts] = useState<Record<string, number>>({});
+   305→  const [allPayments, setAllPayments] = useState<Payment[]>([]);
+   306→  const [paymentSummary, setPaymentSummary] = useState<Record<string, number>>({});
+   307→  const [students, setStudents] = useState<Student[]>([]);
+   308→  const [events, setEvents] = useState<EventItem[]>([]);
+   309→  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+   310→  const [messages, setMessages] = useState<ContactMsg[]>([]);
+   311→  const [unreadCount, setUnreadCount] = useState(0);
+   312→
+   313→  // Filters
+   314→  const [appSearch, setAppSearch] = useState('');
+   315→  const [appStatusFilter, setAppStatusFilter] = useState('all');
+   316→
+   317→  // Dialogs
+   318→  const [viewApplicant, setViewApplicant] = useState<Application | null>(null);
+   319→  const [expandedMessage, setExpandedMessage] = useState<ContactMsg | null>(null);
+   320→  const [expandedApp, setExpandedApp] = useState<Application | null>(null);
+   321→  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+   322→  const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
+   323→  const [uploading, setUploading] = useState(false);
+   324→  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+   325→  const fileInputRef = React.useRef<HTMLInputElement>(null);
+   326→
+   327→  // Gallery form
+   328→  const [galleryForm, setGalleryForm] = useState({
+   329→    title: '',
+   330→    description: '',
+   331→    imageUrl: '',
+   332→    videoUrl: '',
+   333→    category: 'general',
+   334→    eventDate: '',
+   335→  });
+   336→
+   337→  // Event form
+   338→  const [eventForm, setEventForm] = useState({
+   339→    title: '',
+   340→    description: '',
+   341→    category: 'general',
+   342→    eventDate: '',
+   343→    eventTime: '',
+   344→    location: '',
+   345→    isBanner: false,
+   346→    bannerUrl: '',
+   347→    attachmentUrl: '',
+   348→    attachmentName: '',
+   349→  });
+   350→
+   351→  // Loading
+   352→  const [loading, setLoading] = useState(true);
+   353→  const [actionLoading, setActionLoading] = useState<string | null>(null);
+   354→  const [sendLetterLoading, setSendLetterLoading] = useState<string | null>(null);
+   355→
+   356→  // ---- Data Fetching ----
+   357→  const fetchDashboard = async () => {
+   358→    try {
+   359→      const res = await fetch('/api/admin');
+   360→      const json = await res.json();
+   361→      if (json.success) {
+   362→        setStats(json.data.stats);
+   363→        setRecentApps(json.data.recentApplications);
+   364→        setRecentPayments(json.data.recentPayments);
+   365→        setPaymentsByStatus(json.data.paymentsByMonth || []);
+   366→        setAppsByStatus(json.data.appsByStatus || []);
+   367→      }
+   368→    } catch {
+   369→      addToast('Failed to load dashboard data', 'error');
+   370→    }
+   371→  };
+   372→
+   373→  const fetchApplications = async () => {
+   374→    try {
+   375→      const params = new URLSearchParams();
+   376→      if (appStatusFilter && appStatusFilter !== 'all') params.set('status', appStatusFilter);
+   377→      if (appSearch) params.set('search', appSearch);
+   378→      const res = await fetch(`/api/admissions?${params.toString()}`);
+   379→      const json = await res.json();
+   380→      if (json.success) {
+   381→        setApplications(json.data);
+   382→        setAppCounts(json.counts || {});
+   383→      }
+   384→    } catch {
+   385→      addToast('Failed to load applications', 'error');
+   386→    }
+   387→  };
+   388→
+   389→  const fetchPayments = async () => {
+   390→    try {
+   391→      const res = await fetch('/api/payments');
+   392→      const json = await res.json();
+   393→      if (json.success) {
+   394→        setAllPayments(json.data);
+   395→        setPaymentSummary(json.summary);
+   396→      }
+   397→    } catch {
+   398→      addToast('Failed to load payments', 'error');
+   399→    }
+   400→  };
+   401→
+   402→  const fetchStudents = async () => {
+   403→    try {
+   404→      const res = await fetch('/api/admissions?status=enrolled');
+   405→      const json = await res.json();
+   406→      if (json.success) {
+   407→        const enrolled = json.data || [];
+   408→        setStudents(
+   409→          enrolled.map((app: Application) => ({
+   410→            id: app.id,
+   411→            studentNumber: `SKT/${app.intakeYear || new Date().getFullYear()}/${app.referenceNumber.slice(-5)}`,
+   412→            applicationId: app.id,
+   413→            fullName: app.fullName,
+   414→            phone: app.phone,
+   415→            email: app.email,
+   416→            programme: app.programme || 'N/A',
+   417→            intakeYear: app.intakeYear || 'N/A',
+   418→            status: 'active',
+   419→            createdAt: app.createdAt,
+   420→            updatedAt: app.updatedAt,
+   421→          }))
+   422→        );
+   423→      }
+   424→    } catch {
+   425→      addToast('Failed to load students', 'error');
+   426→    }
+   427→  };
+   428→
+   429→  const fetchEvents = async () => {
+   430→    try {
+   431→      const res = await fetch('/api/events?admin=true');
+   432→      const json = await res.json();
+   433→      if (json.success) {
+   434→        setEvents(json.data);
+   435→      }
+   436→    } catch {
+   437→      addToast('Failed to load events', 'error');
+   438→    }
+   439→  };
+   440→
+   441→  const fetchMessages = async (search = '', filter = 'all') => {
+   442→    try {
+   443→      const params = new URLSearchParams();
+   444→      if (search) params.set('search', search);
+   445→      if (filter !== 'all') params.set('filter', filter);
+   446→      const res = await fetch(`/api/contact?${params.toString()}`);
+   447→      const json = await res.json();
+   448→      if (json.success) {
+   449→        setMessages(json.data);
+   450→        setUnreadCount(json.unread || 0);
+   451→      }
+   452→    } catch {
+   453→      addToast('Failed to load messages', 'error');
+   454→    }
+   455→  };
+   456→
+   457→  const markMessageRead = async (id: string, isRead: boolean) => {
+   458→    try {
+   459→      await fetch('/api/contact', {
+   460→        method: 'PATCH',
+   461→        headers: { 'Content-Type': 'application/json' },
+   462→        credentials: 'include',
+   463→        body: JSON.stringify({ id, isRead }),
+   464→      });
+   465→      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, isRead } : m)));
+   466→      setUnreadCount((prev) => prev + (isRead ? -1 : 1));
+   467→    } catch {
+   468→      addToast('Failed to update message', 'error');
+   469→    }
+   470→  };
+   471→
+   472→  const deleteMessage = async (id: string) => {
+   473→    try {
+   474→      await fetch(`/api/contact?id=${id}`, { method: 'DELETE', credentials: 'include' });
+   475→      setMessages((prev) => {
+   476→        const msg = prev.find((m) => m.id === id);
+   477→        if (msg && !msg.isRead) setUnreadCount((c) => c - 1);
+   478→        return prev.filter((m) => m.id !== id);
+   479→      });
+   480→      addToast('Message deleted', 'success');
+   481→    } catch {
+   482→      addToast('Failed to delete message', 'error');
+   483→    }
+   484→  };
+   485→
+   486→  const bulkMessagesAction = async (ids: string[], action: string) => {
+   487→    if (ids.length === 0) return;
+   488→    try {
+   489→      const res = await fetch('/api/contact', {
+   490→        method: 'PATCH',
+   491→        headers: { 'Content-Type': 'application/json' },
+   492→        credentials: 'include',
+   493→        body: JSON.stringify({ ids, action }),
+   494→      });
+   495→      const json = await res.json();
+   496→      if (json.success) {
+   497→        addToast(json.message, 'success');
+   498→        fetchMessages(); // refresh
+   499→      } else {
+   500→        addToast(json.message || 'Bulk action failed', 'error');
+   501→      }
+   502→    } catch {
+   503→      addToast('Bulk action failed', 'error');
+   504→    }
+   505→  };
+   506→
+   507→  const markAllRead = async () => {
+   508→    try {
+   509→      const res = await fetch('/api/contact', {
+   510→        method: 'PATCH',
+   511→        headers: { 'Content-Type': 'application/json' },
+   512→        credentials: 'include',
+   513→        body: JSON.stringify({ ids: [], action: 'mark-all-read' }),
+   514→      });
+   515→      const json = await res.json();
+   516→      if (json.success) {
+   517→        addToast(json.message, 'success');
+   518→        fetchMessages();
+   519→      }
+   520→    } catch {
+   521→      addToast('Failed to mark all as read', 'error');
+   522→    }
+   523→  };
+   524→
+   525→  useEffect(() => {
+   526→    let cancelled = false;
+   527→    Promise.all([
+   528→      fetch('/api/admin').then((r) => r.json()),
+   529→      fetch('/api/admissions').then((r) => r.json()),
+   530→      fetch('/api/payments').then((r) => r.json()),
+   531→      fetch('/api/admissions?status=enrolled').then((r) => r.json()),
+   532→      fetch('/api/events?admin=true').then((r) => r.json()),
+   533→      fetch('/api/contact').then((r) => r.json()),
+   534→      fetch('/api/gallery?admin=true').then((r) => r.json()),
+   535→    ]).then(([adminJson, admissionsJson, paymentsJson, enrolledJson, eventsJson, contactJson, galleryJson]) => {
+   536→      if (cancelled) return;
+   537→      if (adminJson.success) {
+   538→        setStats(adminJson.data.stats);
+   539→        setRecentApps(adminJson.data.recentApplications);
+   540→        setRecentPayments(adminJson.data.recentPayments);
+   541→        setPaymentsByStatus(adminJson.data.paymentsByMonth || []);
+   542→        setAppsByStatus(adminJson.data.appsByStatus || []);
+   543→      }
+   544→      if (admissionsJson.success) {
+   545→        setApplications(admissionsJson.data);
+   546→        setAppCounts(admissionsJson.counts || {});
+   547→      }
+   548→      if (paymentsJson.success) {
+   549→        setAllPayments(paymentsJson.data);
+   550→        setPaymentSummary(paymentsJson.summary);
+   551→      }
+   552→      if (enrolledJson.success) {
+   553→        const enrolled = enrolledJson.data || [];
+   554→        setStudents(
+   555→          enrolled.map((app: Application) => ({
+   556→            id: app.id,
+   557→            studentNumber: `SKT/${app.intakeYear || new Date().getFullYear()}/${app.referenceNumber.slice(-5)}`,
+   558→            applicationId: app.id,
+   559→            fullName: app.fullName,
+   560→            phone: app.phone,
+   561→            email: app.email,
+   562→            programme: app.programme || 'N/A',
+   563→            intakeYear: app.intakeYear || 'N/A',
+   564→            status: 'active',
+   565→            createdAt: app.createdAt,
+   566→            updatedAt: app.updatedAt,
+   567→          }))
+   568→        );
+   569→      }
+   570→      if (eventsJson.success) {
+   571→        setEvents(eventsJson.data);
+   572→      }
+   573→      if (Array.isArray(galleryJson)) {
+   574→        setGalleryItems(galleryJson);
+   575→      }
+   576→      if (contactJson.success) {
+   577→        setMessages(contactJson.data);
+   578→        setUnreadCount(contactJson.unread || 0);
+   579→      }
+   580→      setLoading(false);
+   581→    }).catch(() => {
+   582→      if (!cancelled) {
+   583→        addToast('Failed to load some data', 'error');
+   584→        setLoading(false);
+   585→      }
+   586→    });
+   587→    return () => { cancelled = true; };
+   588→  }, []);
+   589→
+   590→  // ---- Actions ----
+   591→  const updateApplicationStatus = async (id: string, status: string) => {
+   592→    setActionLoading(id);
+   593→    try {
+   594→      const res = await fetch('/api/admissions', {
+   595→        method: 'PATCH',
+   596→        headers: { 'Content-Type': 'application/json' },
+   597→        body: JSON.stringify({ id, status }),
+   598→      });
+   599→      const json = await res.json();
+   600→      if (json.success) {
+   601→        addToast(`Application ${status} successfully`, 'success');
+   602→        fetchApplications();
+   603→        fetchDashboard();
+   604→        if (status === 'enrolled') fetchStudents();
+   605→        // Auto-send admission letter when approved
+   606→        if (status === 'approved') {
+   607→          sendAdmissionLetter(id);
+   608→        }
+   609→      } else {
+   610→        addToast(json.message || 'Action failed', 'error');
+   611→      }
+   612→    } catch {
+   613→      addToast('Failed to update application', 'error');
+   614→    }
+   615→    setActionLoading(null);
+   616→  };
+   617→
+   618→  const sendAdmissionLetter = async (applicationId: string) => {
+   619→    setSendLetterLoading(applicationId);
+   620→    try {
+   621→      const res = await fetch('/api/admissions/send-letter', {
+   622→        method: 'POST',
+   623→        headers: { 'Content-Type': 'application/json' },
+   624→        body: JSON.stringify({ applicationId }),
+   625→      });
+   626→      const json = await res.json();
+   627→      if (json.success) {
+   628→        addToast(json.message || 'Admission letter sent successfully', 'success');
+   629→      } else {
+   630→        addToast(json.message || 'Failed to send letter', 'error');
+   631→      }
+   632→    } catch {
+   633→      addToast('Failed to send admission letter', 'error');
+   634→    }
+   635→    setSendLetterLoading(null);
+   636→  };
+   637→
+   638→  const deleteEvent = async (id: string) => {
+   639→    try {
+   640→      const res = await fetch(`/api/events?id=${id}`, { method: 'DELETE' });
+   641→      const json = await res.json();
+   642→      if (json.success) {
+   643→        addToast('Event deleted', 'success');
+   644→        fetchEvents();
+   645→      } else {
+   646→        addToast('Failed to delete event', 'error');
+   647→      }
+   648→    } catch {
+   649→      addToast('Failed to delete event', 'error');
+   650→    }
+   651→  };
+   652→
+   653→  const toggleEventPublish = async (event: EventItem) => {
+   654→    try {
+   655→      await fetch('/api/events', {
+   656→        method: 'PATCH',
+   657→        headers: { 'Content-Type': 'application/json' },
+   658→        body: JSON.stringify({ id: event.id, isPublished: !event.isPublished }),
+   659→      });
+   660→      fetchEvents();
+   661→    } catch {
+   662→      addToast('Failed to update event', 'error');
+   663→    }
+   664→  };
+   665→
+   666→  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+   667→  const [editEventForm, setEditEventForm] = useState({
+   668→    title: '', description: '', category: 'general', eventDate: '', eventTime: '', location: '', isBanner: false, isPublished: true,
+   669→  });
+   670→
+   671→  const startEditEvent = (event: EventItem) => {
+   672→    setEditingEvent(event);
+   673→    setEditEventForm({
+   674→      title: event.title,
+   675→      description: event.description || '',
+   676→      category: event.category,
+   677→      eventDate: event.eventDate || '',
+   678→      eventTime: event.eventTime || '',
+   679→      location: event.location || '',
+   680→      isBanner: event.isBanner ?? false,
+   681→      isPublished: event.isPublished,
+   682→    });
+   683→  };
+   684→
+   685→  const saveEditEvent = async () => {
+   686→    if (!editingEvent) return;
+   687→    try {
+   688→      const res = await fetch('/api/events', {
+   689→        method: 'PATCH',
+   690→        headers: { 'Content-Type': 'application/json' },
+   691→        body: JSON.stringify({ id: editingEvent.id, ...editEventForm }),
+   692→      });
+   693→      const json = await res.json();
+   694→      if (json.success) {
+   695→        addToast('Event updated', 'success');
+   696→        setEditingEvent(null);
+   697→        fetchEvents();
+   698→      } else {
+   699→        addToast('Failed to update event', 'error');
+   700→      }
+   701→    } catch {
+   702→      addToast('Failed to update event', 'error');
+   703→    }
+   704→  };
+   705→
+   706→  const fetchGallery = async () => {
+   707→    try {
+   708→      const res = await fetch('/api/gallery?admin=true');
+   709→      if (res.ok) {
+   710→        const data = await res.json();
+   711→        setGalleryItems(data);
+   712→      }
+   713→    } catch {
+   714→      // silent
+   715→    }
+   716→  };
+   717→
+   718→  const deleteGalleryItem = async (id: string) => {
+   719→    try {
+   720→      const res = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
+   721→      const json = await res.json();
+   722→      if (json.success) {
+   723→        addToast('Gallery item deleted', 'success');
+   724→        fetchGallery();
+   725→      } else {
+   726→        addToast('Failed to delete gallery item', 'error');
+   727→      }
+   728→    } catch {
+   729→      addToast('Failed to delete gallery item', 'error');
+   730→    }
+   731→  };
+   732→
+   733→  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+   734→    const file = e.target.files?.[0];
+   735→    if (!file) return;
+   736→
+   737→    setUploading(true);
+   738→    try {
+   739→      const formData = new FormData();
+   740→      formData.append('file', file);
+   741→      formData.append('type', 'gallery');
+   742→      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
+   743→      if (res.ok) {
+   744→        const data = await res.json();
+   745→        setGalleryForm((f) => ({ ...f, imageUrl: data.url }));
+   746→        setUploadPreview(data.url);
+   747→        addToast('Photo uploaded successfully', 'success');
+   748→      } else if (res.status === 401 || res.status === 403) {
+   749→        addToast('Session expired. Please log out and log in again.', 'error');
+   750→      } else {
+   751→        const errData = await res.json().catch(() => ({}));
+   752→        addToast(errData.error || 'Upload failed. Try again or use a URL.', 'error');
+   753→      }
+   754→    } catch {
+   755→      addToast('Upload failed. Try again or use a URL.', 'error');
+   756→    } finally {
+   757→      setUploading(false);
+   758→    }
+   759→  };
+   760→
+   761→  const createGalleryItem = async () => {
+   762→    if (!galleryForm.title.trim() || !galleryForm.imageUrl.trim()) {
+   763→      addToast('Title and image are required. Upload a photo or provide a URL.', 'error');
+   764→      return;
+   765→    }
+   766→    try {
+   767→      const res = await fetch('/api/gallery', {
+   768→        method: 'POST',
+   769→        headers: { 'Content-Type': 'application/json' },
+   770→        body: JSON.stringify(galleryForm),
+   771→      });
+   772→      if (res.ok) {
+   773→        addToast('Gallery item added successfully', 'success');
+   774→        setGalleryForm({ title: '', description: '', imageUrl: '', category: 'general', eventDate: '' });
+   775→        setUploadPreview(null);
+   776→        if (fileInputRef.current) fileInputRef.current.value = '';
+   777→        setGalleryDialogOpen(false);
+   778→        fetchGallery();
+   779→      } else {
+   780→        addToast('Failed to add gallery item', 'error');
+   781→      }
+   782→    } catch {
+   783→      addToast('Failed to add gallery item', 'error');
+   784→    }
+   785→  };
+   786→
+   787→  const toggleGalleryPublish = async (item: GalleryItem) => {
+   788→    try {
+   789→      await fetch('/api/gallery', {
+   790→        method: 'PATCH',
+   791→        headers: { 'Content-Type': 'application/json' },
+   792→        body: JSON.stringify({ id: item.id, isPublished: !item.isPublished }),
+   793→      });
+   794→      fetchGallery();
+   795→    } catch {
+   796→      addToast('Failed to update gallery item', 'error');
+   797→    }
+   798→  };
+   799→
+   800→  const createEvent = async () => {
+   801→    if (!eventForm.title.trim()) {
+   802→      addToast('Event title is required', 'error');
+   803→      return;
+   804→    }
+   805→    try {
+   806→      const res = await fetch('/api/events', {
+   807→        method: 'POST',
+   808→        headers: { 'Content-Type': 'application/json' },
+   809→        body: JSON.stringify(eventForm),
+   810→      });
+   811→      const json = await res.json();
+   812→      if (json.success) {
+   813→        addToast('Event created successfully', 'success');
+   814→        setEventForm({ title: '', description: '', category: 'general', eventDate: '', eventTime: '', location: '', isBanner: false, bannerUrl: '', attachmentUrl: '', attachmentName: '' });
+   815→        setEventDialogOpen(false);
+   816→        fetchEvents();
+   817→      } else {
+   818→        addToast(json.message || 'Failed to create event', 'error');
+   819→      }
+   820→    } catch {
+   821→      addToast('Failed to create event', 'error');
+   822→    }
+   823→  };
+   824→
+   825→  const handleLogout = async () => {
+   826→    try {
+   827→      await fetch('/api/admin', {
+   828→        method: 'POST',
+   829→        headers: { 'Content-Type': 'application/json' },
+   830→        body: JSON.stringify({ action: 'logout' }),
+   831→      });
+   832→    } catch {
+   833→      // Even if the server call fails, clear local state
+   834→    }
+   835→    setAdminUser(null);
+   836→    setCurrentPage('home');
+   837→    addToast('Logged out successfully', 'info');
+   838→  };
+   839→
+   840→  const navigateTo = (section: Section) => {
+   841→    setActiveSection(section);
+   842→    setSidebarOpen(false);
+   843→  };
+   844→
+   845→  // ---- Helpers ----
+   846→  const formatDate = (dateStr: string) => {
+   847→    if (!dateStr) return 'N/A';
+   848→    try {
+   849→      return new Date(dateStr).toLocaleDateString('en-GB', {
+   850→        day: '2-digit',
+   851→        month: 'short',
+   852→        year: 'numeric',
+   853→      });
+   854→    } catch {
+   855→      return dateStr;
+   856→    }
+   857→  };
+   858→
+   859→  const getStatusBadge = (status: string) => {
+   860→    const config = STATUS_BADGE[status] || { variant: 'outline' as const, className: '' };
+   861→    return (
+   862→      <Badge variant={config.variant} className={config.className}>
+   863→        {status.charAt(0).toUpperCase() + status.slice(1)}
+   864→      </Badge>
+   865→    );
+   866→  };
+   867→
+   868→  const getPaymentStatusBadge = (status: string) => {
+   869→    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; className: string }> = {
+   870→      successful: { variant: 'default', className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' },
+   871→      pending: { variant: 'outline', className: 'border-amber-400 text-amber-700 bg-amber-50' },
+   872→      failed: { variant: 'destructive', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
+   873→      initiated: { variant: 'outline', className: 'border-blue-400 text-blue-700 bg-blue-50' },
+   874→    };
+   875→    const config = map[status] || map.pending;
+   876→    return (
+   877→      <Badge variant={config.variant} className={config.className}>
+   878→        {status.charAt(0).toUpperCase() + status.slice(1)}
+   879→      </Badge>
+   880→    );
+   881→  };
+   882→
+   883→  // Revenue chart max for scaling
+   884→  const maxRevenueBar = Math.max(
+   885→    ...(paymentsByStatus.map((p) => p._sum.amount || 0)),
+   886→    1
+   887→  );
+   888→
+   889→  const unreadMessages = messages.filter((m) => !m.isRead);
+   890→
+   891→  // ===================== RENDER =====================
+   892→
+   893→  return (
+   894→    <div className="min-h-screen bg-slate-50 flex items-start">
+   895→      {/* ===== MOBILE SIDEBAR OVERLAY ===== */}
+   896→      <AnimatePresence>
+   897→        {sidebarOpen && (
+   898→          <motion.div
+   899→            initial={{ opacity: 0 }}
+   900→            animate={{ opacity: 1 }}
+   901→            exit={{ opacity: 0 }}
+   902→            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+   903→            onClick={() => setSidebarOpen(false)}
+   904→          />
+   905→        )}
+   906→      </AnimatePresence>
+   907→
+   908→      {/* ===== SIDEBAR ===== */}
+   909→      <aside
+   910→        className={`
+   911→          fixed top-0 left-0 z-50 h-screen w-64 flex-shrink-0
+   912→          bg-gradient-to-b from-[#0f2347] to-[#1a3a6b]
+   913→          transform transition-transform duration-300 ease-in-out
+   914→          lg:translate-x-0 lg:sticky lg:top-0 lg:z-auto
+   915→          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+   916→        `}
+   917→      >
+   918→        <div className="flex flex-col h-full">
+   919→          {/* Logo / Brand */}
+   920→          <div className="flex items-center justify-between p-5 border-b border-white/10">
+   921→            <div className="flex items-center gap-3">
+   922→              <div className="w-10 h-10 rounded-lg bg-[#f5c518] flex items-center justify-center font-bold text-[#0f2347] text-lg">
+   923→                SK
+   924→              </div>
+   925→              <div>
+   926→                <h1 className="text-white font-bold text-sm leading-tight">SKTIM</h1>
+   927→                <p className="text-white/50 text-xs">Madera Admin</p>
+   928→              </div>
+   929→            </div>
+   930→            <button
+   931→              onClick={() => setSidebarOpen(false)}
+   932→              className="lg:hidden text-white/60 hover:text-white transition-colors"
+   933→            >
+   934→              <X className="w-5 h-5" />
+   935→            </button>
+   936→          </div>
+   937→
+   938→          {/* Navigation */}
+   939→          <nav className="flex-1 py-4 px-3 overflow-y-auto">
+   940→            <p className="text-white/30 text-xs uppercase tracking-wider px-3 mb-2 font-semibold">
+   941→              Main Menu
+   942→            </p>
+   943→            {NAV_ITEMS.slice(0, 7).map((item) => {
+   944→              const isActive = activeSection === item.section;
+   945→              const Icon = item.icon;
+   946→              return (
+   947→                <button
+   948→                  key={item.section}
+   949→                  onClick={() => navigateTo(item.section)}
+   950→                  className={`
+   951→                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 mb-0.5
+   952→                    ${
+   953→                      isActive
+   954→                        ? 'bg-white/10 text-[#f5c518] border-l-[3px] border-[#f5c518]'
+   955→                        : 'text-white/60 hover:text-white hover:bg-white/5 border-l-[3px] border-transparent'
+   956→                    }
+   957→                  `}
+   958→                >
+   959→                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+   960→                  <span>{item.label}</span>
+   961→                  {item.section === 'messages' && unreadCount > 0 && (
+   962→                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+   963→                      {unreadCount > 9 ? '9+' : unreadCount}
+   964→                    </span>
+   965→                  )}
+   966→                </button>
+   967→              );
+   968→            })}
+   969→            <p className="text-white/30 text-xs uppercase tracking-wider px-3 mb-2 mt-5 font-semibold">
+   970→              Content
+   971→            </p>
+   972→            {NAV_ITEMS.slice(7).map((item) => {
+   973→              const isActive = activeSection === item.section;
+   974→              const Icon = item.icon;
+   975→              return (
+   976→                <button
+   977→                  key={item.section}
+   978→                  onClick={() => navigateTo(item.section)}
+   979→                  className={`
+   980→                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 mb-0.5
+   981→                    ${
+   982→                      isActive
+   983→                        ? 'bg-white/10 text-[#f5c518] border-l-[3px] border-[#f5c518]'
+   984→                        : 'text-white/60 hover:text-white hover:bg-white/5 border-l-[3px] border-transparent'
+   985→                    }
+   986→                  `}
+   987→                >
+   988→                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+   989→                  <span>{item.label}</span>
+   990→                </button>
+   991→              );
+   992→            })}
+   993→          </nav>
+   994→
+   995→          {/* Admin User Info */}
+   996→          <div className="p-4 border-t border-white/10">
+   997→            <div className="flex items-center gap-3 mb-3">
+   998→              <div className="w-9 h-9 rounded-full bg-[#f5c518] flex items-center justify-center text-[#0f2347] font-bold text-sm">
+   999→                {adminUser?.name
+  1000→                  ?.split(' ')
+  1001→                  .map((n) => n[0])
+  1002→                  .join('')
+  1003→                  .slice(0, 2)
+  1004→                  .toUpperCase() || 'AD'}
+  1005→              </div>
+  1006→              <div className="flex-1 min-w-0">
+  1007→                <p className="text-white text-sm font-medium truncate">
+  1008→                  {adminUser?.name || 'Administrator'}
+  1009→                </p>
+  1010→                <p className="text-white/40 text-xs truncate">{adminUser?.email || 'admin@stkizitos.edu'}</p>
+  1011→              </div>
+  1012→            </div>
+  1013→            <Button
+  1014→              variant="ghost"
+  1015→              onClick={handleLogout}
+  1016→              className="w-full justify-start text-red-300 hover:text-red-100 hover:bg-red-500/10 text-sm gap-2"
+  1017→            >
+  1018→              <LogOut className="w-4 h-4" />
+  1019→              Sign Out
+  1020→            </Button>
+  1021→          </div>
+  1022→        </div>
+  1023→      </aside>
+  1024→
+  1025→      {/* ===== MAIN CONTENT ===== */}
+  1026→      <div className="flex-1 min-h-screen flex flex-col">
+  1027→        {/* Top Bar */}
+  1028→        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+  1029→          <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+  1030→            <div className="flex items-center gap-3">
+  1031→              <button
+  1032→                onClick={() => setSidebarOpen(true)}
+  1033→                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+  1034→              >
+  1035→                <Menu className="w-5 h-5 text-slate-600" />
+  1036→              </button>
+  1037→              <div>
+  1038→                <h2 className="text-lg font-bold text-slate-800">
+  1039→                  {NAV_ITEMS.find((n) => n.section === activeSection)?.label || 'Dashboard'}
+  1040→                </h2>
+  1041→                <p className="text-xs text-slate-400 hidden sm:block">
+  1042→                  St. Kizito&apos;s Technical Institute — Madera
+  1043→                </p>
+  1044→              </div>
+  1045→            </div>
+  1046→            <div className="flex items-center gap-3">
+  1047→              <div className="relative hidden md:block">
+  1048→                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+  1049→                <Input
+  1050→                  placeholder="Search anything..."
+  1051→                  value={globalSearch}
+  1052→                  onChange={(e) => setGlobalSearch(e.target.value)}
+  1053→                  className="pl-9 w-64 h-9 bg-slate-50 border-slate-200 text-sm"
+  1054→                />
+  1055→              </div>
+  1056→              <div className="w-9 h-9 rounded-full bg-[#1a3a6b] flex items-center justify-center text-white font-bold text-xs">
+  1057→                {adminUser?.name
+  1058→                  ?.split(' ')
+  1059→                  .map((n) => n[0])
+  1060→                  .join('')
+  1061→                  .slice(0, 2)
+  1062→                  .toUpperCase() || 'AD'}
+  1063→              </div>
+  1064→            </div>
+  1065→          </div>
+  1066→        </header>
+  1067→
+  1068→        {/* Page Content */}
+  1069→        <main className="flex-1 p-4 sm:p-6">
+  1070→          <AnimatePresence mode="wait">
+  1071→            <motion.div
+  1072→              key={activeSection}
+  1073→              variants={pageVariants}
+  1074→              initial="initial"
+  1075→              animate="animate"
+  1076→              exit="exit"
+  1077→              transition={{ duration: 0.25, ease: 'easeInOut' }}
+  1078→            >
+  1079→              {loading ? (
+  1080→                <DashboardSkeleton />
+  1081→              ) : activeSection === 'dashboard' ? (
+  1082→                <DashboardSection
+  1083→                  stats={stats}
+  1084→                  recentApps={recentApps}
+  1085→                  recentPayments={recentPayments}
+  1086→                  paymentsByStatus={paymentsByStatus}
+  1087→                  appsByStatus={appsByStatus}
+  1088→                  maxRevenueBar={maxRevenueBar}
+  1089→                  formatDate={formatDate}
+  1090→                  getStatusBadge={getStatusBadge}
+  1091→                  getPaymentStatusBadge={getPaymentStatusBadge}
+  1092→                  formatCurrency={formatCurrency}
+  1093→                  onViewApplicant={setViewApplicant}
+  1094→                  onApprove={updateApplicationStatus}
+  1095→                  onReject={updateApplicationStatus}
+  1096→                  actionLoading={actionLoading}
+  1097→                />
+  1098→              ) : activeSection === 'applications' ? (
+  1099→                <ApplicationsSection
+  1100→                  applications={applications}
+  1101→                  appCounts={appCounts}
+  1102→                  appSearch={appSearch}
+  1103→                  appStatusFilter={appStatusFilter}
+  1104→                  setAppSearch={setAppSearch}
+  1105→                  setAppStatusFilter={setAppStatusFilter}
+  1106→                  formatDate={formatDate}
+  1107→                  getStatusBadge={getStatusBadge}
+  1108→                  onViewApplicant={setViewApplicant}
+  1109→                  onExpand={setExpandedApp}
+  1110→                  onApprove={updateApplicationStatus}
+  1111→                  onReject={updateApplicationStatus}
+  1112→                  onEnroll={updateApplicationStatus}
+  1113→                  actionLoading={actionLoading}
+  1114→                />
+  1115→              ) : activeSection === 'payments' ? (
+  1116→                <PaymentsSection
+  1117→                  payments={allPayments}
+  1118→                  summary={paymentSummary}
+  1119→                  formatDate={formatDate}
+  1120→                  getPaymentStatusBadge={getPaymentStatusBadge}
+  1121→                  formatCurrency={formatCurrency}
+  1122→                />
+  1123→              ) : activeSection === 'students' ? (
+  1124→                <StudentsSection students={students} formatDate={formatDate} getStatusBadge={getStatusBadge} />
+  1125→              ) : activeSection === 'events' ? (
+  1126→                <EventsSection
+  1127→                  events={events}
+  1128→                  onCreateNew={() => setEventDialogOpen(true)}
+  1129→                  onDelete={deleteEvent}
+  1130→                  onTogglePublish={toggleEventPublish}
+  1131→                  onEdit={startEditEvent}
+  1132→                  formatDate={formatDate}
+  1133→                />
+  1134→              ) : activeSection === 'gallery' ? (
+  1135→                <GallerySection
+  1136→                  items={galleryItems}
+  1137→                  onCreateNew={() => setGalleryDialogOpen(true)}
+  1138→                  onDelete={deleteGalleryItem}
+  1139→                  onTogglePublish={toggleGalleryPublish}
+  1140→                  formatDate={formatDate}
+  1141→                />
+  1142→              ) : activeSection === 'messages' ? (
+  1143→                <MessagesSection
+  1144→                  messages={messages}
+  1145→                  unreadCount={unreadCount}
+  1146→                  onExpand={setExpandedMessage}
+  1147→                  onMarkRead={markMessageRead}
+  1148→                  onDelete={deleteMessage}
+  1149→                  onBulkAction={bulkMessagesAction}
+  1150→                  onMarkAllRead={markAllRead}
+  1151→                  onFetch={fetchMessages}
+  1152→                  formatDate={formatDate}
+  1153→                />
+  1154→              ) : activeSection === 'alumni' ? (
+  1155→                <AdminAlumniSection />
+  1156→              ) : activeSection === 'graduation' ? (
+  1157→                <AdminGraduationSection />
+  1158→              ) : activeSection === 'website' ? (
+  1159→                <AdminWebsiteSettings />
+  1160→              ) : activeSection === 'settings' ? (
+  1161→                <SettingsSection />
+  1162→              ) : null}
+  1163→            </motion.div>
+  1164→          </AnimatePresence>
+  1165→        </main>
+  1166→      </div>
+  1167→
+  1168→      {/* ===== APPLICANT VIEW DIALOG ===== */}
+  1169→      <Dialog open={!!viewApplicant} onOpenChange={() => setViewApplicant(null)}>
+  1170→        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+  1171→          <DialogHeader>
+  1172→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+  1173→              Applicant Details
+  1174→            </DialogTitle>
+  1175→            <DialogDescription>
+  1176→              Full information for application {viewApplicant?.referenceNumber}
+  1177→            </DialogDescription>
+  1178→          </DialogHeader>
+  1179→          {viewApplicant && (
+  1180→            <div className="space-y-6">
+  1181→              {/* Header */}
+  1182→              <div className="flex items-start justify-between">
+  1183→                <div>
+  1184→                  <h3 className="text-xl font-bold text-slate-800">{viewApplicant.fullName}</h3>
+  1185→                  <p className="text-sm text-slate-500 mt-1">{viewApplicant.referenceNumber}</p>
+  1186→                </div>
+  1187→                {getStatusBadge(viewApplicant.status)}
+  1188→              </div>
+  1189→
+  1190→              {/* Quick Info */}
+  1191→              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+  1192→                <QuickInfo icon={Phone} label="Phone" value={viewApplicant.phone} />
+  1193→                <QuickInfo icon={Mail} label="Email" value={viewApplicant.email} />
+  1194→                <QuickInfo icon={GraduationCap} label="Programme" value={viewApplicant.programme || 'N/A'} />
+  1195→                <QuickInfo icon={Calendar} label="Intake" value={viewApplicant.intakeYear || 'N/A'} />
+  1196→              </div>
+  1197→
+  1198→              {/* Personal Details */}
+  1199→              <DetailCard title="Personal Information">
+  1200→                <div className="grid grid-cols-2 gap-4">
+  1201→                  <DetailRow label="Date of Birth" value={viewApplicant.dob} />
+  1202→                  <DetailRow label="Gender" value={viewApplicant.gender} />
+  1203→                  <DetailRow label="Nationality" value={viewApplicant.nationality} />
+  1204→                  <DetailRow label="Religion" value={viewApplicant.religion} />
+  1205→                  <DetailRow label="NIN" value={viewApplicant.nin} />
+  1206→                </div>
+  1207→              </DetailCard>
+  1208→
+  1209→              {/* Contact Details */}
+  1210→              <DetailCard title="Contact & Address">
+  1211→                <div className="grid grid-cols-2 gap-4">
+  1212→                  <DetailRow label="District" value={viewApplicant.district} />
+  1213→                  <DetailRow label="Address" value={viewApplicant.address} />
+  1214→                  <DetailRow label="Next of Kin" value={viewApplicant.nextOfKin} />
+  1215→                  <DetailRow label="Kin Phone" value={viewApplicant.nextOfKinPhone} />
+  1216→                </div>
+  1217→              </DetailCard>
+  1218→
+  1219→              {/* Academic Details */}
+  1220→              <DetailCard title="Academic Background">
+  1221→                <div className="grid grid-cols-2 gap-4">
+  1222→                  <DetailRow label="Last School" value={viewApplicant.lastSchool} />
+  1223→                  <DetailRow label="Year Completed" value={viewApplicant.yearCompleted} />
+  1224→                  <DetailRow label="Qualification" value={viewApplicant.qualification} />
+  1225→                </div>
+  1226→              </DetailCard>
+  1227→
+  1228→              {/* Payment Info */}
+  1229→              <DetailCard title="Payment Information">
+  1230→                <div className="grid grid-cols-2 gap-4">
+  1231→                  <DetailRow label="Payment Status" value={viewApplicant.paymentStatus} />
+  1232→                  <DetailRow
+  1233→                    label="Amount"
+  1234→                    value={viewApplicant.paymentAmount ? formatCurrency(viewApplicant.paymentAmount) : 'N/A'}
+  1235→                  />
+  1236→                  <DetailRow label="Payment Ref" value={viewApplicant.paymentRef} />
+  1237→                  <DetailRow label="Payment Method" value={viewApplicant.paymentMethod} />
+  1238→                  <DetailRow label="Paid At" value={viewApplicant.paidAt ? formatDate(viewApplicant.paidAt) : 'N/A'} />
+  1239→                </div>
+  1240→              </DetailCard>
+  1241→
+  1242→              {/* Action Buttons */}
+  1243→              <div className="flex flex-wrap gap-2 pt-2">
+  1244→                <Button
+  1245→                  variant="outline"
+  1246→                  onClick={() => {
+  1247→                    const html = generateFilledFormHtml(viewApplicant);
+  1248→                    downloadFormAsPdf(html, `Application_${viewApplicant.referenceNumber}.pdf`);
+  1249→                  }}
+  1250→                >
+  1251→                  <Download className="w-4 h-4 mr-1" />
+  1252→                  Download Filled Form (PDF)
+  1253→                </Button>
+  1254→                {viewApplicant.status === 'pending' && (
+  1255→                  <>
+  1256→                    <Button
+  1257→                      onClick={() => {
+  1258→                        updateApplicationStatus(viewApplicant.id, 'approved');
+  1259→                        setViewApplicant(null);
+  1260→                      }}
+  1261→                      disabled={!!actionLoading}
+  1262→                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+  1263→                    >
+  1264→                      <CheckCircle className="w-4 h-4 mr-1" />
+  1265→                      Approve
+  1266→                    </Button>
+  1267→                    <Button
+  1268→                      variant="destructive"
+  1269→                      onClick={() => {
+  1270→                        updateApplicationStatus(viewApplicant.id, 'rejected');
+  1271→                        setViewApplicant(null);
+  1272→                      }}
+  1273→                      disabled={!!actionLoading}
+  1274→                    >
+  1275→                      <XCircle className="w-4 h-4 mr-1" />
+  1276→                      Reject
+  1277→                    </Button>
+  1278→                  </>
+  1279→                )}
+  1280→                {viewApplicant.status === 'approved' && (
+  1281→                  <Button
+  1282→                    onClick={() => {
+  1283→                      updateApplicationStatus(viewApplicant.id, 'enrolled');
+  1284→                      setViewApplicant(null);
+  1285→                    }}
+  1286→                    disabled={!!actionLoading}
+  1287→                    className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+  1288→                  >
+  1289→                    <UserPlus className="w-4 h-4 mr-1" />
+  1290→                    Enroll Student
+  1291→                  </Button>
+  1292→                )}
+  1293→                {(viewApplicant.status === 'approved' || viewApplicant.status === 'enrolled') && (
+  1294→                  <Button
+  1295→                    variant="outline"
+  1296→                    onClick={() => sendAdmissionLetter(viewApplicant.id)}
+  1297→                    disabled={!!sendLetterLoading}
+  1298→                  >
+  1299→                    {sendLetterLoading ? (
+  1300→                      <span className="w-4 h-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+  1301→                    ) : (
+  1302→                      <Send className="w-4 h-4 mr-1" />
+  1303→                    )}
+  1304→                    Send Admission Letter
+  1305→                  </Button>
+  1306→                )}
+  1307→                <Button
+  1308→                  variant="outline"
+  1309→                  onClick={() => setViewApplicant(null)}
+  1310→                >
+  1311→                  Close
+  1312→                </Button>
+  1313→              </div>
+  1314→            </div>
+  1315→          )}
+  1316→        </DialogContent>
+  1317→      </Dialog>
+  1318→
+  1319→      {/* ===== EXPANDED MESSAGE DIALOG ===== */}
+  1320→      <Dialog open={!!expandedMessage} onOpenChange={(open) => {
+  1321→        if (!open) {
+  1322→          // Auto-mark as read when closing
+  1323→          if (expandedMessage && !expandedMessage.isRead) {
+  1324→            markMessageRead(expandedMessage.id, true);
+  1325→          }
+  1326→          setExpandedMessage(null);
+  1327→        }
+  1328→      }}>
+  1329→        <DialogContent className="sm:max-w-lg max-h-[85vh]">
+  1330→          <DialogHeader>
+  1331→            <DialogTitle className="text-lg font-bold text-[#1a3a6b] flex items-center gap-2">
+  1332→              {expandedMessage?.subject || 'Message'}
+  1333→              {expandedMessage && !expandedMessage.isRead && (
+  1334→                <Badge className="bg-blue-100 text-blue-700 text-xs">Unread</Badge>
+  1335→              )}
+  1336→            </DialogTitle>
+  1337→            <DialogDescription>
+  1338→              From {expandedMessage?.name} on {expandedMessage ? formatDate(expandedMessage.createdAt) : ''}
+  1339→            </DialogDescription>
+  1340→          </DialogHeader>
+  1341→          {expandedMessage && (
+  1342→            <div className="space-y-4">
+  1343→              <div className="flex items-center gap-4 text-sm text-slate-600">
+  1344→                <span className="flex items-center gap-1">
+  1345→                  <Mail className="w-4 h-4" /> {expandedMessage.email}
+  1346→                </span>
+  1347→                {expandedMessage.phone && (
+  1348→                  <span className="flex items-center gap-1">
+  1349→                    <Phone className="w-4 h-4" /> {expandedMessage.phone}
+  1350→                  </span>
+  1351→                )}
+  1352→              </div>
+  1353→              <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+  1354→                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{expandedMessage.message}</p>
+  1355→              </div>
+  1356→              <div className="flex flex-wrap gap-2">
+  1357→                <a
+  1358→                  href={`mailto:${expandedMessage.email}?subject=Re: ${expandedMessage.subject || 'Your inquiry'}&body=\n\n---\nOriginal message:\n${encodeURIComponent(expandedMessage.message)}`}
+  1359→                  className="flex-1"
+  1360→                >
+  1361→                  <Button variant="outline" className="w-full gap-2">
+  1362→                    <Send className="w-3.5 h-3.5" /> Reply via Email
+  1363→                  </Button>
+  1364→                </a>
+  1365→                <Button
+  1366→                  variant="outline"
+  1367→                  className="gap-2"
+  1368→                  onClick={() => {
+  1369→                    markMessageRead(expandedMessage.id, !expandedMessage.isRead);
+  1370→                    setExpandedMessage({ ...expandedMessage, isRead: !expandedMessage.isRead });
+  1371→                  }}
+  1372→                >
+  1373→                  {expandedMessage.isRead ? (
+  1374→                    <><Mail className="w-3.5 h-3.5" /> Mark Unread</>
+  1375→                  ) : (
+  1376→                    <><CheckCheck className="w-3.5 h-3.5" /> Mark Read</>
+  1377→                  )}
+  1378→                </Button>
+  1379→                <Button
+  1380→                  variant="outline"
+  1381→                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 gap-2"
+  1382→                  onClick={() => {
+  1383→                    deleteMessage(expandedMessage.id);
+  1384→                    setExpandedMessage(null);
+  1385→                  }}
+  1386→                >
+  1387→                  <Trash2 className="w-3.5 h-3.5" /> Delete
+  1388→                </Button>
+  1389→              </div>
+  1390→            </div>
+  1391→          )}
+  1392→        </DialogContent>
+  1393→      </Dialog>
+  1394→
+  1395→      {/* ===== EXPANDED APPLICANT DIALOG ===== */}
+  1396→      <Dialog open={!!expandedApp} onOpenChange={() => setExpandedApp(null)}>
+  1397→        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+  1398→          <DialogHeader>
+  1399→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">
+  1400→              Applicant Details
+  1401→            </DialogTitle>
+  1402→            <DialogDescription>
+  1403→              Full application information
+  1404→            </DialogDescription>
+  1405→          </DialogHeader>
+  1406→          {expandedApp && (
+  1407→            <div className="space-y-6">
+  1408→              {/* Header with ref + status */}
+  1409→              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+  1410→                <div>
+  1411→                  <p className="text-2xl font-mono font-bold text-[#1a3a6b] tracking-wide">{expandedApp.referenceNumber}</p>
+  1412→                  <h3 className="text-xl font-bold text-slate-800 mt-1">{expandedApp.fullName}</h3>
+  1413→                </div>
+  1414→                {getStatusBadge(expandedApp.status)}
+  1415→              </div>
+  1416→
+  1417→              {/* Payment Status Indicator */}
+  1418→              <div className={`flex items-center gap-3 p-3 rounded-lg ${expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
+  1419→                <div className={`w-3 h-3 rounded-full ${expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+  1420→                <span className="text-sm font-medium">
+  1421→                  Payment: {expandedApp.paymentStatus === 'successful' || expandedApp.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+  1422→                  {expandedApp.paymentAmount ? ` — ${formatCurrency(expandedApp.paymentAmount)}` : ''}
+  1423→                </span>
+  1424→              </div>
+  1425→
+  1426→              {/* Personal Info */}
+  1427→              <DetailCard title="Personal Information">
+  1428→                <div className="grid grid-cols-2 gap-4">
+  1429→                  <DetailRow label="Date of Birth" value={expandedApp.dob} />
+  1430→                  <DetailRow label="Gender" value={expandedApp.gender} />
+  1431→                  <DetailRow label="Nationality" value={expandedApp.nationality} />
+  1432→                  <DetailRow label="Religion" value={expandedApp.religion} />
+  1433→                  <DetailRow label="NIN" value={expandedApp.nin} />
+  1434→                </div>
+  1435→              </DetailCard>
+  1436→
+  1437→              {/* Contact Info */}
+  1438→              <DetailCard title="Contact Information">
+  1439→                <div className="grid grid-cols-2 gap-4">
+  1440→                  <DetailRow label="Phone" value={expandedApp.phone} />
+  1441→                  <DetailRow label="Email" value={expandedApp.email} />
+  1442→                  <DetailRow label="District" value={expandedApp.district} />
+  1443→                  <DetailRow label="Address" value={expandedApp.address} />
+  1444→                </div>
+  1445→              </DetailCard>
+  1446→
+  1447→              {/* Next of Kin */}
+  1448→              <DetailCard title="Next of Kin">
+  1449→                <div className="grid grid-cols-2 gap-4">
+  1450→                  <DetailRow label="Name" value={expandedApp.nextOfKin} />
+  1451→                  <DetailRow label="Phone" value={expandedApp.nextOfKinPhone} />
+  1452→                </div>
+  1453→              </DetailCard>
+  1454→
+  1455→              {/* Academic Background */}
+  1456→              <DetailCard title="Academic Background">
+  1457→                <div className="grid grid-cols-2 gap-4">
+  1458→                  <DetailRow label="Last School" value={expandedApp.lastSchool} />
+  1459→                  <DetailRow label="Year Completed" value={expandedApp.yearCompleted} />
+  1460→                  <DetailRow label="Qualification" value={expandedApp.qualification} />
+  1461→                </div>
+  1462→              </DetailCard>
+  1463→
+  1464→              {/* Programme Selection */}
+  1465→              <DetailCard title="Programme Selection">
+  1466→                <div className="grid grid-cols-2 gap-4">
+  1467→                  <DetailRow label="Programme" value={expandedApp.programme} />
+  1468→                  <DetailRow label="Intake Year" value={expandedApp.intakeYear} />
+  1469→                  <DetailRow label="Applied On" value={formatDate(expandedApp.createdAt)} />
+  1470→                </div>
+  1471→              </DetailCard>
+  1472→
+  1473→              {/* Grades / Academic Performance */}
+  1474→              {expandedApp.grades && (
+  1475→                <DetailCard title="Grades / Academic Performance">
+  1476→                  <div className="space-y-3">
+  1477→                    {expandedApp.institutionLevel && (
+  1478→                      <Badge variant="secondary" className="bg-[#1a3a6b]/10 text-[#1a3a6b] font-medium">
+  1479→                        {expandedApp.institutionLevel.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+  1480→                      </Badge>
+  1481→                    )}
+  1482→                    {(() => {
+  1483→                      try {
+  1484→                        const parsed = JSON.parse(expandedApp.grades);
+  1485→                        if (!Array.isArray(parsed) || parsed.length === 0) return null;
+  1486→                        return (
+  1487→                          <div className="rounded-lg border border-slate-200 overflow-hidden">
+  1488→                            <table className="w-full text-sm">
+  1489→                              <thead>
+  1490→                                <tr className="bg-slate-50">
+  1491→                                  <th className="text-left px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Subject</th>
+  1492→                                  <th className="text-left px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Grade</th>
+  1493→                                </tr>
+  1494→                              </thead>
+  1495→                              <tbody className="divide-y divide-slate-100">
+  1496→                                {parsed.map((g: { subject: string; grade: string }, i: number) => (
+  1497→                                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+  1498→                                    <td className="px-3 py-2 text-slate-700">{g.subject}</td>
+  1499→                                    <td className="px-3 py-2">
+  1500→                                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+  1501→                                        ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'D1', 'D2'].some(p => g.grade?.toUpperCase().startsWith(p))
+  1502→                                          ? 'bg-emerald-100 text-emerald-700'
+  1503→                                          : ['C-', 'D', 'D3', 'D4'].some(p => g.grade?.toUpperCase().startsWith(p))
+  1504→                                          ? 'bg-amber-100 text-amber-700'
+  1505→                                          : 'bg-red-100 text-red-700'
+  1506→                                      }`}>
+  1507→                                        {g.grade}
+  1508→                                      </span>
+  1509→                                    </td>
+  1510→                                  </tr>
+  1511→                                ))}
+  1512→                              </tbody>
+  1513→                            </table>
+  1514→                          </div>
+  1515→                        );
+  1516→                      } catch {
+  1517→                        return <p className="text-sm text-slate-400">Could not parse grades data</p>;
+  1518→                      }
+  1519→                    })()}
+  1520→                  </div>
+  1521→                </DetailCard>
+  1522→              )}
+  1523→
+  1524→              {/* Documents */}
+  1525→              {expandedApp.documents && expandedApp.documents.length > 0 && (
+  1526→                <DetailCard title="Uploaded Documents">
+  1527→                  <div className="space-y-2">
+  1528→                    {expandedApp.documents.map((doc) => (
+  1529→                      <a
+  1530→                        key={doc.id}
+  1531→                        href={doc.fileUrl}
+  1532→                        target="_blank"
+  1533→                        rel="noopener noreferrer"
+  1534→                        className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-[#1a3a6b]/30 hover:bg-[#1a3a6b]/5 transition-all group"
+  1535→                      >
+  1536→                        <div className="flex items-center gap-3 min-w-0">
+  1537→                          <div className="w-8 h-8 rounded-lg bg-[#1a3a6b]/10 flex items-center justify-center flex-shrink-0">
+  1538→                            <FileCheck className="w-4 h-4 text-[#1a3a6b]" />
+  1539→                          </div>
+  1540→                          <div className="min-w-0">
+  1541→                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-[#1a3a6b] transition-colors">{doc.fileName}</p>
+  1542→                            <div className="flex items-center gap-2 mt-0.5">
+  1543→                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-slate-100 text-slate-500">
+  1544→                                {doc.documentType.replace(/_/g, ' ')}
+  1545→                              </Badge>
+  1546→                              <span className="text-[10px] text-slate-400">
+  1547→                                {(doc.fileSize / 1024).toFixed(doc.fileSize > 1024 * 100 ? 0 : 1)} KB
+  1548→                              </span>
+  1549→                              <span className="text-[10px] text-slate-400">
+  1550→                                {formatDate(doc.createdAt)}
+  1551→                              </span>
+  1552→                            </div>
+  1553→                          </div>
+  1554→                        </div>
+  1555→                        <Download className="w-4 h-4 text-slate-300 group-hover:text-[#1a3a6b] transition-colors flex-shrink-0" />
+  1556→                      </a>
+  1557→                    ))}
+  1558→                  </div>
+  1559→                </DetailCard>
+  1560→              )}
+  1561→
+  1562→              {/* SchoolPay Code */}
+  1563→              {expandedApp.schoolpayCode && (
+  1564→                <DetailCard title="SchoolPay Payment Code">
+  1565→                  <div className="flex items-center gap-3">
+  1566→                    <div className="flex-1 bg-[#f5c518]/10 border-2 border-dashed border-[#f5c518]/40 rounded-xl p-4 text-center">
+  1567→                      <p className="text-xs text-slate-500 mb-1 font-medium">Payment Reference Code</p>
+  1568→                      <p className="text-2xl font-mono font-bold text-[#1a3a6b] tracking-widest">{expandedApp.schoolpayCode}</p>
+  1569→                    </div>
+  1570→                    <Button
+  1571→                      variant="outline"
+  1572→                      size="icon"
+  1573→                      className="flex-shrink-0 h-10 w-10"
+  1574→                      onClick={() => {
+  1575→                        navigator.clipboard.writeText(expandedApp.schoolpayCode!);
+  1576→                        addToast('SchoolPay code copied to clipboard', 'success');
+  1577→                      }}
+  1578→                      title="Copy code"
+  1579→                    >
+  1580→                      <Copy className="w-4 h-4" />
+  1581→                    </Button>
+  1582→                  </div>
+  1583→                </DetailCard>
+  1584→              )}
+  1585→
+  1586→              {/* Action Buttons */}
+  1587→              <div className="flex flex-wrap gap-2 pt-2">
+  1588→                <Button
+  1589→                  variant="outline"
+  1590→                  onClick={() => {
+  1591→                    const html = generateFilledFormHtml(expandedApp);
+  1592→                    downloadFormAsPdf(html, `Application_${expandedApp.referenceNumber}.pdf`);
+  1593→                  }}
+  1594→                >
+  1595→                  <Download className="w-4 h-4 mr-1" />
+  1596→                  Download Filled Form (PDF)
+  1597→                </Button>
+  1598→                {(expandedApp.status === 'pending' || expandedApp.status === 'rejected') && (
+  1599→                  <Button
+  1600→                    onClick={() => {
+  1601→                      updateApplicationStatus(expandedApp.id, 'approved');
+  1602→                      setExpandedApp(null);
+  1603→                    }}
+  1604→                    disabled={!!actionLoading}
+  1605→                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+  1606→                  >
+  1607→                    <CheckCircle className="w-4 h-4 mr-1" />
+  1608→                    Approve
+  1609→                  </Button>
+  1610→                )}
+  1611→                {(expandedApp.status === 'pending' || expandedApp.status === 'approved') && (
+  1612→                  <Button
+  1613→                    variant="destructive"
+  1614→                    onClick={() => {
+  1615→                      updateApplicationStatus(expandedApp.id, 'rejected');
+  1616→                      setExpandedApp(null);
+  1617→                    }}
+  1618→                    disabled={!!actionLoading}
+  1619→                  >
+  1620→                    <XCircle className="w-4 h-4 mr-1" />
+  1621→                    Reject
+  1622→                  </Button>
+  1623→                )}
+  1624→                {expandedApp.status === 'approved' && (
+  1625→                  <Button
+  1626→                    onClick={() => {
+  1627→                      updateApplicationStatus(expandedApp.id, 'enrolled');
+  1628→                      setExpandedApp(null);
+  1629→                    }}
+  1630→                    disabled={!!actionLoading}
+  1631→                    className="bg-[#1a3a6b] hover:bg-[#2756a0] text-white"
+  1632→                  >
+  1633→                    <UserPlus className="w-4 h-4 mr-1" />
+  1634→                    Enroll Student
+  1635→                  </Button>
+  1636→                )}
+  1637→                {(expandedApp.status === 'approved' || expandedApp.status === 'enrolled') && (
+  1638→                  <Button
+  1639→                    variant="outline"
+  1640→                    onClick={() => sendAdmissionLetter(expandedApp.id)}
+  1641→                    disabled={!!sendLetterLoading}
+  1642→                  >
+  1643→                    {sendLetterLoading ? (
+  1644→                      <span className="w-4 h-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+  1645→                    ) : (
+  1646→                      <Send className="w-4 h-4 mr-1" />
+  1647→                    )}
+  1648→                    Send Admission Letter
+  1649→                  </Button>
+  1650→                )}
+  1651→                <Button
+  1652→                  variant="outline"
+  1653→                  onClick={() => setExpandedApp(null)}
+  1654→                  className="ml-auto"
+  1655→                >
+  1656→                  Close
+  1657→                </Button>
+  1658→              </div>
+  1659→            </div>
+  1660→          )}
+  1661→        </DialogContent>
+  1662→      </Dialog>
+  1663→
+  1664→      {/* ===== CREATE EVENT DIALOG ===== */}
+  1665→      <Dialog open={eventDialogOpen} onOpenChange={setEventDialogOpen}>
+  1666→        <DialogContent className="sm:max-w-lg max-h-[85vh]">
+  1667→          <DialogHeader>
+  1668→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Create New Event</DialogTitle>
+  1669→            <DialogDescription>Add a new event to the school calendar.</DialogDescription>
+  1670→          </DialogHeader>
+  1671→          <div className="space-y-3 overflow-y-auto -mx-2 px-2">
+  1672→            <div>
+  1673→              <label className="block text-xs font-medium text-slate-700 mb-1">Title</label>
+  1674→              <Input
+  1675→                placeholder="Event title"
+  1676→                value={eventForm.title}
+  1677→                onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+  1678→              />
+  1679→            </div>
+  1680→            <div>
+  1681→              <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+  1682→              <textarea
+  1683→                className="w-full min-h-[100px] rounded-md border border-slate-200 p-2 text-sm resize-y"
+  1684→                placeholder="Full description or news article content..."
+  1685→                value={eventForm.description}
+  1686→                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+  1687→              />
+  1688→            </div>
+  1689→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  1690→              <div>
+  1691→                <label className="block text-xs font-medium text-slate-700 mb-1">Category</label>
+  1692→                <Select
+  1693→                  value={eventForm.category}
+  1694→                  onValueChange={(v) => setEventForm({ ...eventForm, category: v })}
+  1695→                >
+  1696→                  <SelectTrigger>
+  1697→                    <SelectValue />
+  1698→                  </SelectTrigger>
+  1699→                  <SelectContent>
+  1700→                    {EVENT_CATEGORIES.map((cat) => (
+  1701→                      <SelectItem key={cat.value} value={cat.value}>
+  1702→                        {cat.label}
+  1703→                      </SelectItem>
+  1704→                    ))}
+  1705→                  </SelectContent>
+  1706→                </Select>
+  1707→              </div>
+  1708→              <div>
+  1709→                <label className="block text-xs font-medium text-slate-700 mb-1">Date</label>
+  1710→                <Input
+  1711→                  type="date"
+  1712→                  value={eventForm.eventDate}
+  1713→                  onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
+  1714→                />
+  1715→              </div>
+  1716→            </div>
+  1717→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  1718→              <div>
+  1719→                <label className="block text-xs font-medium text-slate-700 mb-1">Time</label>
+  1720→                <Input
+  1721→                  type="time"
+  1722→                  value={eventForm.eventTime}
+  1723→                  onChange={(e) => setEventForm({ ...eventForm, eventTime: e.target.value })}
+  1724→                />
+  1725→              </div>
+  1726→              <div>
+  1727→                <label className="block text-xs font-medium text-slate-700 mb-1">Location</label>
+  1728→                <Input
+  1729→                  placeholder="Event location"
+  1730→                  value={eventForm.location}
+  1731→                  onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+  1732→                />
+  1733→              </div>
+  1734→            </div>
+  1735→            {/* Banner Toggle */}
+  1736→            <div className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200">
+  1737→              <label htmlFor="isBanner" className="text-xs font-medium text-slate-700 cursor-pointer">
+  1738→                Banner Event
+  1739→              </label>
+  1740→              <Switch
+  1741→                id="isBanner"
+  1742→                checked={eventForm.isBanner}
+  1743→                onCheckedChange={(checked) => setEventForm({ ...eventForm, isBanner: checked, bannerUrl: checked ? eventForm.bannerUrl : '' })}
+  1744→              />
+  1745→            </div>
+  1746→            {/* Banner Image Upload */}
+  1747→            {eventForm.isBanner && (
+  1748→              <div>
+  1749→                <label className="block text-xs font-medium text-slate-700 mb-1">Banner Image *</label>
+  1750→                <div
+  1751→                  onClick={() => document.getElementById('bannerFileInput')?.click()}
+  1752→                  className={`relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+  1753→                >
+  1754→                  <input
+  1755→                    id="bannerFileInput"
+  1756→                    type="file"
+  1757→                    accept="image/jpeg,image/png,image/gif,image/webp"
+  1758→                    className="hidden"
+  1759→                    onChange={async (e) => {
+  1760→                      const file = e.target.files?.[0];
+  1761→                      if (!file) return;
+  1762→                      setUploading(true);
+  1763→                      try {
+  1764→                        const formData = new FormData();
+  1765→                        formData.append('file', file);
+  1766→                        formData.append('type', 'event');
+  1767→                        const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
+  1768→                        if (res.ok) {
+  1769→                          const data = await res.json();
+  1770→                          setEventForm((f) => ({ ...f, bannerUrl: data.url }));
+  1771→                          addToast('Banner image uploaded', 'success');
+  1772→                        } else if (res.status === 401) {
+  1773→                          addToast('Session expired. Please log in again.', 'error');
+  1774→                        } else {
+  1775→                          addToast('Banner upload failed', 'error');
+  1776→                        }
+  1777→                      } catch {
+  1778→                        addToast('Banner upload failed', 'error');
+  1779→                      } finally {
+  1780→                        setUploading(false);
+  1781→                      }
+  1782→                    }}
+  1783→                  />
+  1784→                  {uploading ? (
+  1785→                    <p className="text-sm text-slate-500">Uploading...</p>
+  1786→                  ) : eventForm.bannerUrl ? (
+  1787→                    <div className="space-y-2">
+  1788→                      <img src={eventForm.bannerUrl} alt="Banner preview" className="max-h-32 mx-auto rounded-lg object-contain" />
+  1789→                      <p className="text-xs text-emerald-600 font-medium">Banner uploaded - click to replace</p>
+  1790→                    </div>
+  1791→                  ) : (
+  1792→                    <div className="space-y-1">
+  1793→                      <Upload className="mx-auto h-5 w-5 text-slate-400" />
+  1794→                      <p className="text-xs text-slate-600 font-medium">Click to upload banner</p>
+  1795→                      <p className="text-[10px] text-slate-400">JPG, PNG, GIF or WebP</p>
+  1796→                    </div>
+  1797→                  )}
+  1798→                </div>
+  1799→              </div>
+  1800→            )}
+  1801→            {/* Attachment Upload */}
+  1802→            <div>
+  1803→              <label className="block text-xs font-medium text-slate-700 mb-1">
+  1804→                <span className="flex items-center gap-1.5">
+  1805→                  <Paperclip className="w-3 h-3" /> Attachment (optional)
+  1806→                </span>
+  1807→              </label>
+  1808→              <div
+  1809→                onClick={() => document.getElementById('attachmentFileInput')?.click()}
+  1810→                className={`relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+  1811→              >
+  1812→                <input
+  1813→                  id="attachmentFileInput"
+  1814→                  type="file"
+  1815→                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+  1816→                  className="hidden"
+  1817→                  onChange={async (e) => {
+  1818→                    const file = e.target.files?.[0];
+  1819→                    if (!file) return;
+  1820→                    setUploading(true);
+  1821→                    try {
+  1822→                      const formData = new FormData();
+  1823→                      formData.append('file', file);
+  1824→                      formData.append('type', 'event');
+  1825→                      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' });
+  1826→                      if (res.ok) {
+  1827→                        const data = await res.json();
+  1828→                        setEventForm((f) => ({ ...f, attachmentUrl: data.url, attachmentName: data.fileName || file.name }));
+  1829→                        addToast('Attachment uploaded', 'success');
+  1830→                      } else if (res.status === 401) {
+  1831→                        addToast('Session expired. Please log in again.', 'error');
+  1832→                      } else {
+  1833→                        addToast('Attachment upload failed', 'error');
+  1834→                      }
+  1835→                    } catch {
+  1836→                      addToast('Attachment upload failed', 'error');
+  1837→                    } finally {
+  1838→                      setUploading(false);
+  1839→                    }
+  1840→                  }}
+  1841→                />
+  1842→                {uploading ? (
+  1843→                  <p className="text-sm text-slate-500">Uploading...</p>
+  1844→                ) : eventForm.attachmentUrl ? (
+  1845→                  <div className="flex items-center justify-center gap-3">
+  1846→                    <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-lg">
+  1847→                      <Paperclip className="w-4 h-4 text-emerald-600" />
+  1848→                      <span className="text-sm text-emerald-700 font-medium max-w-[200px] truncate">{eventForm.attachmentName || 'Attached file'}</span>
+  1849→                    </div>
+  1850→                    <button
+  1851→                      type="button"
+  1852→                      onClick={(e) => {
+  1853→                        e.stopPropagation();
+  1854→                        setEventForm((f) => ({ ...f, attachmentUrl: '', attachmentName: '' }));
+  1855→                        const inp = document.getElementById('attachmentFileInput') as HTMLInputElement | null;
+  1856→                        if (inp) inp.value = '';
+  1857→                      }}
+  1858→                      className="text-slate-400 hover:text-red-500 transition-colors"
+  1859→                      title="Remove attachment"
+  1860→                    >
+  1861→                      <X className="w-4 h-4" />
+  1862→                    </button>
+  1863→                  </div>
+  1864→                ) : (
+  1865→                  <div className="space-y-1">
+  1866→                    <Upload className="mx-auto h-5 w-5 text-slate-400" />
+  1867→                    <p className="text-xs text-slate-600 font-medium">Click to attach file</p>
+  1868→                    <p className="text-[10px] text-slate-400">PDF, DOCX, JPG or PNG</p>
+  1869→                  </div>
+  1870→                )}
+  1871→              </div>
+  1872→            </div>
+  1873→            <div className="flex gap-2 pt-1">
+  1874→              <Button
+  1875→                onClick={createEvent}
+  1876→                disabled={eventForm.isBanner && !eventForm.bannerUrl}
+  1877→                className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white disabled:opacity-50"
+  1878→              >
+  1879→                Create Event
+  1880→              </Button>
+  1881→              <Button variant="outline" onClick={() => setEventDialogOpen(false)}>
+  1882→                Cancel
+  1883→              </Button>
+  1884→            </div>
+  1885→          </div>
+  1886→        </DialogContent>
+  1887→      </Dialog>
+  1888→
+  1889→      {/* ===== EDIT EVENT DIALOG ===== */}
+  1890→      <Dialog open={!!editingEvent} onOpenChange={(open) => { if (!open) setEditingEvent(null); }}>
+  1891→        <DialogContent className="sm:max-w-lg max-h-[85vh]">
+  1892→          <DialogHeader>
+  1893→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Edit News / Event</DialogTitle>
+  1894→            <DialogDescription>Update the details below.</DialogDescription>
+  1895→          </DialogHeader>
+  1896→          <div className="space-y-3 overflow-y-auto -mx-2 px-2">
+  1897→            <div>
+  1898→              <label className="block text-xs font-medium text-slate-700 mb-1">Title *</label>
+  1899→              <Input placeholder="News or event title" value={editEventForm.title} onChange={(e) => setEditEventForm({ ...editEventForm, title: e.target.value })} />
+  1900→            </div>
+  1901→            <div>
+  1902→              <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+  1903→              <textarea className="w-full min-h-[80px] rounded-md border border-slate-200 p-2 text-sm" placeholder="Full description..." value={editEventForm.description} onChange={(e) => setEditEventForm({ ...editEventForm, description: e.target.value })} />
+  1904→            </div>
+  1905→            <div className="grid grid-cols-2 gap-3">
+  1906→              <div>
+  1907→                <label className="block text-xs font-medium text-slate-700 mb-1">Category</label>
+  1908→                <Select value={editEventForm.category} onValueChange={(v) => setEditEventForm({ ...editEventForm, category: v })}>
+  1909→                  <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+  1910→                  <SelectContent>
+  1911→                    {EVENT_CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+  1912→                  </SelectContent>
+  1913→                </Select>
+  1914→              </div>
+  1915→              <div>
+  1916→                <label className="block text-xs font-medium text-slate-700 mb-1">Date</label>
+  1917→                <Input type="date" className="h-9 text-sm" value={editEventForm.eventDate} onChange={(e) => setEditEventForm({ ...editEventForm, eventDate: e.target.value })} />
+  1918→              </div>
+  1919→            </div>
+  1920→            <div className="grid grid-cols-2 gap-3">
+  1921→              <div>
+  1922→                <label className="block text-xs font-medium text-slate-700 mb-1">Time</label>
+  1923→                <Input type="time" className="h-9 text-sm" value={editEventForm.eventTime} onChange={(e) => setEditEventForm({ ...editEventForm, eventTime: e.target.value })} />
+  1924→              </div>
+  1925→              <div>
+  1926→                <label className="block text-xs font-medium text-slate-700 mb-1">Location</label>
+  1927→                <Input className="h-9 text-sm" placeholder="e.g. Main Hall" value={editEventForm.location} onChange={(e) => setEditEventForm({ ...editEventForm, location: e.target.value })} />
+  1928→              </div>
+  1929→            </div>
+  1930→            <div className="flex items-center gap-3 pt-2">
+  1931→              <Button onClick={saveEditEvent} className="flex-1 bg-[#1a3a6b] hover:bg-[#2756a0] text-white">
+  1932→                Save Changes
+  1933→              </Button>
+  1934→              <Button variant="outline" onClick={() => setEditingEvent(null)}>Cancel</Button>
+  1935→            </div>
+  1936→          </div>
+  1937→        </DialogContent>
+  1938→      </Dialog>
+  1939→
+  1940→      {/* ===== GALLERY DIALOG ===== */}
+  1941→      <Dialog open={galleryDialogOpen} onOpenChange={(open) => {
+  1942→        if (!open) {
+  1943→          setUploadPreview(null);
+  1944→          if (fileInputRef.current) fileInputRef.current.value = '';
+  1945→          setGalleryForm({ title: '', description: '', imageUrl: '', videoUrl: '', category: 'general', eventDate: '' });
+  1946→        }
+  1947→        setGalleryDialogOpen(open);
+  1948→      }}>
+  1949→        <DialogContent className="sm:max-w-lg max-h-[85vh]">
+  1950→          <DialogHeader>
+  1951→            <DialogTitle className="text-lg font-bold text-[#1a3a6b]">Add Gallery Photo</DialogTitle>
+  1952→            <DialogDescription>Upload a photo or paste an image URL.</DialogDescription>
+  1953→          </DialogHeader>
+  1954→          <div className="space-y-3 overflow-y-auto -mx-2 px-2">
+  1955→            <div>
+  1956→              <label className="block text-xs font-medium text-slate-700 mb-1">Title *</label>
+  1957→              <Input
+  1958→                placeholder="Photo title"
+  1959→                value={galleryForm.title}
+  1960→                onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
+  1961→              />
+  1962→            </div>
+  1963→            <div>
+  1964→              <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+  1965→              <Input
+  1966→                placeholder="Short note about this photo"
+  1967→                value={galleryForm.description}
+  1968→                onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+  1969→              />
+  1970→            </div>
+  1971→
+  1972→            {/* File Upload Zone */}
+  1973→            <div>
+  1974→              <label className="block text-xs font-medium text-slate-700 mb-1">Upload Photo *</label>
+  1975→              <div
+  1976→                onClick={() => fileInputRef.current?.click()}
+  1977→                className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-200 hover:border-[#1a3a6b] hover:bg-[#1a3a6b]/5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+  1978→              >
+  1979→                <input
+  1980→                  ref={fileInputRef}
+  1981→                  type="file"
+  1982→                  accept="image/jpeg,image/png,image/gif,image/webp,.jfif"
+  1983→                  className="hidden"
+  1984→                  onChange={handleFileSelect}
+  1985→                />
+  1986→                {uploading ? (
+  1987→                  <div className="flex flex-col items-center gap-2">
+  1988→                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+  1989→                      className="w-8 h-8 border-3 border-[#1a3a6b]/30 border-t-[#1a3a6b] rounded-full" />
+  1990→                    <p className="text-sm text-slate-500">Uploading...</p>
+  1991→                  </div>
+  1992→                ) : uploadPreview || galleryForm.imageUrl ? (
+  1993→                  <div className="space-y-1">
+  1994→                    <img src={uploadPreview || galleryForm.imageUrl} alt="Preview" className="max-h-28 mx-auto rounded-lg object-contain" />
+  1995→                    <p className="text-[10px] text-emerald-600 font-medium">Photo uploaded - click to replace</p>
+  1996→                  </div>
+  1997→                ) : (
+  1998→                  <div className="space-y-1">
+  1999→                    <Upload className="mx-auto h-6 w-6 text-slate-400" />
+  2000→                    <p className="text-xs text-slate-600 font-medium">Click to upload a photo</p>
+
+[showing lines 1-2000 of 4152; use offset=2001 with limit to continue reading]
