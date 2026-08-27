@@ -1336,12 +1336,12 @@ export default function AdmissionsPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+              className="bg-white rounded-2xl shadow-xl border border-gray-100"
             >
               <div className="flex flex-col lg:flex-row">
                 {/* ──── LEFT SIDEBAR: Step Indicator ──── */}
                 <aside
-                  className="lg:w-64 shrink-0 p-6 lg:p-8 lg:border-r border-b lg:border-b-0 border-gray-100"
+                  className="hidden lg:flex lg:w-64 shrink-0 flex-col p-6 lg:p-8 lg:border-r border-gray-100"
                   style={{ background: `linear-gradient(180deg, ${PRIMARY}08, white)` }}
                 >
                   <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-6">
@@ -1396,6 +1396,9 @@ export default function AdmissionsPage() {
 
                   {/* Mobile step indicator */}
                   <div className="lg:hidden mt-6 pt-4 border-t border-gray-100">
+                    <p className="text-xs text-center text-gray-400 mb-3">
+                      Step {currentStep} of 5
+                    </p>
                     <div className="flex items-center justify-between gap-2">
                       {FORM_STEPS_META.map((step) => (
                         <div key={step.id} className="flex-1 flex justify-center">
@@ -1416,21 +1419,40 @@ export default function AdmissionsPage() {
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-center text-gray-400 mt-2">
-                      Step {currentStep} of 5
-                    </p>
                   </div>
                 </aside>
 
+                {/* Mobile step indicator (shown above form on mobile) */}
+                <div className="lg:hidden flex items-center justify-center gap-2 p-4 border-b border-gray-100">
+                  {FORM_STEPS_META.map((step) => (
+                    <div key={step.id} className="flex-1 flex justify-center">
+                      <div
+                        className={`size-3 rounded-full transition-colors ${
+                          currentStep === step.id
+                            ? 'ring-2 ring-offset-2'
+                            : isStepCompleted(step.id)
+                            ? 'bg-green-500'
+                            : 'bg-gray-200'
+                        }`}
+                        style={
+                          currentStep === step.id
+                            ? { background: GOLD, ringColor: GOLD }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+
                 {/* ──── RIGHT CONTENT AREA ──── */}
-                <div className="flex-1 p-6 sm:p-8 lg:p-10 min-h-[480px]">
+                <div className="flex-1 p-4 sm:p-6 lg:p-10">
                   <AnimatePresence mode="wait">
                     {renderStepContent()}
                   </AnimatePresence>
 
                   {/* Navigation Buttons */}
                   {currentStep < 5 && (
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 sticky bottom-0 bg-white pb-2 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10">
                       <Button
                         variant="outline"
                         onClick={goPrev}
