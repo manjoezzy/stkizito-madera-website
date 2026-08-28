@@ -19,6 +19,8 @@ import {
   Mail,
   MapPin,
   Clock,
+  Calendar,
+  Tag,
   Send,
   ChevronRight,
   Star,
@@ -301,7 +303,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────
           1. HERO SECTION — Rotating Default + News/Events
           ───────────────────────────────────────────────── */}
-      <section id="hero-section" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[104px] lg:pt-[108px]">
+      <section id="hero-section" className="relative min-h-screen overflow-hidden">
         <AnimatePresence mode="wait">
           {/* ──── SLIDE: Default School Hero ──── */}
           {heroSlides[heroSlide]?.type === 'default' && (
@@ -311,7 +313,7 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 1.03 }}
               transition={{ duration: 0.8 }}
-              className="absolute inset-0"
+              className="absolute top-[104px] lg:top-[108px] left-0 right-0 bottom-0 flex items-center justify-center"
             >
               {/* dark gradient background */}
               <div
@@ -447,7 +449,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.8, ease: 'easeInOut' }}
-                className="absolute inset-0 flex flex-col"
+                className="absolute top-[104px] lg:top-[108px] left-0 right-0 bottom-0 flex flex-col"
               >
                 {/* background */}
                 <div className="absolute inset-0" style={{ background: bgGradient }} />
