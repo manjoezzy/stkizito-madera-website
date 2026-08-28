@@ -313,7 +313,7 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 1.03 }}
               transition={{ duration: 0.8 }}
-              className="absolute top-[104px] lg:top-[108px] left-0 right-0 bottom-0 flex items-center justify-center"
+              className="absolute top-[100px] lg:top-[112px] left-0 right-0 bottom-0 flex items-center justify-center"
             >
               {/* dark gradient background */}
               <div
@@ -430,114 +430,90 @@ export default function HomePage() {
             const isNews = ev.category === 'general' || ev.category === 'news';
             const isUpcoming = ev.eventDate && new Date(ev.eventDate) >= new Date();
             const readMorePage: Page = isNews ? 'news' : 'events';
-            // Different gradient accents per slide index for visual variety
-            const gradients = [
-              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 50%, #0f2847 100%)',
-              'linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 40%, #1a3a6b 100%)',
-              'linear-gradient(135deg, #0f1c2e 0%, #2756a0 50%, #1a3a6b 100%)',
-              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 60%, #0f2847 100%)',
-              'linear-gradient(135deg, #111d2e 0%, #234b7a 50%, #1a3a6b 100%)',
-              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 45%, #1e3a5f 100%)',
-            ];
-            const eventIndex = heroEvents.indexOf(ev);
-            const bgGradient = gradients[eventIndex % gradients.length];
+            const hasImage = !!ev.bannerUrl;
 
             return (
               <motion.div
                 key={ev.id}
-                initial={{ opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.8, ease: 'easeInOut' }}
-                className="absolute top-[104px] lg:top-[108px] left-0 right-0 bottom-0 flex flex-col"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7 }}
+                className="absolute top-[100px] lg:top-[112px] left-0 right-0 bottom-0 flex flex-col bg-white"
               >
-                {/* background */}
-                <div className="absolute inset-0" style={{ background: bgGradient }} />
-                {/* subtle pattern overlay */}
-                <div
-                  className="absolute inset-0 opacity-[0.03]"
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px',
-                  }}
-                />
-                {/* Decorative glow */}
-                <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full bg-[#f5c518]/[0.04] blur-3xl" />
-                <div className="absolute bottom-1/3 left-1/6 w-72 h-72 rounded-full bg-[#2756a0]/[0.08] blur-3xl" />
+                {/* ── Image Area ── */}
+                <div className="relative w-full flex-shrink-0" style={{ height: 'clamp(200px, 50vh, 55%)' }}>
+                  {hasImage ? (
+                    <img
+                      src={ev.bannerUrl!}
+                      alt={ev.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#1a3a6b] to-[#0d1b2a] flex items-center justify-center">
+                      <div className="text-center px-6">
+                        <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+                          <Calendar className="w-8 h-8 text-[#f5c518]" />
+                        </div>
+                        <p className="text-white/40 text-sm font-medium">St. Kizito's Technical Institute</p>
+                      </div>
+                    </div>
+                  )}
+                  {/* Gradient fade at bottom of image */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+                </div>
 
-                {/* Content area — vertically centered, with room for the Read More bar at the bottom */}
-                <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 max-w-3xl mx-auto text-center">
+                {/* ── Text Content Area ── */}
+                <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 max-w-5xl mx-auto w-full py-6 sm:py-8">
                   {/* Category + upcoming badges */}
-                  <div className="flex items-center gap-2 mb-5 flex-wrap justify-center">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
                     {isUpcoming && (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/20">
-                        <Calendar className="size-3.5" /> Upcoming
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+                        <Calendar className="size-3" /> Upcoming
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#f5c518]/15 text-[#f5c518] px-3 py-1 rounded-full border border-[#f5c518]/20">
-                      <Tag className="size-3.5" /> {isNews ? 'News' : ev.category}
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider bg-[#f5c518]/10 text-[#b8960f] px-2.5 py-1 rounded-full border border-[#f5c518]/20">
+                      <Tag className="size-3" /> {isNews ? 'News' : ev.category}
                     </span>
-                  </div>
-
-                  {/* Title */}
-                  <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.15 }}
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
-                  >
-                    {ev.title}
-                  </motion.h2>
-
-                  {/* Description */}
-                  {ev.description && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
-                      className="mt-5 text-base sm:text-lg text-blue-100/75 max-w-2xl mx-auto leading-relaxed"
-                    >
-                      {ev.description.length > 220 ? ev.description.slice(0, 220) + '...' : ev.description}
-                    </motion.p>
-                  )}
-
-                  {/* Date / Time / Location meta */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.45 }}
-                    className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-white/60"
-                  >
                     {ev.eventDate && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Clock className="size-3.5" /> {ev.eventDate}
-                        {ev.eventTime && ` at ${ev.eventTime}`}
+                      <span className="text-xs text-slate-400 flex items-center gap-1 ml-1">
+                        <Clock className="size-3" /> {ev.eventDate}
+                        {ev.eventTime && ` · ${ev.eventTime}`}
                       </span>
                     )}
                     {ev.location && (
-                      <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="size-3.5" /> {ev.location}
+                      <span className="text-xs text-slate-400 flex items-center gap-1">
+                        <MapPin className="size-3" /> {ev.location}
                       </span>
                     )}
-                  </motion.div>
-                </div>
+                  </div>
 
-                {/* Full-width Read More bar at the bottom of the hero */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="relative z-10"
-                >
-                  <button
-                    onClick={() => setCurrentPage(readMorePage)}
-                    className="w-full flex items-center justify-center gap-2.5 bg-[#f5c518] hover:bg-[#e6b815] text-[#0d1b2a] font-bold text-sm sm:text-base py-4 sm:py-5 transition-colors cursor-pointer group"
-                  >
-                    Read More
-                    <ArrowRight className="size-4 sm:size-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </motion.div>
+                  {/* Title */}
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0d1b2a] leading-tight tracking-tight">
+                    {ev.title}
+                  </h2>
+
+                  {/* Short description */}
+                  {ev.description && (
+                    <p className="mt-2.5 text-sm sm:text-base text-slate-500 leading-relaxed line-clamp-2 max-w-2xl">
+                      {ev.description.length > 180 ? ev.description.slice(0, 180) + '...' : ev.description}
+                    </p>
+                  )}
+
+                  {/* Read More — aligned right */}
+                  <div className="mt-5 flex justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentPage(readMorePage);
+                      }}
+                      className="inline-flex items-center gap-2 bg-[#1a3a6b] hover:bg-[#2756a0] text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-[#1a3a6b]/20 cursor-pointer group"
+                    >
+                      Read More
+                      <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             );
           })()}
@@ -545,18 +521,23 @@ export default function HomePage() {
 
         {/* Slide indicator dots — always visible */}
         {totalHeroSlides > 1 && (
-          <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-            {heroSlides.map((slide, i) => (
-              <button
-                key={i}
-                onClick={() => goToHeroSlide(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === heroSlide
-                    ? 'w-8 bg-[#f5c518]'
-                    : 'w-2 bg-white/30 hover:bg-white/50'
-                }`}
-              />
-            ))}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+            {heroSlides.map((slide, i) => {
+              const isCurrentDefault = i === heroSlide && heroSlides[heroSlide]?.type === 'default';
+              const isOtherDefault = i !== heroSlide && heroSlides[heroSlide]?.type === 'event' && slide.type === 'default';
+              const dotColor = isCurrentDefault || isOtherDefault
+                ? (i === heroSlide ? 'bg-[#f5c518]' : 'bg-white/30 hover:bg-white/50')
+                : (i === heroSlide ? 'bg-[#1a3a6b]' : 'bg-slate-300 hover:bg-slate-400');
+              return (
+                <button
+                  key={i}
+                  onClick={() => goToHeroSlide(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === heroSlide ? `w-8 ${dotColor}` : `w-2 ${dotColor}`
+                  }`}
+                />
+              );
+            })}
           </div>
         )}
       </section>

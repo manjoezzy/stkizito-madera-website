@@ -13,6 +13,7 @@ export interface HeroEventItem {
   eventDate: string | null;
   eventTime: string | null;
   location: string | null;
+  bannerUrl: string | null;
 }
 
 export default function HeroNewsTicker({ events }: { events: HeroEventItem[] }) {
