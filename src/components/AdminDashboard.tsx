@@ -869,6 +869,8 @@ export default function AdminDashboard() {
       // Even if the server call fails, clear local state
     }
     setAdminUser(null);
+    // Clear portal verification so re-entry requires the key again
+    sessionStorage.removeItem('sktim_portal_verified');
     setCurrentPage('home');
     addToast('Logged out successfully', 'info');
   };

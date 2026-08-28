@@ -1470,7 +1470,7 @@ export default function TvetApplicationForm() {
 
               {/* Navigation Buttons */}
               {!submitted && (
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 sticky bottom-0 bg-white pb-2 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 sticky bottom-0 bg-white pb-2 -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10 z-10 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
                   <Button
                     variant="outline"
                     onClick={goPrev}

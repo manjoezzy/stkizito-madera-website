@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft, AlertCircle, KeyRound, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,22 @@ export default function AdminLoginPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  // Reset with token from URL (e.g. /#staff-portal-8x7q?reset=TOKEN)
+  const [resetToken, setResetToken] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetTokenLoading, setResetTokenLoading] = useState(false);
+  const [resetTokenDone, setResetTokenDone] = useState(false);
+
+  // On mount, check for ?reset=TOKEN in the URL hash
+  useEffect(() => {
+    const hash = window.location.hash; // e.g. #staff-portal-8x7q?reset=abc123
+    const match = hash.match(/[?&]reset=([a-f0-9]+)/);
+    if (match) {
+      setResetToken(match[1]);
+    }
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -88,6 +104,44 @@ export default function AdminLoginPage() {
     }
   }
 
+  async function handleResetWithToken(e: FormEvent) {
+    e.preventDefault();
+    setResetError('');
+
+    if (newPassword.length < 8) {
+      setResetError('Password must be at least 8 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setResetError('Passwords do not match.');
+      return;
+    }
+
+    setResetTokenLoading(true);
+    try {
+      const res = await fetch('/api/admin/reset-password/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResetTokenDone(true);
+        setResetToken(null);
+        // Clean the URL hash
+        if (window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.hash.split('?')[0]);
+        }
+      } else {
+        setResetError(data.message || 'Failed to reset password.');
+      }
+    } catch {
+      setResetError('Network error. Please check your connection.');
+    } finally {
+      setResetTokenLoading(false);
+    }
+  }
+
   function switchToForgot() {
     setError('');
     setResetEmail(email);
@@ -100,6 +154,10 @@ export default function AdminLoginPage() {
     setResetSuccess(false);
     setResetError('');
     setResetEmail('');
+    setResetToken(null);
+    setNewPassword('');
+    setConfirmPassword('');
+    setResetTokenDone(false);
     setShowForgot(false);
   }
 
@@ -139,7 +197,7 @@ export default function AdminLoginPage() {
             {/* Header — icon + title + divider in one tight block */}
             <div className="text-center mb-3">
               <motion.div
-                key={showForgot ? 'forgot' : 'login'}
+                key={resetTokenDone ? 'done' : showForgot ? 'forgot' : resetToken ? 'set-password' : 'login'}
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
@@ -149,7 +207,11 @@ export default function AdminLoginPage() {
                   boxShadow: `0 4px 16px ${PRIMARY}40`,
                 }}
               >
-                {showForgot ? (
+                {resetTokenDone ? (
+                  <CheckCircle className="w-5 h-5 text-white" />
+                ) : resetToken ? (
+                  <KeyRound className="w-5 h-5 text-white" />
+                ) : showForgot ? (
                   <KeyRound className="w-5 h-5 text-white" />
                 ) : (
                   <ShieldCheck className="w-5 h-5 text-white" />
@@ -157,7 +219,33 @@ export default function AdminLoginPage() {
               </motion.div>
 
               <AnimatePresence mode="wait">
-                {showForgot ? (
+                {resetTokenDone ? (
+                  <motion.div
+                    key="done-header"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h1 className="text-lg font-bold text-gray-900">Password Reset</h1>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      Your password has been changed successfully
+                    </p>
+                  </motion.div>
+                ) : resetToken ? (
+                  <motion.div
+                    key="set-password-header"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h1 className="text-lg font-bold text-gray-900">Set New Password</h1>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      Enter your new password (expires in 15 minutes)
+                    </p>
+                  </motion.div>
+                ) : showForgot ? (
                   <motion.div
                     key="forgot-header"
                     initial={{ opacity: 0, x: 20 }}
@@ -178,7 +266,7 @@ export default function AdminLoginPage() {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <h1 className="text-lg font-bold text-gray-900">Admin Portal</h1>
+                    <h1 className="text-lg font-bold text-gray-900">Staff Portal</h1>
                     <p className="text-[11px] text-gray-500 mt-0.5">
                       St. Kizito&apos;s Technical Institute &mdash; Madera
                     </p>
@@ -193,7 +281,132 @@ export default function AdminLoginPage() {
             </div>
 
             <AnimatePresence mode="wait">
-              {!showForgot ? (
+              {/* ═══ RESET TOKEN DONE ═══ */}
+              {resetTokenDone ? (
+                <motion.div
+                  key="reset-done"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-center py-2"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+                    className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3"
+                    style={{ backgroundColor: '#ecfdf5' }}
+                  >
+                    <CheckCircle className="w-7 h-7" style={{ color: '#059669' }} />
+                  </motion.div>
+                  <h3 className="text-base font-bold text-gray-900 mb-1.5">Password Updated!</h3>
+                  <p className="text-xs text-gray-500 mb-5">
+                    You can now sign in with your new password.
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={switchToLogin}
+                    className="font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                    style={{
+                      background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})`,
+                      color: 'white',
+                    }}
+                  >
+                    Sign In Now
+                  </Button>
+                </motion.div>
+              ) : resetToken ? (
+                /* ═══ SET NEW PASSWORD (from email link) ═══ */
+                <motion.form
+                  key="set-password-form"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleResetWithToken}
+                  className="space-y-3"
+                >
+                  {resetError && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="p-2.5 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2"
+                    >
+                      <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-red-600">{resetError}</p>
+                    </motion.div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="new-password" className="text-xs font-medium text-gray-700">
+                      New Password
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="Min. 8 characters"
+                        required
+                        minLength={8}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="pl-10 h-10 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirm-password" className="text-xs font-medium text-gray-700">
+                      Confirm New Password
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="Re-enter your password"
+                        required
+                        minLength={8}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10 h-10 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={resetTokenLoading}
+                    className="w-full h-10 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                    style={{
+                      background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_LIGHT})`,
+                    }}
+                  >
+                    {resetTokenLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Resetting...
+                      </>
+                    ) : (
+                      'Reset Password'
+                    )}
+                  </Button>
+
+                  <div className="text-center pt-0.5">
+                    <button
+                      type="button"
+                      onClick={switchToLogin}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-medium hover:underline transition-colors"
+                      style={{ color: PRIMARY }}
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      Back to Sign In
+                    </button>
+                  </div>
+                </motion.form>
+              ) : !showForgot ? (
                 /* ══════════ LOGIN FORM ══════════ */
                 <motion.form
                   key="login-form"
@@ -306,12 +519,12 @@ export default function AdminLoginPage() {
                     className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3"
                     style={{ backgroundColor: '#ecfdf5' }}
                   >
-                    <AlertCircle className="w-7 h-7" style={{ color: '#059669' }} />
+                    <CheckCircle className="w-7 h-7" style={{ color: '#059669' }} />
                   </motion.div>
                   <h3 className="text-base font-bold text-gray-900 mb-1.5">Check Your Email</h3>
                   <p className="text-xs text-gray-500 mb-5">
                     If an account exists with <span className="font-medium text-gray-700">{resetEmail}</span>,
-                    you will receive password reset instructions shortly.
+                    you will receive password reset instructions shortly. The link expires in 15 minutes.
                   </p>
                   <Button
                     type="button"
@@ -323,7 +536,7 @@ export default function AdminLoginPage() {
                     }}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Login
+                    Back to Sign In
                   </Button>
                 </motion.div>
               ) : (
@@ -365,7 +578,7 @@ export default function AdminLoginPage() {
                       />
                     </div>
                     <p className="text-[11px] text-gray-400">
-                      Enter the email address associated with your admin account.
+                      Enter the email address associated with your staff account.
                     </p>
                   </div>
 
@@ -395,7 +608,7 @@ export default function AdminLoginPage() {
                       style={{ color: PRIMARY }}
                     >
                       <ArrowLeft className="w-3 h-3" />
-                      Back to Login
+                      Back to Sign In
                     </button>
                   </div>
                 </motion.form>

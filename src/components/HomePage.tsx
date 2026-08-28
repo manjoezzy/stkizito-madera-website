@@ -40,6 +40,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useAppStore, type Page } from '@/store/useAppStore';
 import Image from 'next/image';
+import HeroNewsTicker, { type HeroEventItem } from '@/components/HeroNewsTicker';
 
 /* ──────────────────── programme data ──────────────────── */
 const PROGRAMS = [
@@ -154,56 +155,6 @@ function Section({
 }
 
 /* ══════════════════════════════════════════════════════
-   HERO IMAGE SLIDER
-   ══════════════════════════════════════════════════════ */
-const HERO_SLIDES = [
-  { src: '/images/campus.png', alt: 'SKTM Campus Grounds' },
-  { src: '/images/graduation.png', alt: 'Graduation Ceremony' },
-  { src: '/images/admin-building.jpg', alt: 'Administration Building' },
-  { src: '/images/electrical-workshop.jpg', alt: 'Electrical Workshop' },
-  { src: '/images/institute-bus.jpg', alt: 'Institute Bus' },
-  { src: '/images/about-workshop.png', alt: 'Students in Workshop' },
-];
-
-function HeroImageSlider() {
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 z-[1]">
-      {HERO_SLIDES.map((slide, i) => (
-        <div
-          key={slide.src}
-          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-          style={{ opacity: i === current ? 0.55 : 0 }}
-        >
-          <Image src={slide.src} alt={slide.alt} fill className="object-cover" priority={i === 0} />
-        </div>
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/40 via-[#1a3a6b]/25 to-[#0d1b2a]/50" />
-      {/* Slide indicators */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-        {HERO_SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === current ? 'w-8 bg-[#f5c518]' : 'w-4 bg-white/30 hover:bg-white/50'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════
    MAIN COMPONENT
    ══════════════════════════════════════════════════════ */
 export default function HomePage() {
@@ -217,6 +168,25 @@ export default function HomePage() {
     message: '',
   });
   const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [heroEvents, setHeroEvents] = useState<HeroEventItem[]>([]);
+
+  // Fetch latest published events/news for the hero ticker
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/events');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            // Take up to 6 most recent published items
+            setHeroEvents(data.data.slice(0, 6));
+          }
+        }
+      } catch {
+        // Silent fail — hero shows without ticker
+      }
+    })();
+  }, []);
 
   // Scroll to contact section when navigating to 'contact' page
   useEffect(() => {
@@ -292,7 +262,7 @@ export default function HomePage() {
             background:
               'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
           }}
-        />
+        ></div>
 
         {/* animated floating decorative circles */}
         {floatingCircles.map((c, i) => (
@@ -328,12 +298,14 @@ export default function HomePage() {
               'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
             backgroundSize: '60px 60px',
           }}
-        />
-
-        {/* Dynamic Hero image slider */}
-        <HeroImageSlider />
-
-        {/* content */}
+        ></div>
+        {/* Static campus background */}
+        <div className="absolute inset-0 z-[1]">
+          <div className="absolute inset-0 opacity-50">
+            <Image src="/images/campus.png" alt="SKTM Campus Grounds" fill className="object-cover" priority />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/50 via-[#1a3a6b]/30 to-[#0d1b2a]/60"></div>
+        </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           {/* badge */}
           <motion.div
@@ -373,6 +345,9 @@ export default function HomePage() {
             Education and Training (TVET) - grounded in excellence, faith, and
             practical skill development.
           </motion.p>
+
+          {/* News & Events Ticker */}
+          <HeroNewsTicker events={heroEvents} />
 
           {/* scroll hint */}
           <motion.div

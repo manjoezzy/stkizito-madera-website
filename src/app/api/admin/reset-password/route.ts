@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import crypto from 'crypto';
 import { checkRateLimit } from '@/lib/auth';
+import { sendResetPasswordEmail, isEmailConfigured } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit by IP
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
     const { allowed } = checkRateLimit(`reset:${ip}`, 3);
     if (!allowed) {
       return NextResponse.json(
@@ -32,11 +35,11 @@ export async function POST(request: NextRequest) {
 
     // Security best practice: always return success regardless of whether email exists
     if (admin) {
-      // Generate a random reset token
+      // Generate a cryptographically secure 32-byte random reset token
       const token = crypto.randomBytes(32).toString('hex');
       const key = `password_reset_${token}`;
 
-      // Store the token in SiteSetting with 1-hour expiry reference
+      // Store the token in SiteSetting with a 15-minute expiry reference
       // We store the admin email as the value and use updatedAt to check expiry
       await db.siteSetting.upsert({
         where: { key },
@@ -50,24 +53,35 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Simulate sending a password reset email (console.log since SMTP is not configured)
-      const resetDetails = {
-        email: admin.email,
-        token,
-        message: 'Password reset link (would be sent via email)',
-        resetUrl: `This is a demo. Token: ${token}`,
-      };
-      console.log('═══════════════════════════════════════');
-      console.log('PASSWORD RESET EMAIL (simulated):');
-      console.log('═══════════════════════════════════════');
-      console.log(`To: ${resetDetails.email}`);
-      console.log(`Token: ${resetDetails.token}`);
-      console.log(`═══════════════════════════════════════`);
+      // Attempt to send the reset email
+      const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || ''}/#staff-portal-8x7q?reset=${token}`;
+      const emailSent = isEmailConfigured();
+
+      if (emailSent) {
+        const result = await sendResetPasswordEmail({
+          to: admin.email,
+          name: admin.name,
+          resetUrl,
+        });
+        if (!result.success) {
+          console.error('[reset-password] Failed to send reset email:', result.error);
+        }
+      } else {
+        // Fallback: log to console when email is not configured
+        console.log('═══════════════════════════════════════');
+        console.log('PASSWORD RESET EMAIL (simulated - SMTP not configured):');
+        console.log('═══════════════════════════════════════');
+        console.log(`To: ${admin.email}`);
+        console.log(`Name: ${admin.name}`);
+        console.log(`Token: ${token}`);
+        console.log(`Reset URL: ${resetUrl}`);
+        console.log('═══════════════════════════════════════');
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Password reset instructions have been sent to your email',
+      message: 'If an account exists with this email, password reset instructions have been sent.',
     });
   } catch (error) {
     console.error('Password reset error:', error);

@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit by IP
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
     const { allowed } = checkRateLimit(`reset-confirm:${ip}`, 5);
     if (!allowed) {
       return NextResponse.json(
@@ -43,15 +45,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if token has expired (1 hour)
+    // Check if token has expired (15 minutes)
     const now = new Date();
     const updatedAt = new Date(setting.updatedAt);
-    const oneHourMs = 60 * 60 * 1000;
+    const fifteenMinMs = 15 * 60 * 1000;
 
-    if (now.getTime() - updatedAt.getTime() > oneHourMs) {
+    if (now.getTime() - updatedAt.getTime() > fifteenMinMs) {
+      // Token expired — delete it
       await db.siteSetting.delete({ where: { key } });
       return NextResponse.json(
-        { success: false, message: 'Reset token has expired. Please request a new one.' },
+        { success: false, message: 'Reset token has expired (15-minute window). Please request a new one.' },
         { status: 400 }
       );
     }
@@ -60,6 +63,7 @@ export async function POST(request: NextRequest) {
 
     const admin = await db.admin.findUnique({ where: { email: adminEmail } });
     if (!admin) {
+      // Admin account no longer exists — clean up token
       await db.siteSetting.delete({ where: { key } });
       return NextResponse.json(
         { success: false, message: 'Admin account not found' },
@@ -67,13 +71,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // HASH the password before storing (was storing plain text before!)
+    // Hash the new password with bcrypt (cost 10)
     await db.admin.update({
       where: { email: adminEmail },
       data: { password: hashSync(newPassword, 10) },
     });
 
-    // Delete the used token
+    // Immediately invalidate the token (single-use)
     await db.siteSetting.delete({ where: { key } });
 
     return NextResponse.json({
