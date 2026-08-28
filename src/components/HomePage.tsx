@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, FormEvent } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, FormEvent, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap,
   Users,
@@ -40,7 +40,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useAppStore, type Page } from '@/store/useAppStore';
 import Image from 'next/image';
-import HeroNewsTicker, { type HeroEventItem } from '@/components/HeroNewsTicker';
+import { type HeroEventItem } from '@/components/HeroNewsTicker';
 
 /* ──────────────────── programme data ──────────────────── */
 const PROGRAMS = [
@@ -169,6 +169,53 @@ export default function HomePage() {
   });
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [heroEvents, setHeroEvents] = useState<HeroEventItem[]>([]);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const heroTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Build slides array: slide 0 = default hero, slides 1..N = events
+  const heroSlides = heroEvents.length > 0
+    ? [{ type: 'default' as const }, ...heroEvents.map(e => ({ type: 'event' as const, event: e }))]
+    : [{ type: 'default' as const }];
+  const totalHeroSlides = heroSlides.length;
+
+  // Auto-rotate hero slides: show default for 6s, then each event for 5s
+  const startHeroRotation = useCallback(() => {
+    if (heroTimerRef.current) clearInterval(heroTimerRef.current);
+    if (totalHeroSlides <= 1) return;
+    // Show first slide (default) for 6 seconds, then rotate every 5 seconds
+    heroTimerRef.current = setInterval(() => {
+      setHeroSlide(prev => (prev + 1) % totalHeroSlides);
+    }, 5000);
+  }, [totalHeroSlides]);
+
+  useEffect(() => {
+    // Start rotation after a 6-second delay on the default slide
+    if (totalHeroSlides <= 1) return;
+    const delay = setTimeout(() => {
+      setHeroSlide(1); // move to first event
+      startHeroRotation();
+    }, 6000);
+    return () => {
+      clearTimeout(delay);
+      if (heroTimerRef.current) clearInterval(heroTimerRef.current);
+    };
+  }, [totalHeroSlides, startHeroRotation]);
+
+  const goToHeroSlide = (index: number) => {
+    setHeroSlide(index);
+    // Restart the interval from this point
+    if (heroTimerRef.current) clearInterval(heroTimerRef.current);
+    heroTimerRef.current = setInterval(() => {
+      setHeroSlide(prev => (prev + 1) % totalHeroSlides);
+    }, 5000);
+  };
+
+  // Safeguard: reset heroSlide if it becomes out of bounds (e.g. events list changes)
+  useEffect(() => {
+    if (heroSlide >= totalHeroSlides) {
+      setHeroSlide(0);
+    }
+  }, [totalHeroSlides, heroSlide]);
 
   // Fetch latest published events/news for the hero ticker
   useEffect(() => {
@@ -252,125 +299,264 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* ─────────────────────────────────────────────────
-          1. HERO SECTION
+          1. HERO SECTION — Rotating Default + News/Events
           ───────────────────────────────────────────────── */}
       <section id="hero-section" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[104px] lg:pt-[108px]">
-        {/* dark gradient background */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
-          }}
-        ></div>
-
-        {/* animated floating decorative circles */}
-        {floatingCircles.map((c, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: c.size,
-              height: c.size,
-              left: c.x,
-              top: c.y,
-              background: `radial-gradient(circle, rgba(245,197,24,${0.06 + i * 0.02}) 0%, transparent 70%)`,
-            }}
-            animate={{
-              y: [0, -30, 10, -20, 0],
-              x: [0, 15, -10, 20, 0],
-              scale: [1, 1.05, 0.95, 1.02, 1],
-            }}
-            transition={{
-              duration: c.duration,
-              repeat: Infinity,
-              delay: c.delay,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-
-        {/* subtle grid overlay */}
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        ></div>
-        {/* Static campus background */}
-        <div className="absolute inset-0 z-[1]">
-          <div className="absolute inset-0 opacity-50">
-            <Image src="/images/campus.png" alt="SKTM Campus Grounds" fill className="object-cover" priority />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/50 via-[#1a3a6b]/30 to-[#0d1b2a]/60"></div>
-        </div>
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          {/* badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 border border-[#f5c518]/30 bg-[#f5c518]/10"
-          >
-            <Sparkles className="h-4 w-4 text-[#f5c518]" />
-            <span className="text-[#f5c518] text-sm font-medium tracking-wide">
-              Government-Aided TVET Institution
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
-          >
-            Building Skills,
-            <br />
-            <span className="text-[#f5c518]">Transforming Lives</span>
-            <br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
-              St. Kizito's Technical Institute - Madera
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
-          >
-            Empowering the next generation with quality Technical and Vocational
-            Education and Training (TVET) - grounded in excellence, faith, and
-            practical skill development.
-          </motion.p>
-
-          {/* News & Events Ticker */}
-          <HeroNewsTicker events={heroEvents} />
-
-          {/* scroll hint */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          >
+        <AnimatePresence mode="wait">
+          {/* ──── SLIDE: Default School Hero ──── */}
+          {heroSlides[heroSlide]?.type === 'default' && (
             <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+              key="default-hero"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 1.03 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
             >
-              <motion.div
-                animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-1.5 h-1.5 bg-[#f5c518] rounded-full mt-2"
+              {/* dark gradient background */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 40%, #2756a0 70%, #1a3a6b 100%)',
+                }}
               />
+              {/* animated floating decorative circles */}
+              {floatingCircles.map((c, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    width: c.size,
+                    height: c.size,
+                    left: c.x,
+                    top: c.y,
+                    background: `radial-gradient(circle, rgba(245,197,24,${0.06 + i * 0.02}) 0%, transparent 70%)`,
+                  }}
+                  animate={{
+                    y: [0, -30, 10, -20, 0],
+                    x: [0, 15, -10, 20, 0],
+                    scale: [1, 1.05, 0.95, 1.02, 1],
+                  }}
+                  transition={{
+                    duration: c.duration,
+                    repeat: Infinity,
+                    delay: c.delay,
+                    ease: 'easeInOut',
+                  }}
+                />
+              ))}
+              {/* subtle grid overlay */}
+              <div
+                className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+                  backgroundSize: '60px 60px',
+                }}
+              />
+              {/* Static campus background */}
+              <div className="absolute inset-0 z-[1]">
+                <div className="absolute inset-0 opacity-50">
+                  <Image src="/images/campus.png" alt="SKTM Campus Grounds" fill className="object-cover" priority />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b2a]/50 via-[#1a3a6b]/30 to-[#0d1b2a]/60" />
+              </div>
+              <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                {/* badge */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8 border border-[#f5c518]/30 bg-[#f5c518]/10"
+                >
+                  <Sparkles className="h-4 w-4 text-[#f5c518]" />
+                  <span className="text-[#f5c518] text-sm font-medium tracking-wide">
+                    Government-Aided TVET Institution
+                  </span>
+                </motion.div>
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.15 }}
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
+                >
+                  Building Skills,
+                  <br />
+                  <span className="text-[#f5c518]">Transforming Lives</span>
+                  <br />
+                  <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold opacity-90">
+                    St. Kizito's Technical Institute - Madera
+                  </span>
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="mt-6 text-lg sm:text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed"
+                >
+                  Empowering the next generation with quality Technical and Vocational
+                  Education and Training (TVET) - grounded in excellence, faith, and
+                  practical skill development.
+                </motion.p>
+                {/* scroll hint */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                  className="absolute bottom-8 left-1/2 -translate-x-1/2"
+                >
+                  <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+                  >
+                    <motion.div
+                      animate={{ y: [0, 12, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-1.5 h-1.5 bg-[#f5c518] rounded-full mt-2"
+                    />
+                  </motion.div>
+                </motion.div>
+              </div>
             </motion.div>
-          </motion.div>
+          )}
 
+          {/* ──── SLIDE: News / Event ──── */}
+          {heroSlides[heroSlide]?.type === 'event' && (() => {
+            const ev = (heroSlides[heroSlide] as { type: 'event'; event: HeroEventItem }).event;
+            const isNews = ev.category === 'general' || ev.category === 'news';
+            const isUpcoming = ev.eventDate && new Date(ev.eventDate) >= new Date();
+            const readMorePage: Page = isNews ? 'news' : 'events';
+            // Different gradient accents per slide index for visual variety
+            const gradients = [
+              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 50%, #0f2847 100%)',
+              'linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 40%, #1a3a6b 100%)',
+              'linear-gradient(135deg, #0f1c2e 0%, #2756a0 50%, #1a3a6b 100%)',
+              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 60%, #0f2847 100%)',
+              'linear-gradient(135deg, #111d2e 0%, #234b7a 50%, #1a3a6b 100%)',
+              'linear-gradient(135deg, #0d1b2a 0%, #1a3a6b 45%, #1e3a5f 100%)',
+            ];
+            const eventIndex = heroEvents.indexOf(ev);
+            const bgGradient = gradients[eventIndex % gradients.length];
 
-        </div>
+            return (
+              <motion.div
+                key={ev.id}
+                initial={{ opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
+                className="absolute inset-0 flex flex-col"
+              >
+                {/* background */}
+                <div className="absolute inset-0" style={{ background: bgGradient }} />
+                {/* subtle pattern overlay */}
+                <div
+                  className="absolute inset-0 opacity-[0.03]"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+                    backgroundSize: '60px 60px',
+                  }}
+                />
+                {/* Decorative glow */}
+                <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full bg-[#f5c518]/[0.04] blur-3xl" />
+                <div className="absolute bottom-1/3 left-1/6 w-72 h-72 rounded-full bg-[#2756a0]/[0.08] blur-3xl" />
+
+                {/* Content area — vertically centered, with room for the Read More bar at the bottom */}
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 max-w-3xl mx-auto text-center">
+                  {/* Category + upcoming badges */}
+                  <div className="flex items-center gap-2 mb-5 flex-wrap justify-center">
+                    {isUpcoming && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/20">
+                        <Calendar className="size-3.5" /> Upcoming
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#f5c518]/15 text-[#f5c518] px-3 py-1 rounded-full border border-[#f5c518]/20">
+                      <Tag className="size-3.5" /> {isNews ? 'News' : ev.category}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]"
+                  >
+                    {ev.title}
+                  </motion.h2>
+
+                  {/* Description */}
+                  {ev.description && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="mt-5 text-base sm:text-lg text-blue-100/75 max-w-2xl mx-auto leading-relaxed"
+                    >
+                      {ev.description.length > 220 ? ev.description.slice(0, 220) + '...' : ev.description}
+                    </motion.p>
+                  )}
+
+                  {/* Date / Time / Location meta */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.45 }}
+                    className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-white/60"
+                  >
+                    {ev.eventDate && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="size-3.5" /> {ev.eventDate}
+                        {ev.eventTime && ` at ${ev.eventTime}`}
+                      </span>
+                    )}
+                    {ev.location && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="size-3.5" /> {ev.location}
+                      </span>
+                    )}
+                  </motion.div>
+                </div>
+
+                {/* Full-width Read More bar at the bottom of the hero */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="relative z-10"
+                >
+                  <button
+                    onClick={() => setCurrentPage(readMorePage)}
+                    className="w-full flex items-center justify-center gap-2.5 bg-[#f5c518] hover:bg-[#e6b815] text-[#0d1b2a] font-bold text-sm sm:text-base py-4 sm:py-5 transition-colors cursor-pointer group"
+                  >
+                    Read More
+                    <ArrowRight className="size-4 sm:size-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
+        {/* Slide indicator dots — always visible */}
+        {totalHeroSlides > 1 && (
+          <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+            {heroSlides.map((slide, i) => (
+              <button
+                key={i}
+                onClick={() => goToHeroSlide(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === heroSlide
+                    ? 'w-8 bg-[#f5c518]'
+                    : 'w-2 bg-white/30 hover:bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ─────────────────────────────────────────────────
