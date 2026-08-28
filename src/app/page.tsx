@@ -2,7 +2,7 @@
 
 import { useAppStore, type Page } from '@/store/useAppStore';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Navigation from '@/components/Navigation';
 import HomePage from '@/components/HomePage';
 import ProgramsPage from '@/components/ProgramsPage';
@@ -10,6 +10,7 @@ import AdmissionsPage from '@/components/AdmissionsPage';
 import TrackApplicationPage from '@/components/TrackApplicationPage';
 import AdminLoginPage from '@/components/AdminLoginPage';
 import AdminDashboard from '@/components/AdminDashboard';
+import PortalKeyGate from '@/components/PortalKeyGate';
 import StudentPortalPage from '@/components/StudentPortalPage';
 import StudentLoginPage from '@/components/StudentLoginPage';
 import OnlineLearningPage from '@/components/OnlineLearningPage';
@@ -36,7 +37,9 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   news: NewsPage,
   gallery: GalleryPage,
   contact: HomePage, // Contact section is part of HomePage
-  'admin-login': AdminLoginPage,
+  'portal-key': PortalKeyGate,
+  'staff-portal-8x7q': AdminLoginPage,
+  'admin-login': PortalKeyGate, // Old route now redirects to key gate
   'admin-dashboard': AdminDashboard,
   about: AboutPage,
   alumni: AlumniPage,
@@ -46,26 +49,28 @@ const PAGE_COMPONENTS: Record<Page, React.ComponentType> = {
   'tvet-form': TvetApplicationForm,
 };
 
-const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean }> = {
-  home: { showNav: true, fullWidth: false },
-  programs: { showNav: true, fullWidth: false },
-  admissions: { showNav: true, fullWidth: false },
-  'track-application': { showNav: true, fullWidth: false },
-  'student-portal': { showNav: true, fullWidth: false },
-  'student-login': { showNav: true, fullWidth: false },
-  'online-learning': { showNav: true, fullWidth: false },
-  events: { showNav: true, fullWidth: false },
-  news: { showNav: true, fullWidth: false },
-  gallery: { showNav: true, fullWidth: false },
-  contact: { showNav: true, fullWidth: false },
-  'admin-login': { showNav: false, fullWidth: true },
-  'admin-dashboard': { showNav: false, fullWidth: true },
-  about: { showNav: true, fullWidth: false },
-  alumni: { showNav: true, fullWidth: false },
-  'alumni-register': { showNav: false, fullWidth: true },
-  graduation: { showNav: true, fullWidth: false },
-  'enrolled-students': { showNav: true, fullWidth: false },
-  'tvet-form': { showNav: true, fullWidth: false },
+const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean; requiresPortalKey: boolean }> = {
+  home: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  programs: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  admissions: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'track-application': { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'student-portal': { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'student-login': { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'online-learning': { showNav: true, fullWidth: false, requiresPortalKey: false },
+  events: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  news: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  gallery: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  contact: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'portal-key': { showNav: false, fullWidth: true, requiresPortalKey: false },
+  'staff-portal-8x7q': { showNav: false, fullWidth: true, requiresPortalKey: true },
+  'admin-login': { showNav: false, fullWidth: true, requiresPortalKey: false },
+  'admin-dashboard': { showNav: false, fullWidth: true, requiresPortalKey: false },
+  about: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  alumni: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'alumni-register': { showNav: false, fullWidth: true, requiresPortalKey: false },
+  graduation: { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'enrolled-students': { showNav: true, fullWidth: false, requiresPortalKey: false },
+  'tvet-form': { showNav: true, fullWidth: false, requiresPortalKey: false },
 };
 
 export default function MainApp() {
@@ -87,15 +92,15 @@ export default function MainApp() {
               isDemo: false,
               session: true,
             });
-            // If on login page, redirect to dashboard
+            // If on login or portal key page, redirect to dashboard
             const current = useAppStore.getState().currentPage;
-            if (current === 'admin-login') {
+            if (current === 'staff-portal-8x7q' || current === 'portal-key' || current === 'admin-login') {
               setCurrentPage('admin-dashboard');
             }
           }
         }
       } catch {
-        // Session check failed silently — user is not logged in
+        // Session check failed silently
       }
     })();
   }, []);
@@ -108,8 +113,21 @@ export default function MainApp() {
     }
   }, []);
 
-  const config = PAGE_CONFIG[currentPage];
-  const PageComponent = PAGE_COMPONENTS[currentPage];
+  // Enforce portal key gate for protected pages
+  const effectivePage = useMemo(() => {
+    const config = PAGE_CONFIG[currentPage];
+    if (config?.requiresPortalKey) {
+      const verified = sessionStorage.getItem('sktim_portal_verified') === 'true';
+      if (!verified) {
+        // Redirect to portal key gate
+        return 'portal-key' as Page;
+      }
+    }
+    return currentPage;
+  }, [currentPage]);
+
+  const config = PAGE_CONFIG[effectivePage];
+  const PageComponent = PAGE_COMPONENTS[effectivePage];
   const isFullScreen = config.fullWidth && !config.showNav;
 
   return (
@@ -118,7 +136,7 @@ export default function MainApp() {
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentPage}
+          key={effectivePage}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}

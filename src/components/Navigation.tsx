@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, Home, BookOpen, ClipboardList, Search,
-  User, Calendar, Phone, Shield, ChevronDown, Laptop, ImageIcon, Info, Users, GraduationCap, Newspaper
+  User, Calendar, Phone, ChevronDown, Laptop, ImageIcon, Info, Users, GraduationCap, Newspaper
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -33,7 +33,6 @@ const DROPDOWN_ITEMS: { label: string; page: Page; icon: React.ReactNode }[] = [
   { label: 'Student Portal', page: 'student-portal', icon: <User size={15} /> },
   { label: 'Online Learning', page: 'online-learning', icon: <Laptop size={15} /> },
   { label: 'Track Application', page: 'track-application', icon: <Search size={15} /> },
-  { label: 'Admin Login', page: 'admin-login', icon: <Shield size={15} /> },
 ];
 
 export default function Navigation() {
