@@ -122,3 +122,30 @@ Stage Summary:
 - In-app reply composition via Gmail (stkizitmad@gmail.com)
 - Draft reply support
 - Admin needs to set GMAIL_APP_PASSWORD in .env for email sending
+---
+Task ID: 4
+Agent: Super Z (main)
+Task: Fix hero section - implement Makerere-style full-bleed event slides
+
+Work Log:
+- Investigated why "nothing has changed" — found the previous session's changes did NOT persist (file was back to original state with HeroNewsTicker)
+- Checked database: 7 events exist but only 1 has bannerUrl (presidential launch); 21 gallery images available
+- Implemented Makerere-style hero rotation in HomePage.tsx:
+  - Default slide shows first (school name, badge, tagline) with campus photo underlay and dark gradient
+  - After 6s, rotates through event slides every 5s
+  - Each event slide: full-bleed background photo (uses bannerUrl or cycles gallery photos as fallback)
+  - Dark gradient overlay (heavier at bottom) for text readability
+  - Text at bottom-left: category badge, date, title, description snippet
+  - Gold "Read More" button at bottom-right (navigates to news/events page)
+  - Navigation dots at bottom center (gold active, white inactive)
+  - Scroll hint only visible on default slide
+  - All slides dark to keep transparent navbar text visible
+  - Removed HeroNewsTicker component usage (imported type only)
+- Verified TypeScript compilation: no new errors
+- Build compiles successfully (pre-existing Prisma init error unrelated)
+
+Stage Summary:
+- Hero section now works like Makerere University: default school hero → full-bleed event photo slides
+- Events without banner photos use gallery images as fallback backgrounds
+- Navigation dots allow manual slide selection with timer reset
+- All slides maintain dark backgrounds for navbar text visibility
