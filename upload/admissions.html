@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Admissions - St. Kizito's Technical Institute - Madera. Apply now for quality technical and vocational education programs.">
+    <meta name="keywords" content="admissions, apply, TVET, technical institute, vocational training, Madera, Uganda">
+    <meta name="author" content="St. Kizito's Technical Institute">
+    <meta property="og:title" content="Admissions - St. Kizito's Technical Institute - Madera">
+    <meta property="og:description" content="Apply now for quality technical and vocational education">
+    <meta property="og:type" content="website">
+
+    <title>Admissions | St. Kizito's Technical Institute - Madera</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ========================================
+           CSS VARIABLES & RESET
+           ======================================== */
+        :root {
+            --primary: #1a3a6b;
+            --primary-light: #2756a0;
+            --primary-dark: #0f2347;
+            --gold: #f5c518;
+            --gold-dark: #d4a017;
+            --secondary: #f5f5dc;
+            --secondary-light: #fffff0;
+            --secondary-dark: #d4d0ab;
+            --accent: #0f2347;
+            --light-gray: #f0f4ff;
+            --medium-gray: #a0aec0;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s ease;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 50%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Remove scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ========================================
+           HEADER & NAVIGATION
+           ======================================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-apply:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        /* Dropdown Menu */
+        .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .nav-dropdown .nav-link {
+            cursor: pointer;
+        }
+
+        .nav-dropdown .nav-link i {
+            font-size: 0.75rem;
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-dropdown:hover .nav-link i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--white);
+            min-width: 220px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            z-index: 1001;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+
+        .dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent var(--white) transparent;
+        }
+
+        .nav-dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .dropdown-content a {
+            color: var(--text-dark);
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+            padding-left: 25px;
+        }
+
+        .dropdown-content a i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+/* ========================================
+            PAGE HEADER
+            ======================================== */
+
+            /* Online Admission Form Styling */
+            .form-cta-section {
+                text-align: center;
+                padding: 40px 0;
+                background: var(--light-gray);
+                border-radius: var(--radius-lg);
+                margin: 40px auto;
+                max-width: 800px;
+            }
+            .form-cta-section h2 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+                color: var(--primary-dark);
+            }
+            .form-cta-section p {
+                margin-bottom: 20px;
+                color: var(--text-dark);
+            }
+            .admission-form-wrapper {
+                display: none;
+                margin-top: 30px;
+            }
+            .admission-form-wrapper.active {
+                display: block;
+            }
+            .portal-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 30px;
+            }
+            .portal-sidebar {
+                flex: 1 1 250px;
+                background: var(--white);
+                padding: 20px;
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-md);
+                min-height: 400px;
+            }
+            .portal-content {
+                flex: 2 1 500px;
+            }
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+            .form-group label {
+                margin-bottom: 5px;
+                font-weight: 500;
+                color: var(--text-dark);
+            }
+            .form-group input,
+            .form-group select {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: var(--radius-sm);
+                font-size: 1rem;
+            }
+            .btn-portal {
+                background: var(--primary);
+                color: var(--white);
+                padding: 12px 24px;
+                border-radius: var(--radius-md);
+                font-weight: 600;
+                border: none;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+            .btn-portal:hover {
+                background: var(--primary-light);
+            }
+            .success-message {
+                text-align: center;
+                padding: 40px;
+                background: var(--light-gray);
+                border-radius: var(--radius-lg);
+            }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light));
+            padding: 140px 0 80px;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>') repeat;
+            background-size: 100px 100px;
+            opacity: 0.5;
+        }
+
+        .page-header .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========================================
+           ADMISSIONS CONTENT
+           ======================================== */
+        .admissions-section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            text-align: right;
+        }
+
+        .timeline-number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--gold);
+            color: var(--primary-dark);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            border: 3px solid var(--gold-dark);
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-number {
+            left: -25px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-number {
+            right: -25px;
+        }
+
+        .timeline-content h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .timeline-content p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Requirements Grid */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .requirement-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .requirement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .requirement-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .requirement-card h3 i {
+            color: var(--primary);
+        }
+
+        .requirement-card ul li {
+            padding: 8px 0;
+            color: var(--text-dark);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .requirement-card ul li i {
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        /* Application Downloads */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .download-card {
+            background: var(--light-gray);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .download-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        .download-card p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .download-card ul {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .download-card ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .download-card ul li i {
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .download-card .btn-apply {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Contact Box */
+        .contact-box {
+            background: linear-gradient(135deg, var(--accent), #1e3a5f);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            color: var(--white);
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .contact-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .contact-box p {
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        .contact-box .btn-apply {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--text-dark);
+        }
+
+        .contact-box .btn-apply:hover {
+            background: var(--secondary-light);
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+        .footer {
+            background: var(--accent);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .logo-text {
+            color: var(--white);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand p {
+            color: var(--medium-gray);
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .footer-social a:hover {
+            background: var(--primary);
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: var(--medium-gray);
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 50px);
+                margin-left: 50px;
+            }
+
+            .timeline-item:nth-child(odd) {
+                flex-direction: column;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content {
+                text-align: left;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-number,
+            .timeline-item:nth-child(even) .timeline-number {
+                left: -25px;
+                right: auto;
+            }
+
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon"><img
+                            src="st kizitos technical institute madera photos/Institute Logo (1).jfif" alt="Logo"
+                            style="width:100%;height:100%;object-fit:contain;"></div>
+                    <span class="logo-text">St. Kizito's Technical Institute - Madera</span>
+                </a>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="index.html#about" class="nav-link">About Us</a>
+                    <a href="index.html#programs" class="nav-link">Programs</a>
+                    <a href="admissions.html" class="nav-link active">Admissions</a>
+                    <div class="nav-dropdown">
+                        <a href="student-portal.html" class="nav-link">Student Portal <i class="fas fa-chevron-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="student-portal.html"><i class="fas fa-user-graduate"></i> Student Portal</a>
+                            <a href="student-login.html"><i class="fas fa-sign-in-alt"></i> Student Login</a>
+                            <a href="online-learning.html"><i class="fas fa-laptop"></i> Online Lessons</a>
+                            <a href="admin.html"><i class="fas fa-user-shield"></i> Admin Login</a>
+                        </div>
+                    </div>
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </nav>
+                <button class="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Admissions</h1>
+            <p class="page-subtitle">Join St. Kizito's Technical Institute - Madera and start your journey to a
+                successful career in technical and vocational education.</p>
+        </div>
+    </section>
+
+    <!-- Admissions Section -->
+    <section class="admissions-section">
+        <div class="container">
+            <h2 class="section-title">TVET Admission Process</h2>
+            <p class="section-subtitle">Follow these simple steps to apply for admission to St. Kizito's Technical
+                Institute - Madera</p>
+
+            <!-- Process Cards -->
+            <div class="process-grid">
+                <div class="process-card">
+                    <div class="process-number">1</div>
+                    <h3>Obtain Form</h3>
+                    <p>Get your application form from the admissions office or download it below.</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">2</div>
+                    <h3>Fill Details</h3>
+                    <p>Complete the form with accurate personal and academic background details.</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">3</div>
+                    <h3>Submit Documents</h3>
+                    <p>Submit your form with certificates, ID photos, and birth certificate.</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">4</div>
+                    <h3>Assessment</h3>
+                    <p>Attend the entrance assessment for appropriate program placement.</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">5</div>
+                    <h3>Notification</h3>
+                    <p>Receive your admission letter and complete the enrollment process.</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">6</div>
+                    <h3>Join SKTIM</h3>
+                    <p>Attend orientation and begin your journey at St. Kizito's Technical Institute!</p>
+                </div>
+            </div>
+
+            <!-- Premium Entry Requirements -->
+            <div class="section-header">
+                <h2>Entry Requirements</h2>
+                <p>Ensure you meet the academic criteria for your chosen career path at SKTIM Madera.</p>
+            </div>
+
+            <div class="premium-card-grid">
+                <div class="premium-card">
+                    <div class="premium-card-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <h3>National Certificates</h3>
+                    <p style="color: #64748b; margin-bottom: 20px;">2-Year Formal Programs examined by UVTAB/UBTEB.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> UCE (O-Level) Certificate</li>
+                        <li><i class="fas fa-check-circle"></i> Minimum 3 Credits in core subjects</li>
+                        <li><i class="fas fa-check-circle"></i> UJTC/CPS equivalent accepted</li>
+                        <li><i class="fas fa-check-circle"></i> Age: 16+ years</li>
+                    </ul>
+                </div>
+
+                <div class="premium-card">
+                    <div class="premium-card-icon"><i class="fas fa-tools"></i></div>
+                    <h3>Vocational Skills</h3>
+                    <p style="color: #64748b; margin-bottom: 20px;">3-6 Months short courses for hands-on skills.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Open to all education levels</li>
+                        <li><i class="fas fa-check-circle"></i> Primary (PLE) holders encouraged</li>
+                        <li><i class="fas fa-check-circle"></i> No age limit for adult learners</li>
+                        <li><i class="fas fa-check-circle"></i> Passion for the chosen trade</li>
+                    </ul>
+                </div>
+
+                <div class="premium-card">
+                    <div class="premium-card-icon"><i class="fas fa-file-invoice"></i></div>
+                    <h3>Required Documents</h3>
+                    <p style="color: #64748b; margin-bottom: 20px;">Keep these ready for your application process.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Original & Scanned Certificates</li>
+                        <li><i class="fas fa-check-circle"></i> Valid National ID or Birth Cert</li>
+                        <li><i class="fas fa-check-circle"></i> 3 Recent Passport Photos</li>
+                        <li><i class="fas fa-check-circle"></i> Recommendation Letter</li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+            <!-- Application Form Downloads -->
+            <h2 class="section-title" id="application-downloads">Admission Form Downloads</h2>
+            <p class="section-subtitle">Prefer paper? Download the appropriate form below, fill it in, and submit it through the institute's admissions office.</p>
+
+            <div class="download-grid" data-files-container data-file-categories="admissions" data-file-audience="public" data-limit="2">
+                <article class="download-card">
+                    <h3><i class="fas fa-download"></i> Current TVET Form</h3>
+                    <p>Download the current TVET application form for certificate and formal technical programmes.</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> For formal TVET application intake</li>
+                        <li><i class="fas fa-check"></i> Covers applicant details and programme choice</li>
+                        <li><i class="fas fa-check"></i> Print, fill, and submit physically</li>
+                    </ul>
+                    <a href="downloads/current-tvet-form.html" class="btn-apply" download>
+                        <i class="fas fa-file-arrow-down"></i> Download TVET Form
+                    </a>
+                </article>
+
+                <article class="download-card">
+                    <h3><i class="fas fa-download"></i> Non-Formal Courses Form</h3>
+                    <p>Download the institute form for non-formal courses and other skills-based training options.</p>
+                    <ul>
+                        <li><i class="fas fa-check"></i> For non-formal and short course application</li>
+                        <li><i class="fas fa-check"></i> Suitable for institute-based vocational skills applicants</li>
+                        <li><i class="fas fa-check"></i> Print, complete, and return to the institute</li>
+                    </ul>
+                    <a href="downloads/non-formal-courses-form.html" class="btn-apply" download>
+                        <i class="fas fa-file-arrow-down"></i> Download Non-Formal Form
+                    </a>
+                </article>
+            </div>
+
+            <!-- Online Admission CTA and Form -->
+            <!-- Online Admission CTA -->
+            <div class="form-cta-section animate-on-scroll">
+                <h2>Start Your Application Online</h2>
+                <p>Fast, easy, and secure. Apply from anywhere and get your reference number instantly.</p>
+                <button class="btn-toggle-form" id="applyToggleBtn" onclick="toggleAdmissionForm()">
+                    <i class="fas fa-paper-plane"></i> Apply Now Online
+                </button>
+            </div>
+
+            <!-- Online Admission Form Section (Hidden by Default) -->
+            <div class="admission-form-wrapper" id="formWrapper">
+                <div class="portal-container" id="apply-online">
+                    <aside class="portal-sidebar">
+                        <h3>Admissions Portal</h3>
+                        <div class="portal-nav">
+                            <div class="portal-step active" id="step1-indicator">
+                                <div class="portal-step-icon">1</div>
+                                <div class="portal-step-text">Personal Details</div>
+                            </div>
+                            <div class="portal-step" id="step2-indicator">
+                                <div class="portal-step-icon">2</div>
+                                <div class="portal-step-text">Contact Information</div>
+                            </div>
+                            <div class="portal-step" id="step3-indicator">
+                                <div class="portal-step-icon">3</div>
+                                <div class="portal-step-text">Academic Record</div>
+                            </div>
+                            <div class="portal-step" id="step4-indicator">
+                                <div class="portal-step-icon">4</div>
+                                <div class="portal-step-text">Program Choice</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 60px; font-size: 0.85rem; opacity: 0.7;">
+                            <p><i class="fas fa-lock"></i> Secure Application</p>
+                            <p style="margin-top: 10px;">For assistance, call:<br><strong>+256 7XX XXX XXX</strong></p>
+                        </div>
+                    </aside>
+
+                    <main class="portal-content">
+                        <form id="online-admission-form">
+                            <!-- Step 1: Personal Info -->
+                            <div class="form-step-content" id="step1">
+                                <div class="portal-content-header">
+                                    <h2>Personal Information</h2>
+                                    <p>Enter your basic details as they appear on your documents.</p>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group full-width">
+                                        <label>Full Name (as per academic documents)</label>
+                                        <input type="text" name="fullName" required placeholder="Enter your full name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date of Birth</label>
+                                        <input type="date" name="dob" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gender</label>
+                                        <select name="gender" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nationality</label>
+                                        <input type="text" name="nationality" required placeholder="e.g. Ugandan">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Religion</label>
+                                        <input type="text" name="religion" placeholder="e.g. Catholic">
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>National ID Number (NIN) - Optional</label>
+                                        <input type="text" name="nin" placeholder="Enter NIN if available">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Contact & Address -->
+                            <div class="form-step-content" id="step2">
+                                <div class="portal-content-header">
+                                    <h2>Contact & Location</h2>
+                                    <p>How can we reach you and where are you located?</p>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Phone Number</label>
+                                        <input type="tel" name="phone" required placeholder="07XX XXX XXX">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email Address</label>
+                                        <input type="email" name="email" required placeholder="example@email.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>District of Residence</label>
+                                        <input type="text" name="district" required placeholder="e.g. Soroti">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Home Address / Village</label>
+                                        <input type="text" name="address" required placeholder="Enter village or street">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Next of Kin Name</label>
+                                        <input type="text" name="nextOfKin" required placeholder="Parent or Guardian name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Next of Kin Phone</label>
+                                        <input type="tel" name="nextOfKinPhone" required placeholder="Contact for next of kin">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Academic Info -->
+                            <div class="form-step-content" id="step3">
+                                <div class="portal-content-header">
+                                    <h2>Academic Background</h2>
+                                    <p>Tell us about your previous education.</p>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group full-width">
+                                        <label>Last School Attended</label>
+                                        <input type="text" name="lastSchool" required placeholder="Enter name of previous school">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Year Completed</label>
+                                        <input type="number" name="yearCompleted" required placeholder="e.g. 2023">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Highest Qualification</label>
+                                        <select name="qualification" required>
+                                            <option value="">Select Qualification</option>
+                                            <option value="PLE">PLE (Primary Leaving Exam)</option>
+                                            <option value="UCE">UCE (O-Level)</option>
+                                            <option value="UACE">UACE (A-Level)</option>
+                                            <option value="Other">Other Certificate</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Program Choice -->
+                            <div class="form-step-content" id="step4">
+                                <div class="portal-content-header">
+                                    <h2>Program Selection</h2>
+                                    <p>Choose the career path you wish to pursue.</p>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group full-width">
+                                        <label>Select Desired Programme</label>
+                                        <select name="programme" required>
+                                            <option value="">Select a Programme</option>
+                                            <optgroup label="National Certificates (2 Years)">
+                                                <option value="Building Construction">National Certificate in Building Construction</option>
+                                                <option value="Automotive Mechanics">National Certificate in Automotive Mechanics</option>
+                                                <option value="Electrical Installation">National Certificate in Electrical Installation</option>
+                                                <option value="Plumbing">National Certificate in Plumbing</option>
+                                                <option value="Welding">National Certificate in Welding</option>
+                                                <option value="Fashion and Design">National Certificate in Fashion and Design</option>
+                                            </optgroup>
+                                            <optgroup label="Institutional Vocational Skills (3-6 Months)">
+                                                <option value="Short Course - Electrical">Basic Electrical Skills</option>
+                                                <option value="Short Course - Tailoring">Tailoring & Garment Construction</option>
+                                                <option value="Short Course - Motor Vehicle">Motor Vehicle Repair</option>
+                                                <option value="Short Course - Catering">Catering & Hotel Management</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Preferred Intake</label>
+                                        <select name="intakeYear" required>
+                                            <option value="2024">2024 Academic Year</option>
+                                            <option value="2025">2025 Academic Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="success-message" id="successMessage" style="display: none;">
+                            <div class="success-icon"><i class="fas fa-check-circle" style="font-size: 4rem; color: #10b981;"></i></div>
+                            <h2 style="color: var(--primary-dark); margin-top: 20px;">Application Submitted!</h2>
+                            <p style="margin-top: 15px;">Your application has been received. Reference number:</p>
+                            <div class="ref-number" id="displayRefNumber" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); background: #f0f4ff; padding: 15px; border-radius: 10px; margin-top: 10px;">SKT-XXXX-XXXX</div>
+                            <p style="margin-top: 20px;">Our admissions team will contact you soon.</p>
+                            <button class="btn-portal btn-portal-next" onclick="window.location.reload()" style="margin: 30px auto 0;">Start New Application</button>
+                        </div>
+
+                        <div class="portal-footer" id="formFooter">
+                            <button type="button" class="btn-portal btn-portal-prev" id="prevBtn" onclick="nextPrev(-1)" style="display: none;">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="btn-portal btn-portal-next" id="nextBtn" onclick="nextPrev(1)">
+                                Next Step <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <!-- Contact Box - Already a Student (First) -->
+            <div class="contact-box">
+                <h3>Already a Student?</h3>
+                <p>Current learners can use the student portal for updates, quick links, and access to the online
+                    learning handoff page.</p>
+                <a href="student-portal.html" class="btn-apply">Open Student Portal</a>
+            </div>
+
+            <!-- Contact Box - Need Help (Second) -->
+            <div class="contact-box">
+                <h3 id="admissions-help-title">Need Help?</h3>
+                <p id="admissions-help-text">Our admissions team is ready to assist you with any questions about the application process or
+                    programs offered.</p>
+                <a href="index.html#contact" class="btn-apply">Contact Admissions</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo-text" id="site-footer-brand">St. Kizito's Technical Institute - Madera</div>
+                    <p id="site-footer-description">A government-aided technical institute offering holistic technical education anchored on
+                        Christian principles since 1947.</p>
+                    <div class="footer-social">
+                        <a id="site-facebook-link" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a id="site-twitter-link" href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a id="site-instagram-link" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a id="site-youtube-link" href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About Us</a></li>
+                        <li><a href="index.html#programs">Programs</a></li>
+                        <li><a href="admissions.html">Admissions</a></li>
+                        <li><a href="student-portal.html">Student Portal</a></li>
+                        <li><a href="online-learning.html">Online Learning</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4 class="footer-title">Programs</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html#programs">National Certificates</a></li>
+                        <li><a href="index.html#programs">Vocational Skills</a></li>
+                        <li><a href="index.html#programs">Building & Construction</a></li>
+                        <li><a href="index.html#programs">Electrical</a></li>
+                        <li><a href="index.html#programs">Automotive</a></li>
+                    </ul>
+                </div>
+            </div>
+
+                            <div class="footer-bottom">
+                <p>&copy; 2024 St. Kizito's Technical Institute - Madera. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', function () {
+            const header = document.querySelector('.header');
+            if (header) {
+                if (window.scrollY > 100) {
+                    header.style.boxShadow = 'var(--shadow-lg)';
+                } else {
+                    header.style.boxShadow = 'var(--shadow-md)';
+                }
+            }
+        });
+
+        // Toggle Admission Form
+        function toggleAdmissionForm() {
+            const wrapper = document.getElementById('formWrapper');
+            const btn = document.getElementById('applyToggleBtn');
+            
+            if (wrapper.classList.contains('active')) {
+                wrapper.classList.remove('active');
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Apply Now Online';
+            } else {
+                wrapper.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-times"></i> Close Application Form';
+                
+                // Smooth scroll to form
+                setTimeout(() => {
+                    document.getElementById('apply-online').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        // Online Admission Form Multi-step Logic
+        let currentStep = 0;
+        const steps = ["step1", "step2", "step3", "step4"];
+        
+        function showStep(n) {
+            const x = document.getElementsByClassName("form-step-content");
+            // Hide all steps first
+            for (let i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            
+            x[n].style.display = "block";
+            
+            // Buttons visibility
+            if (n === 0) {
+                document.getElementById("prevBtn").style.display = "none";
+            } else {
+                document.getElementById("prevBtn").style.display = "inline";
+            }
+            
+            if (n === (x.length - 1)) {
+                document.getElementById("nextBtn").innerHTML = 'Submit Application <i class="fas fa-check"></i>';
+                document.getElementById("nextBtn").classList.add("btn-submit");
+            } else {
+                document.getElementById("nextBtn").innerHTML = 'Next Step <i class="fas fa-arrow-right"></i>';
+                document.getElementById("nextBtn").classList.remove("btn-submit");
+            }
+            
+            // Update indicators
+            updateIndicators(n);
+        }
+
+        function nextPrev(n) {
+            const x = document.getElementsByClassName("form-step-content");
+            
+            // Exit if validation fails
+            if (n === 1 && !validateForm()) return false;
+            
+            // Update current step
+            currentStep = currentStep + n;
+            
+            // If finished, submit form
+            if (currentStep >= x.length) {
+                submitAdmissionForm();
+                return false;
+            }
+            
+            // Show new step
+            showStep(currentStep);
+        }
+
+        function validateForm() {
+            const x = document.getElementsByClassName("form-step-content");
+            const y = x[currentStep].querySelectorAll("input, select");
+            let valid = true;
+            
+            for (let i = 0; i < y.length; i++) {
+                if (y[i].hasAttribute("required") && y[i].value === "") {
+                    y[i].classList.add("invalid");
+                    valid = false;
+                } else {
+                    y[i].classList.remove("invalid");
+                }
+            }
+            
+            return valid;
+        }
+
+        function updateIndicators(n) {
+            const indicators = document.getElementsByClassName("portal-step");
+            for (let i = 0; i < indicators.length; i++) {
+                indicators[i].classList.remove("active");
+                if (i < n) {
+                    indicators[i].classList.add("completed");
+                } else {
+                    indicators[i].classList.remove("completed");
+                }
+            }
+            indicators[n].classList.add("active");
+        }
+
+        async function submitAdmissionForm() {
+            const form = document.getElementById("online-admission-form");
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+            
+            // Disable footer buttons
+            document.getElementById("formFooter").style.display = "none";
+            document.getElementById("nextBtn").disabled = true;
+            document.getElementById("nextBtn").innerHTML = "Submitting...";
+            
+            try {
+                // Save to mock database
+                const result = window.firebaseServices.saveAdmission(data);
+                
+                if (result.success) {
+                    // Hide form and show success
+                    form.style.display = "none";
+                    document.querySelector(".form-steps").style.display = "none";
+                    document.getElementById("successMessage").style.display = "block";
+                    document.getElementById("displayRefNumber").innerHTML = result.refNumber;
+                    
+                    // Smooth scroll to success message
+                    document.getElementById("apply-online").scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error("Failed to save application");
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("There was an error submitting your application. Please try again.");
+                document.getElementById("formFooter").style.display = "flex";
+                document.getElementById("nextBtn").disabled = false;
+                document.getElementById("nextBtn").innerHTML = "Submit Application";
+                currentStep = steps.length - 1;
+            }
+        }
+
+        // Initialize form
+        document.addEventListener("DOMContentLoaded", function() {
+            showStep(currentStep);
+        });
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

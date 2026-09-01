@@ -1,0 +1,3333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="St. Kizito's Technical Institute - Madera - Building Skills, Transforming Lives Since 1985. Quality technical and vocational education programs.">
+    <meta name="keywords"
+        content="technical institute, vocational training, Madera, automotive, electrical, welding, IT, culinary arts, building construction">
+    <meta name="author" content="St. Kizito's Technical Institute">
+    <meta property="og:title" content="St. Kizito's Technical Institute - Madera">
+    <meta property="og:description" content="Building Skills, Transforming Lives Since 1985">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>St. Kizito's Technical Institute - Madera | SKTIM</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ========================================
+           CSS VARIABLES & RESET
+           ======================================== */
+        :root {
+            --primary: #1a3a6b;
+            --primary-light: #2756a0;
+            --primary-dark: #0f2347;
+            --gold: #f5c518;
+            --gold-dark: #d4a017;
+            --secondary: #f5f5dc;
+            --secondary-light: #fffff0;
+            --secondary-dark: #d4d0ab;
+            --accent: #0f2347;
+            --light-gray: #f0f4ff;
+            --medium-gray: #a0aec0;
+            --text-dark: #1a202c;
+            --text-light: #4a5568;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s ease;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 50%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        /* =========================================
+           REMOVE SCROLLBAR
+           ======================================== */
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* ========================================
+            CUSTOM SCROLLBAR
+            ======================================== */
+
+        /* ========================================
+           UTILITY CLASSES
+           ======================================== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Primary button with gold background */
+        .btn-cream {
+            background: var(--gold);
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .btn-cream:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+        }
+
+        .btn-outline:hover {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 20px;
+        }
+
+        .btn-ghost:hover {
+            background: var(--light-gray);
+        }
+
+        /* ========================================
+           HEADER & NAVIGATION
+           ======================================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: var(--transition);
+            padding: 15px 0;
+        }
+
+        .header.scrolled {
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            padding: 10px 0;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .header.scrolled .logo-text {
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--white);
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+            transition: var(--transition);
+        }
+
+        .header.scrolled .nav-link {
+            color: var(--text-dark);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: var(--gold);
+        }
+
+        .btn-apply {
+            background: var(--gold);
+            color: var(--primary-dark);
+            padding: 10px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-apply:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .mobile-toggle span {
+            width: 25px;
+            height: 2px;
+            background: var(--white);
+            transition: var(--transition);
+        }
+
+        .header.scrolled .mobile-toggle span {
+            background: var(--primary);
+        }
+
+        /* Dropdown Menu */
+        .nav-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .nav-dropdown .nav-link {
+            cursor: pointer;
+        }
+
+        .nav-dropdown .nav-link i {
+            font-size: 0.75rem;
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-dropdown:hover .nav-link i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--white);
+            min-width: 220px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            z-index: 1001;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+
+        .dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent var(--white) transparent;
+        }
+
+        .nav-dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .dropdown-content a {
+            color: var(--text-dark);
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+            padding-left: 25px;
+        }
+
+        .dropdown-content a i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .header.scrolled .nav-dropdown .dropdown-content {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 8px 35px 8px 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius-sm);
+            width: 200px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            width: 250px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        /* ========================================
+           HERO SECTION
+           ======================================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.85), rgba(20, 40, 73, 0.9), rgba(245, 245, 220, 0.15)),
+                url('st kizitos technical institute madera photos/front view of admin.jfif') center/cover;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: var(--white);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--primary-dark);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 2px solid var(--gold-dark);
+            animation: fadeInDown 0.8s ease;
+            box-shadow: 0 4px 15px rgba(245, 197, 24, 0.4);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .hero-buttons .btn {
+            min-width: 180px;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator a {
+            color: var(--gold);
+            font-size: 2rem;
+        }
+
+        /* Hero Wave Overlay */
+        .hero-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+
+        .hero-wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 80px;
+        }
+
+        .hero-wave .shape-fill {
+            fill: var(--white);
+        }
+
+        /* ========================================
+           WELCOME SECTION
+           ======================================== */
+        .welcome {
+            background: var(--white);
+        }
+
+        .welcome-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .welcome-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .welcome-content p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .welcome-image {
+            position: relative;
+        }
+
+        .welcome-image img {
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .welcome-image::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--gold);
+            border-radius: var(--radius-lg);
+            z-index: -1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: var(--light-gray);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* ========================================
+           LOCATION SECTION
+           ======================================== */
+        .location {
+            background: var(--light-gray);
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .location-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .location-info p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .location-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .location-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .location-item i {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .location-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .location-item p {
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .map-container {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .map-placeholder i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .map-placeholder p {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+        }
+
+        .map-overlay i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        /* ========================================
+           LEADERSHIP SECTION
+           ======================================== */
+        .leadership {
+            background: var(--white);
+        }
+
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .leadership-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+
+        .leadership-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .leader-image {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 4px solid var(--gold);
+            position: relative;
+        }
+
+        .leader-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .leader-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1), rgba(245, 158, 11, 0.1));
+        }
+
+        .leader-name {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+
+        .leader-title {
+            color: var(--gold-dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .leader-bio {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
+
+        .leader-social {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .leader-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .leader-social a:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        /* ========================================
+           GRADUATION GALLERY
+           ======================================== */
+        .graduation-gallery {
+            background: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+        }
+
+        .gallery-item:nth-child(1) {
+            grid-row: span 2;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(30, 58, 138, 0.9), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-caption {
+            color: var(--white);
+        }
+
+        .gallery-caption h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .gallery-caption p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: var(--radius-md);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: var(--white);
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* ========================================
+           PRACTICAL TRAINING CAROUSEL
+           ======================================== */
+        .practical-training {
+            background: var(--primary);
+            color: var(--white);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .practical-training::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(245, 245, 220, 0.15), transparent);
+            border-radius: var(--radius-full);
+        }
+
+        .practical-training .section-title {
+            color: var(--white);
+        }
+
+        .practical-training .section-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .carousel-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            padding: 20px;
+        }
+
+        .training-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .training-image {
+            width: 100%;
+            height: 300px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .training-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .training-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--secondary);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -45px auto 20px;
+            font-size: 1.8rem;
+            color: var(--white);
+            position: relative;
+            z-index: 1;
+        }
+
+        .training-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .training-card p {
+            opacity: 0.9;
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .carousel-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-full);
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .carousel-btn:hover {
+            background: var(--secondary-light);
+            transform: scale(1.1);
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .carousel-dot.active {
+            background: var(--secondary);
+            width: 30px;
+        }
+
+        /* ========================================
+           ACADEMIC PROGRAMS
+           ======================================== */
+        .programs {
+            background: var(--white);
+        }
+
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .program-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .program-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .program-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .program-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .program-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--white);
+            margin-bottom: 20px;
+        }
+
+        .program-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .program-card p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .program-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .program-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .program-meta i {
+            color: var(--secondary);
+        }
+
+        .program-link {
+            color: var(--primary);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .program-link:hover {
+            color: var(--secondary);
+            gap: 12px;
+        }
+
+        /* Progress Bar */
+        .program-progress {
+            margin-top: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--light-gray);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        /* ========================================
+           TESTIMONIALS
+           ======================================== */
+        .testimonials {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonials::before {
+            content: '"';
+            position: absolute;
+            top: -50px;
+            left: 50px;
+            font-size: 400px;
+            font-family: 'Playfair Display', serif;
+            color: rgba(255, 255, 255, 0.05);
+            line-height: 1;
+        }
+
+        .testimonials .section-title {
+            color: var(--white);
+        }
+
+        .testimonials .section-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .testimonials-carousel {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .testimonial-slide {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .testimonial-slide.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .testimonial-image {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 25px;
+            border: 4px solid var(--secondary);
+            overflow: hidden;
+        }
+
+        .testimonial-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .testimonial-quote {
+            color: var(--white);
+            font-size: 1.3rem;
+            font-style: italic;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .testimonial-quote::before {
+            content: '"';
+            font-size: 3rem;
+            color: var(--secondary);
+            line-height: 0;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .testimonial-author {
+            color: var(--white);
+        }
+
+        .testimonial-author h4 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .testimonial-author span {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .testimonial-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .testimonial-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .testimonial-btn:hover {
+            background: var(--secondary);
+        }
+
+        /* ========================================
+           CONTACT SECTION
+           ======================================== */
+        .contact {
+            background: var(--light-gray);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+
+        .contact-form {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .contact-form h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--medium-gray);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #dc2626;
+        }
+
+        .form-group.error .form-error {
+            display: block;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .contact-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .contact-card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .contact-card h4 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .contact-card p {
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .contact-card a {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .contact-card a:hover {
+            color: var(--secondary);
+        }
+
+        .contact-map {
+            height: 200px;
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        /* ========================================
+           DIGITAL ACCESS
+           ======================================== */
+        .digital-access {
+            background: linear-gradient(135deg, rgba(29, 143, 46, 0.08), rgba(20, 40, 73, 0.08));
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 30px;
+        }
+
+        .portal-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 245, 220, 0.3);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .portal-card h3 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .portal-card p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .portal-list {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .portal-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dark);
+        }
+
+        .portal-list i {
+            color: var(--primary);
+        }
+
+        .portal-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+        .footer {
+            background: var(--accent);
+            color: var(--white);
+            padding: 60px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .logo-text {
+            color: var(--white);
+            margin-bottom: 15px;
+        }
+
+        .footer-brand p {
+            color: var(--medium-gray);
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .footer-social a:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .footer-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+            padding-left: 5px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .newsletter-form input::placeholder {
+            color: var(--text-light);
+        }
+
+        .newsletter-form button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-form button:hover {
+            background: var(--primary-light);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-bottom p {
+            color: var(--medium-gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-legal a {
+            color: var(--medium-gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-legal a:hover {
+            color: var(--secondary);
+        }
+
+        /* ========================================
+           BACK TO TOP BUTTON
+           ======================================== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            color: var(--white);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 999;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary-light);
+            transform: translateY(-3px);
+        }
+
+        /* ========================================
+           BREADCRUMB
+           ======================================== */
+        .breadcrumb {
+            background: var(--light-gray);
+            padding: 15px 0;
+            margin-top: 80px;
+        }
+
+        .breadcrumb-list {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-list a {
+            color: var(--primary);
+        }
+
+        .breadcrumb-list span {
+            color: var(--text-light);
+        }
+
+        .breadcrumb-list .current {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           ANIMATIONS
+           ======================================== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========================================
+           MOBILE MENU
+           ======================================== */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--white);
+            z-index: 2000;
+            padding: 80px 30px 30px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .mobile-logo span {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .mobile-menu .nav-link {
+            color: var(--text-dark);
+            display: block;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .mobile-menu .btn-apply {
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN
+           ======================================== */
+        @media (max-width: 1024px) {
+
+            .welcome-grid,
+            .location-grid,
+            .contact-grid,
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .leadership-grid,
+            .programs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gallery-item:nth-child(1) {
+                grid-row: span 1;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .nav-menu,
+            .search-container {
+                display: none;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid,
+            .leadership-grid,
+            .programs-grid,
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo">
+                    <div class="logo-icon"><img
+                            src="st kizitos technical institute madera photos/Institute Logo (1).jfif" alt="Logo"
+                            style="width:100%;height:100%;object-fit:contain;"></div>
+                    <span class="logo-text">St. Kizito's Technical Institute - Madera</span>
+                </a>
+
+                <nav class="nav-menu" id="navMenu">
+                    <a href="#home" class="nav-link active">Home</a>
+                    <a href="#about" class="nav-link">About Us</a>
+                    <a href="#programs" class="nav-link">Programs</a>
+                    <a href="admissions.html" class="nav-link">Admissions</a>
+                    <div class="nav-dropdown">
+                        <span class="nav-link">Student Portal <i class="fas fa-chevron-down"></i></span>
+                        <div class="dropdown-content">
+                            <a href="student-portal.html"><i class="fas fa-user-graduate"></i> Student Portal</a>
+                            <a href="student-login.html"><i class="fas fa-sign-in-alt"></i> Student Login</a>
+                            <a href="online-learning.html"><i class="fas fa-laptop"></i> Online Lessons</a>
+                        </div>
+                    </div>
+                    <a href="#campus" class="nav-link">Campus Life</a>
+                    <a href="#gallery" class="nav-link">Gallery</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </nav>
+
+                <div class="mobile-toggle" id="mobileToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <a href="index.html" class="mobile-logo">
+            <img src="st kizitos technical institute madera photos/Institute Logo (1).jfif" alt="Logo"
+                style="width:60px;height:60px;object-fit:contain;">
+            <span>St. Kizito's Technical Institute - Madera</span>
+        </a>
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#about" class="nav-link">About Us</a>
+        <a href="#programs" class="nav-link">Programs</a>
+        <a href="admissions.html" class="nav-link">Admissions</a>
+        <a href="student-login.html" class="nav-link">Student Login</a>
+        <a href="#campus" class="nav-link">Campus Life</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#contact" class="nav-link">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">Quality Technical Education Since 1947</span>
+                <h1 class="hero-title">St. Kizito's Technical Institute Madera</h1>
+                <p class="hero-subtitle">Building Skills, Transforming Lives. Empowering the next generation of skilled
+                    professionals through quality technical and vocational education.</p>
+                <div class="hero-buttons">
+                    <a href="#programs" class="btn btn-cream">
+                        <i class="fas fa-graduation-cap"></i>
+                        Explore Programs
+                    </a>
+                    <a href="upcoming-events.html" class="btn btn-primary">
+                        <i class="fas fa-calendar-days"></i>
+                        Upcoming Events
+                    </a>
+                    <a href="#contact" class="btn btn-outline">
+                        <i class="fas fa-calendar-alt"></i>
+                        Schedule a Visit
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-wave">
+            <svg viewBox="0 0 1440 120">
+                <path fill="#ffffff"
+                    d="M0,64L80,58.7C160,53,320,43,480,53.3C640,64,800,96,960,106.7C1120,117,1280,107,1360,101.3L1440,96L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z">
+                </path>
+            </svg>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="mouse"></div>
+        </div>
+    </section>
+
+    <!-- Welcome Section -->
+    <section class="welcome section" id="about">
+        <div class="container">
+            <div class="welcome-grid">
+                <div class="welcome-content animate-on-scroll">
+                    <h2>Welcome to St. Kizito's Technical Institute Madera</h2>
+                    <p>For over 75 years, St. Kizito's Technical Institute - Madera has been committed to providing
+                        quality
+                        technical and vocational education that empowers students with practical skills for the modern
+                        workforce. Founded in 1947 as a vernacular teacher training college by the Catholic Church, we
+                        evolved into a Rural Trade School in 1956 and attained technical institute status in 1986.</p>
+                    <p>Our institute combines hands-on training with theoretical knowledge, preparing graduates to excel
+                        in their chosen fields and contribute meaningfully to their communities. We offer holistic
+                        technical education anchored on Christian principles while upholding good morals and
+                        co-curricular activities.</p>
+                    <a href="#programs" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Discover More
+                    </a>
+                </div>
+                <div class="welcome-image animate-on-scroll">
+                    <img src="st kizitos technical institute madera photos/front view of admin.jfif"
+                        alt="Institute Front View"
+                        style="width:100%;height:100%;object-fit:cover;border-radius: var(--radius-lg);">
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-number" data-count="75">0</div>
+                    <div class="stat-label">Years of Excellence</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-number" data-count="500">0</div>
+                    <div class="stat-label">Graduates</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-number" data-count="12">0</div>
+                    <div class="stat-label">Programs</div>
+                </div>
+                <div class="stat-card animate-on-scroll">
+                    <div class="stat-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-number" data-count="95">0</div>
+                    <div class="stat-label">% Employment Rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="location section" id="campus">
+        <div class="container">
+            <h2 class="section-title">Our Location in Madera</h2>
+            <p class="section-subtitle">Conveniently located in the heart of Madera, our campus provides easy access to
+                students from across the region.</p>
+
+            <div class="location-grid">
+                <div class="location-info animate-on-scroll">
+                    <h2>Visit Our Campus</h2>
+                    <p>Our modern facilities are designed to provide hands-on training in a supportive environment.
+                        Located in Madera complex, Soroti municipality, we are easily accessible and offer quality
+                        technical education on a 14.2 hectare land.</p>
+
+                    <div class="location-details">
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Address</h4>
+                                <p>P.O. Box 320 Soroti, Uganda</p>
+                                <p>5km from Soroti City, Off Soroti-Moroto Road</p>
+                            </div>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-bus"></i>
+                            <div>
+                                <h4>Accessibility</h4>
+                                <p>Easy access from Soroti-Moroto highway</p>
+                            </div>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-landmark"></i>
+                            <div>
+                                <h4>Campus Size</h4>
+                                <p>14.2 hectares of land</p>
+                            </div>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Campus Hours</h4>
+                                <p>Mon-Fri: 7:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-container animate-on-scroll">
+                    <div class="campus-gallery" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <img src="st kizitos technical institute madera photos/front view of admin.jfif"
+                            alt="Front View of Admin"
+                            style="width:100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                        <img src="st kizitos technical institute madera photos/electrical department  worshop.jfif"
+                            alt="Electrical Workshop"
+                            style="width:100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                        <img src="st kizitos technical institute madera photos/Institute bus.jfif" alt="Institute Bus"
+                            style="width:100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                        <img src="st kizitos technical institute madera photos/Institute Logo (1).jfif"
+                            alt="Institute Logo"
+                            style="width:100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leadership Section -->
+    <section class="leadership section">
+        <div class="container">
+            <h2 class="section-title">Our Esteemed Leadership</h2>
+            <p class="section-subtitle">Meet the dedicated team guiding our institute towards excellence</p>
+
+            <div class="leadership-grid">
+                <div class="leadership-card animate-on-scroll">
+                    <div class="leader-image">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300" alt="Principal">
+                    </div>
+                    <h3 class="leader-name">Opiro Joel Kayeme</h3>
+                    <p class="leader-title">Principal</p>
+                    <p class="leader-bio">Leading our institute with vision and dedication to technical excellence.</p>
+                    <div class="leader-social">
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="leadership-card animate-on-scroll">
+                    <div class="leader-image">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300"
+                            alt="Deputy Principal">
+                    </div>
+                    <h3 class="leader-name">Yia Ovua Thomas</h3>
+                    <p class="leader-title">Deputy Principal</p>
+                    <p class="leader-bio">Supporting academic excellence and institutional development.</p>
+                    <div class="leader-social">
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="leadership-card animate-on-scroll">
+                    <div class="leader-image">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" alt="Bursar">
+                    </div>
+                    <h3 class="leader-name">Arikod hellen</h3>
+                    <p class="leader-title">Bursar</p>
+                    <p class="leader-bio">Managing institutional finances with transparency and accountability.</p>
+                    <div class="leader-social">
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <div class="leadership-card animate-on-scroll">
+                    <div class="leader-image">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300"
+                            alt="Dean of Students">
+                    </div>
+                    <h3 class="leader-name">Obwale Francis</h3>
+                    <p class="leader-title">Dean of Students</p>
+                    <p class="leader-bio">Ensuring student welfare and co-curricular activities.</p>
+                    <div class="leader-social">
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Graduation Gallery -->
+    <section class="graduation-gallery section" id="gallery">
+        <div class="container">
+            <h2 class="section-title">Graduation Memories</h2>
+            <p class="section-subtitle">Celebrating the achievements of our graduates throughout the years</p>
+
+            <div class="gallery-grid" data-gallery-container data-limit="6">
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600"
+                        alt="Graduation Ceremony 2023" loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2023</h4>
+                            <p>Automotive Mechanics Cohort</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=1200">
+                    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600" alt="Graduation 2022"
+                        loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2022</h4>
+                            <p>Electrical Installation</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200">
+                    <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600"
+                        alt="Graduation Ceremony" loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2021</h4>
+                            <p>IT Solutions</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600"
+                        alt="Graduates Celebrating" loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2020</h4>
+                            <p>Culinary Arts</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1200">
+                    <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600"
+                        alt="Graduation Group Photo" loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2019</h4>
+                            <p>Building Construction</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item animate-on-scroll"
+                    data-src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200">
+                    <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=600" alt="Graduation Event"
+                        loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h4>Class of 2018</h4>
+                            <p>Machining and Fitting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <img src="" alt="Gallery Image" id="lightboxImage">
+    </div>
+
+    <!-- Practical Training Carousel -->
+    <section class="practical-training">
+        <div class="container">
+            <h2 class="section-title">Hands-On Learning in Action</h2>
+            <p class="section-subtitle">Our students gain real-world experience through practical training</p>
+
+            <div class="carousel-container">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800"
+                                    alt="Automotive Workshop" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <h3>Automotive Mechanics</h3>
+                            <p>Students learn modern automotive repair techniques using industry-standard equipment and
+                                tools.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800"
+                                    alt="Electrical Lab" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3>Electrical Installation</h3>
+                            <p>Hands-on training in electrical systems, wiring, and renewable energy technologies.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800"
+                                    alt="Welding Workshop" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h3>Machining and Fitting</h3>
+                            <p>Master various welding techniques including MIG, TIG, and arc welding.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800"
+                                    alt="Computer Lab" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h3>Building Construction</h3>
+                            <p>Comprehensive training in hardware, networking, software development, and IT support.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800"
+                                    alt="Culinary Kitchen" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <h3>Culinary Arts</h3>
+                            <p>Professional cooking skills, food safety, and culinary creativity in our modern kitchen.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="training-card">
+                            <div class="training-image">
+                                <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800"
+                                    alt="Construction Training" loading="lazy">
+                            </div>
+                            <div class="training-icon">
+                                <i class="fas fa-hard-hat"></i>
+                            </div>
+                            <h3>Building Construction</h3>
+                            <p>Practical skills in carpentry, masonry, plumbing, and general construction.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-nav">
+                    <button class="carousel-btn" id="carouselPrev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn" id="carouselNext">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="carousel-dots" id="carouselDots">
+                    <button class="carousel-dot active" data-slide="0"></button>
+                    <button class="carousel-dot" data-slide="1"></button>
+                    <button class="carousel-dot" data-slide="2"></button>
+                    <button class="carousel-dot" data-slide="3"></button>
+                    <button class="carousel-dot" data-slide="4"></button>
+                    <button class="carousel-dot" data-slide="5"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Academic Programs -->
+    <section class="programs section" id="programs">
+        <div class="container">
+            <h2 class="section-title">Academic Programs</h2>
+            <p class="section-subtitle">Explore our comprehensive technical and vocational training programs</p>
+
+            <div class="programs-grid">
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Automotive Mechanics</h3>
+                    <p>Learn modern vehicle repair, diagnostics, and maintenance techniques using industry-standard
+                        equipment.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 2 Years</span>
+                        <span><i class="fas fa-users"></i> 45 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>92%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Electrical Installation</h3>
+                    <p>Master electrical systems, wiring, installations, and renewable energy technologies.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 2 Years</span>
+                        <span><i class="fas fa-users"></i> 40 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>95%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3>Machining and Fitting</h3>
+                    <p>Learn MIG, TIG, and arc welding techniques for industrial and artistic applications.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 1.5 Years</span>
+                        <span><i class="fas fa-users"></i> 35 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>88%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3>Woodwork Technology</h3>
+                    <p>Master carpentry, joinery, furniture making, and wood machining techniques.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 2 Years</span>
+                        <span><i class="fas fa-users"></i> 50 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>98%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 98%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h3>Fashion & Garment Design</h3>
+                    <p>Learn clothing design, pattern making, tailoring, and garment construction techniques.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 1 Year</span>
+                        <span><i class="fas fa-users"></i> 30 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-hard-hat"></i>
+                    </div>
+                    <h3>Building Construction</h3>
+                    <p>Practical skills in carpentry, masonry, plumbing, and comprehensive building techniques.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 2 Years</span>
+                        <span><i class="fas fa-users"></i> 38 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="program-card animate-on-scroll">
+                    <div class="program-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h3>Plumbing</h3>
+                    <p>Learn pipe fitting, water systems, sanitation, and plumbing installations.</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 2 Years</span>
+                        <span><i class="fas fa-users"></i> 25 Students</span>
+                    </div>
+                    <div class="program-progress">
+                        <div class="progress-label">
+                            <span>Industry Demand</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <a href="#contact" class="program-link">
+                        Learn More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials section">
+        <div class="container">
+            <h2 class="section-title">What Our Students Say</h2>
+            <p class="section-subtitle">Hear from our graduates about their experience at SKTI</p>
+
+            <div class="testimonials-carousel">
+                <div class="testimonial-slide active">
+                    <div class="testimonial-image">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+                            alt="James Kimani">
+                    </div>
+                    <p class="testimonial-quote">The hands-on training I received at SKTI gave me the skills I needed to
+                        start my own auto repair shop. The instructors were incredibly supportive and practical.</p>
+                    <div class="testimonial-author">
+                        <h4>James Kimani</h4>
+                        <span>Automotive Mechanics, Class of 2020</span>
+                    </div>
+                </div>
+
+                <div class="testimonial-slide">
+                    <div class="testimonial-image">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200"
+                            alt="Grace Atieno">
+                    </div>
+                    <p class="testimonial-quote">Thanks to SKTI's IT program, I'm now working as a network administrator
+                        at a major company. The curriculum was up-to-date and relevant to today's industry.</p>
+                    <div class="testimonial-author">
+                        <h4>Grace Atieno</h4>
+                        <span>Woodwork Technology, Class of 2019</span>
+                    </div>
+                </div>
+
+                <div class="testimonial-slide">
+                    <div class="testimonial-image">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200"
+                            alt="Michael Ochieng">
+                    </div>
+                    <p class="testimonial-quote">The welding program exceeded my expectations. I learned advanced
+                        techniques and landed a well-paying job within months of graduating. SKTI truly changes lives.
+                    </p>
+                    <div class="testimonial-author">
+                        <h4>Michael Ochieng</h4>
+                        <span>Machining and Fitting, Class of 2019</span>
+                    </div>
+                </div>
+
+                <div class="testimonial-nav">
+                    <button class="testimonial-btn" id="testimonialPrev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="testimonial-btn" id="testimonialNext">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact section" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We'd love to hear from you. Send us a message and we'll respond
+                as soon as possible.</p>
+
+            <div class="contact-grid">
+                <div class="contact-form animate-on-scroll">
+                    <h3>Request Information</h3>
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                                <span class="form-error">Please enter your name</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                                <span class="form-error">Please enter a valid email</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="program">Program Interest *</label>
+                                <select id="program" name="program" required>
+                                    <option value="">Select a program</option>
+                                    <option value="automotive">Automotive Mechanics</option>
+                                    <option value="electrical">Electrical Installation</option>
+                                    <option value="welding">Machining and Fitting</option>
+                                    <option value="building">Building Construction</option>
+                                </select>
+                                <span class="form-error">Please select a program</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message *</label>
+                            <textarea id="message" name="message" placeholder="How can we help you?"
+                                required></textarea>
+                            <span class="form-error">Please enter a message</span>
+                        </div>
+                        <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i>
+                            Request Information
+                        </button>
+                    </form>
+                </div>
+
+                <div class="contact-info">
+                    <div class="contact-card animate-on-scroll">
+                        <div class="contact-card-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div>
+                            <h4>Phone</h4>
+                            <div id="site-contact-phones">
+                                <p><a href="tel:+256752309660">+256 752 309 660</a></p>
+                                <p><a href="tel:+256772309660">+256 772 309 660</a></p>
+                                <p><a href="tel:+256777769658">+256 777 769 658</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-card animate-on-scroll">
+                        <div class="contact-card-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h4>Email</h4>
+                            <p><a id="site-contact-email" href="mailto:stkizitmad@gmail.com">stkizitmad@gmail.com</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card animate-on-scroll">
+                        <div class="contact-card-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h4>Office Hours</h4>
+                            <div id="site-office-hours-lines">
+                                <p>Monday - Friday: 7:00 AM - 6:00 PM</p>
+                                <p>Saturday: 8:00 AM - 2:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-card animate-on-scroll">
+                        <div class="contact-card-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h4>Location</h4>
+                            <div id="site-location-lines">
+                                <p>P.O. Box Soroti, Uganda</p>
+                                <p>5km from Soroti City</p>
+                                <p>Off Soroti-Moroto Road, Madera Complex</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="digital-access section" id="digital-access">
+        <div class="container">
+            <h2 class="section-title">Digital Access</h2>
+            <p class="section-subtitle">Access student services today and prepare for our online learning platform on a
+                separate domain.</p>
+
+            <div class="portal-grid">
+                <div class="portal-card animate-on-scroll">
+                    <span class="portal-badge"><i class="fas fa-user-graduate"></i> Student Services</span>
+                    <h3>Student Portal</h3>
+                    <p>Give learners one place to find notices, downloads, academic support contacts, and campus
+                        updates.</p>
+                    <ul class="portal-list">
+                        <li><i class="fas fa-check-circle"></i> Student announcements and updates</li>
+                        <li><i class="fas fa-check-circle"></i> Downloads, forms, and support links</li>
+                        <li><i class="fas fa-check-circle"></i> Fast access to the learning platform</li>
+                    </ul>
+                    <div class="portal-actions">
+                        <a href="student-portal.html" class="btn btn-primary">Open Student Portal</a>
+                    </div>
+                </div>
+
+                <div class="portal-card animate-on-scroll">
+                    <span class="portal-badge"><i class="fas fa-laptop"></i> Separate Domain</span>
+                    <h3>Online Learning</h3>
+                    <p>Introduce e-learning from a dedicated domain for coursework, assignments, and virtual engagement.
+                    </p>
+                    <ul class="portal-list">
+                        <li><i class="fas fa-check-circle"></i> Dedicated learning platform handoff page</li>
+                        <li><i class="fas fa-check-circle"></i> Ready for a future LMS domain</li>
+                        <li><i class="fas fa-check-circle"></i> Clear route from the main website</li>
+                    </ul>
+                    <div class="portal-actions">
+                        <a href="online-learning.html" class="btn btn-secondary">Explore Online Learning</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo-text" id="site-footer-brand"
+                        style="color: var(--white); font-size: 1.5rem; margin-bottom: 15px;">St.
+                        Kizito's Technical Institute - Madera</div>
+                    <p id="site-footer-description">Building Skills, Transforming Lives Since 1947. A government-aided
+                        technical institute offering
+                        holistic technical education anchored on Christian principles.</p>
+                    <div class="footer-social">
+                        <a id="site-facebook-link" href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a id="site-twitter-link" href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a id="site-instagram-link" href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a id="site-youtube-link" href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#programs">Programs</a></li>
+                        <li><a href="admissions.html">Admissions</a></li>
+                        <li><a href="student-portal.html">Student Portal</a></li>
+                        <li><a href="online-learning.html">Online Learning</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4 class="footer-title">Programs</h4>
+                    <ul class="footer-links">
+                        <li><a href="#programs">Automotive Mechanics</a></li>
+                        <li><a href="#programs">Electrical Installation</a></li>
+                        <li><a href="#programs">Building & Construction</a></li>
+                        <li><a href="#programs">View All Programs</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p style="color: var(--medium-gray); margin-bottom: 15px;">Subscribe to our newsletter for updates
+                        and news.</p>
+                    <form class="newsletter-form" onsubmit="return false;">
+                        <input type="email" placeholder="Your email">
+                        <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 St. Kizito's Technical Institute. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // ========================================
+        // DOM Elements
+        // ========================================
+        const header = document.getElementById('header');
+        const mobileToggle = document.getElementById('mobileToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileClose = document.getElementById('mobileClose');
+        const backToTop = document.getElementById('backToTop');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const contactForm = document.getElementById('contactForm');
+        const searchInput = document.getElementById('searchInput');
+
+        // ========================================
+        // Header Scroll Effect
+        // ========================================
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+
+            if (currentScroll > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // ========================================
+        // Mobile Menu
+        // ========================================
+        mobileToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+            mobileOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        const closeMobileMenu = () => {
+            mobileMenu.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        mobileClose.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        // Close menu on link click
+        document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // ========================================
+        // Smooth Scroll
+        // ========================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerHeight = header.offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ========================================
+        // Back to Top
+        // ========================================
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // ========================================
+        // Animated Counters
+        // ========================================
+        const animateCounters = () => {
+            const counters = document.querySelectorAll('.stat-number');
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current) + '+';
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target + '+';
+                    }
+                };
+
+                updateCounter();
+            });
+        };
+
+        // ========================================
+        // Scroll Animations
+        // ========================================
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+
+                    // Trigger counter animation for stats
+                    if (entry.target.closest('.stats-grid')) {
+                        animateCounters();
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // ========================================
+        // Gallery Lightbox
+        // ========================================
+        document.addEventListener('click', (e) => {
+            const item = e.target.closest('.gallery-item');
+            if (!item) return;
+
+            const src = item.getAttribute('data-src');
+            if (!src) return;
+
+            lightboxImage.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ========================================
+        // Training Carousel
+        // ========================================
+        const carouselTrack = document.getElementById('carouselTrack');
+        const carouselSlides = document.querySelectorAll('.carousel-slide');
+        const carouselDots = document.querySelectorAll('.carousel-dot');
+        const carouselPrev = document.getElementById('carouselPrev');
+        const carouselNext = document.getElementById('carouselNext');
+
+        let currentSlide = 0;
+        let autoplayInterval;
+
+        const updateCarousel = () => {
+            carouselTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            carouselDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        };
+
+        const nextSlide = () => {
+            currentSlide = (currentSlide + 1) % carouselSlides.length;
+            updateCarousel();
+        };
+
+        const prevSlide = () => {
+            currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
+            updateCarousel();
+        };
+
+        carouselNext.addEventListener('click', () => {
+            nextSlide();
+            resetAutoplay();
+        });
+
+        carouselPrev.addEventListener('click', () => {
+            prevSlide();
+            resetAutoplay();
+        });
+
+        carouselDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateCarousel();
+                resetAutoplay();
+            });
+        });
+
+        // Autoplay
+        const startAutoplay = () => {
+            autoplayInterval = setInterval(nextSlide, 5000);
+        };
+
+        const resetAutoplay = () => {
+            clearInterval(autoplayInterval);
+            startAutoplay();
+        };
+
+        // Pause on hover
+        const carouselContainer = document.querySelector('.carousel-container');
+        carouselContainer.addEventListener('mouseenter', () => {
+            clearInterval(autoplayInterval);
+        });
+
+        carouselContainer.addEventListener('mouseleave', startAutoplay);
+
+        startAutoplay();
+
+        // ========================================
+        // Testimonials Carousel
+        // ========================================
+        const testimonialSlides = document.querySelectorAll('.testimonial-slide');
+        const testimonialPrev = document.getElementById('testimonialPrev');
+        const testimonialNext = document.getElementById('testimonialNext');
+
+        let currentTestimonial = 0;
+
+        const updateTestimonials = () => {
+            testimonialSlides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentTestimonial);
+            });
+        };
+
+        testimonialNext.addEventListener('click', () => {
+            currentTestimonial = (currentTestimonial + 1) % testimonialSlides.length;
+            updateTestimonials();
+        });
+
+        testimonialPrev.addEventListener('click', () => {
+            currentTestimonial = (currentTestimonial - 1 + testimonialSlides.length) % testimonialSlides.length;
+            updateTestimonials();
+        });
+
+        // Auto-advance testimonials
+        setInterval(() => {
+            currentTestimonial = (currentTestimonial + 1) % testimonialSlides.length;
+            updateTestimonials();
+        }, 6000);
+
+        // ========================================
+        // Form Validation
+        // ========================================
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let isValid = true;
+            const formGroups = contactForm.querySelectorAll('.form-group');
+
+            formGroups.forEach(group => {
+                const input = group.querySelector('input, select, textarea');
+                if (input && input.hasAttribute('required') && !input.value.trim()) {
+                    group.classList.add('error');
+                    isValid = false;
+                } else if (input && input.type === 'email' && input.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(input.value)) {
+                        group.classList.add('error');
+                        isValid = false;
+                    } else {
+                        group.classList.remove('error');
+                    }
+                } else {
+                    group.classList.remove('error');
+                }
+            });
+
+            if (isValid) {
+                // Show success message
+                alert('Thank you for your inquiry! We will contact you soon.');
+                contactForm.reset();
+            }
+        });
+
+        // Remove error on input
+        contactForm.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', () => {
+                input.closest('.form-group').classList.remove('error');
+            });
+        });
+
+        // ========================================
+        // Search Functionality
+        // ========================================
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && searchInput.value.trim()) {
+                    alert(`Search functionality demo: Searching for "${searchInput.value}"\n\nIn a full implementation, this would filter page content or redirect to a search results page.`);
+                    searchInput.value = '';
+                }
+            });
+        }
+
+        // ========================================
+        // Navigation Active State
+        // ========================================
+        const sections = document.querySelectorAll('section[id]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 150;
+                const sectionHeight = section.offsetHeight;
+
+                if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionTop + sectionHeight) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // ========================================
+        // Lazy Loading Images
+        // ========================================
+        if ('loading' in HTMLImageElement.prototype) {
+            // Browser supports lazy loading
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                img.src = img.src;
+            });
+        } else {
+            // Fallback for older browsers
+            const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+            const lazyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.src;
+                        lazyObserver.unobserve(img);
+                    }
+                });
+            });
+
+            lazyImages.forEach(img => lazyObserver.observe(img));
+        }
+
+        // ========================================
+        // Initialize
+        // ========================================
+        // Add loaded class after page load
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
