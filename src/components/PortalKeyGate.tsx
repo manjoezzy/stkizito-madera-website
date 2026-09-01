@@ -14,7 +14,7 @@ const PRIMARY_LIGHT = '#2756a0';
 const GOLD = '#f5c518';
 
 export default function PortalKeyGate() {
-  const { setCurrentPage } = useAppStore();
+  const { setCurrentPage, setPortalVerified } = useAppStore();
   const [key, setKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -59,7 +59,7 @@ export default function PortalKeyGate() {
       }
 
       // Key verified — store in sessionStorage and navigate to login
-      sessionStorage.setItem('sktim_portal_verified', 'true');
+      setPortalVerified(true);
       setCurrentPage('staff-portal-8x7q');
     } catch {
       setError('Network error. Please check your connection.');

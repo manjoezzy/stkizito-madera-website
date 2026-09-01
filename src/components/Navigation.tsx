@@ -70,8 +70,8 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-14 lg:h-16">
             {/* Logo + Name */}
             <button onClick={() => setCurrentPage('home')} className="flex items-center gap-2.5 group shrink-0">
-              <div className={`w-10 h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center overflow-hidden ${scrolled || currentPage !== 'home' ? 'bg-white' : 'bg-white/20 backdrop-blur-sm'} transition-all` }>
-                <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={44} height={44} className="object-contain w-full h-full" />
+              <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                <Image src="/images/institute-logo.jpg" alt="SKTM Logo" width={56} height={56} className="object-contain w-full h-full" />
               </div>
               <div className="hidden sm:block">
                 <h1 className={`text-sm font-bold leading-tight whitespace-nowrap ${scrolled || currentPage !== 'home' ? 'text-[#1a3a6b]' : 'text-white'} transition-colors`}>

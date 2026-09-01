@@ -34,6 +34,12 @@ interface AppState {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
 
+  focusEventId: string | null;
+  setFocusEventId: (id: string | null) => void;
+
+  portalVerified: boolean;
+  setPortalVerified: (verified: boolean) => void;
+
   toasts: Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>; 
   addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   removeToast: (id: string) => void;
@@ -56,6 +62,18 @@ export const useAppStore = create<AppState>((set) => ({
 
   mobileMenuOpen: false,
   setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
+
+  focusEventId: null,
+  setFocusEventId: (id) => set({ focusEventId: id }),
+
+  portalVerified: typeof window !== 'undefined' && sessionStorage.getItem('sktim_portal_verified') === 'true',
+  setPortalVerified: (verified) => {
+    if (typeof window !== 'undefined') {
+      if (verified) sessionStorage.setItem('sktim_portal_verified', 'true');
+      else sessionStorage.removeItem('sktim_portal_verified');
+    }
+    set({ portalVerified: verified });
+  },
 
   toasts: [],
   addToast: (message, type = 'info') => {

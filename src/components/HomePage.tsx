@@ -23,6 +23,7 @@ import {
   Tag,
   Send,
   ChevronRight,
+  ChevronLeft,
   Star,
   Quote,
   Facebook,
@@ -90,6 +91,9 @@ const TESTIMONIALS = [
       'The quality of instruction at St. Kizito\'s is unmatched. Within three months of graduating, I was employed at a leading garage in Kampala. The foundation I received here is invaluable.',
   },
 ];
+
+/* ──────────────────── hero rotation ──────────────────── */
+const HERO_SLIDE_MS = 15000;
 
 /* ──────────────────── quick links ──────────────────── */
 const QUICK_LINKS: { label: string; page: Page }[] = [
@@ -160,7 +164,7 @@ function Section({
    MAIN COMPONENT
    ══════════════════════════════════════════════════════ */
 export default function HomePage() {
-  const { currentPage, setCurrentPage, addToast } = useAppStore();
+  const { currentPage, setCurrentPage, addToast, setFocusEventId } = useAppStore();
   const [statsVisible, setStatsVisible] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -178,10 +182,11 @@ export default function HomePage() {
   const heroTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heroTimerStartRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Build slides array: default first, then events (only those with photos)
+  // Build slides array: default first, then banner-flagged events, then most recent (max 5)
   const heroSlides = (() => {
     const defaultSlide = { type: 'default' as const };
-    const eventSlides = heroEvents
+    const eventSlides = [...heroEvents]
+      .sort((a, b) => (b.isBanner ? 1 : 0) - (a.isBanner ? 1 : 0))
       .filter(e => e.bannerUrl || heroPhotos.length > 0)
       .slice(0, 5)
       .map((e, i) => ({
@@ -199,22 +204,30 @@ export default function HomePage() {
     if (heroSlide >= totalHeroSlides) setHeroSlide(0);
   }, [heroSlide, totalHeroSlides]);
 
-  // Auto-rotate slides
-  useEffect(() => {
-    if (totalHeroSlides <= 1) return;
-    // Clear any existing timers
+  const restartHeroTimer = () => {
     if (heroTimerRef.current) clearInterval(heroTimerRef.current);
     if (heroTimerStartRef.current) clearTimeout(heroTimerStartRef.current);
-    // Start first rotation after 6s (longer dwell on default), then every 5s
     heroTimerStartRef.current = setTimeout(() => {
       heroTimerRef.current = setInterval(() => {
         setHeroSlide(prev => (prev + 1) % totalHeroSlides);
-      }, 5000);
-    }, 6000);
+      }, HERO_SLIDE_MS);
+    }, HERO_SLIDE_MS);
+  };
+
+  const goHeroSlide = (index: number) => {
+    setHeroSlide((index + totalHeroSlides) % totalHeroSlides);
+    restartHeroTimer();
+  };
+
+  // Auto-rotate slides
+  useEffect(() => {
+    if (totalHeroSlides <= 1) return;
+    restartHeroTimer();
     return () => {
       if (heroTimerRef.current) clearInterval(heroTimerRef.current);
       if (heroTimerStartRef.current) clearTimeout(heroTimerStartRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalHeroSlides]);
 
   // Fetch latest published events/news
@@ -225,7 +238,7 @@ export default function HomePage() {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.data)) {
-            setHeroEvents(data.data.slice(0, 6));
+            setHeroEvents(data.data);
           }
         }
       } catch {
@@ -330,7 +343,7 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
-              className="absolute top-[100px] lg:top-[112px] left-0 right-0 bottom-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center pt-[100px] lg:pt-[112px]"
             >
               {/* dark gradient background */}
               <div
@@ -429,7 +442,7 @@ export default function HomePage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
-              className="absolute top-[100px] lg:top-[112px] left-0 right-0 bottom-0"
+              className="absolute inset-0"
             >
               {/* Full-bleed background photo */}
               <div
@@ -444,7 +457,7 @@ export default function HomePage() {
               <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
               {/* Content at the bottom */}
-              <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-10 lg:px-16 pb-16 sm:pb-20 lg:pb-24">
+              <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none px-6 sm:px-10 lg:px-16 pb-16 sm:pb-20 lg:pb-24">
                 <div className="max-w-4xl">
                   {/* Category badges */}
                   <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -484,10 +497,10 @@ export default function HomePage() {
                       onClick={() => {
                         const evt = heroSlides[heroSlide]?.event;
                         if (!evt) return;
-                        const page: Page = evt.category === 'general' || evt.category === 'news' ? 'news' : 'events';
-                        setCurrentPage(page);
+                        setFocusEventId(evt.id);
+                        setCurrentPage('news');
                       }}
-                      className="inline-flex items-center gap-2 bg-[#f5c518] hover:bg-[#f5c518]/90 text-[#0d1b2a] font-semibold px-6 py-2.5 rounded-lg transition-all hover:scale-105 text-sm"
+                      className="pointer-events-auto inline-flex items-center gap-2 bg-[#f5c518] hover:bg-[#f5c518]/90 text-[#0d1b2a] font-semibold px-6 py-2.5 rounded-lg transition-all hover:scale-105 text-sm"
                     >
                       Read More
                       <ArrowRight className="size-4" />
@@ -505,17 +518,7 @@ export default function HomePage() {
             {heroSlides.map((slide, i) => (
               <button
                 key={i}
-                onClick={() => {
-                  setHeroSlide(i);
-                  // Reset timer on manual click
-                  if (heroTimerRef.current) clearInterval(heroTimerRef.current);
-                  if (heroTimerStartRef.current) clearTimeout(heroTimerStartRef.current);
-                  heroTimerStartRef.current = setTimeout(() => {
-                    heroTimerRef.current = setInterval(() => {
-                      setHeroSlide(prev => (prev + 1) % totalHeroSlides);
-                    }, 5000);
-                  }, 5000);
-                }}
+                onClick={() => goHeroSlide(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   i === heroSlide
                     ? 'w-8 bg-[#f5c518]'
@@ -546,6 +549,26 @@ export default function HomePage() {
               />
             </motion.div>
           </motion.div>
+        )}
+
+        {/* Side click zones — prev / next slide */}
+        {totalHeroSlides > 1 && (
+          <>
+            <button
+              aria-label="Previous slide"
+              onClick={() => goHeroSlide(heroSlide - 1)}
+              className="absolute left-0 top-0 bottom-0 w-1/4 z-[5] group flex items-center"
+            >
+              <ChevronLeft className="size-7 sm:size-9 text-white/30 group-hover:text-white/90 transition-colors ml-1 sm:ml-3" />
+            </button>
+            <button
+              aria-label="Next slide"
+              onClick={() => goHeroSlide(heroSlide + 1)}
+              className="absolute right-0 top-0 bottom-0 w-1/4 z-[5] group flex items-center justify-end"
+            >
+              <ChevronRight className="size-7 sm:size-9 text-white/30 group-hover:text-white/90 transition-colors mr-1 sm:mr-3" />
+            </button>
+          </>
         )}
       </section>
 

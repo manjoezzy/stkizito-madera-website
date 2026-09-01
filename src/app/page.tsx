@@ -74,7 +74,7 @@ const PAGE_CONFIG: Record<Page, { showNav: boolean; fullWidth: boolean; requires
 };
 
 export default function MainApp() {
-  const { currentPage, toasts, removeToast, adminUser, setAdminUser, setCurrentPage } = useAppStore();
+  const { currentPage, toasts, removeToast, adminUser, setAdminUser, setCurrentPage, portalVerified } = useAppStore();
 
   // Restore session from cookie on mount
   useEffect(() => {
@@ -116,15 +116,12 @@ export default function MainApp() {
   // Enforce portal key gate for protected pages
   const effectivePage = useMemo(() => {
     const config = PAGE_CONFIG[currentPage];
-    if (config?.requiresPortalKey) {
-      const verified = sessionStorage.getItem('sktim_portal_verified') === 'true';
-      if (!verified) {
-        // Redirect to portal key gate
-        return 'portal-key' as Page;
-      }
+    if (config?.requiresPortalKey && !portalVerified) {
+      // Redirect to portal key gate
+      return 'portal-key' as Page;
     }
     return currentPage;
-  }, [currentPage]);
+  }, [currentPage, portalVerified]);
 
   const config = PAGE_CONFIG[effectivePage];
   const PageComponent = PAGE_COMPONENTS[effectivePage];

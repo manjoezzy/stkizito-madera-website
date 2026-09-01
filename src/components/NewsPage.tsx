@@ -82,7 +82,7 @@ function formatDate(dateStr: string | null | undefined): string {
 }
 
 export default function NewsPage() {
-  const { setCurrentPage } = useAppStore();
+  const { setCurrentPage, focusEventId, setFocusEventId } = useAppStore();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,6 +114,19 @@ export default function NewsPage() {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (loading || !focusEventId) return;
+    setExpandedIds((prev) => new Set(prev).add(focusEventId));
+    setFeaturedExpanded((prev) => new Set(prev).add(focusEventId));
+    const timer = setTimeout(() => {
+      document
+        .getElementById(`news-card-${focusEventId}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setFocusEventId(null);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [loading, focusEventId, setFocusEventId]);
 
   // Build a map of event IDs to gallery images (using matching by category/date or just latest)
   const galleryImageMap = new Map<string, string>();
@@ -392,7 +405,7 @@ export default function NewsPage() {
                 const isExpanded = expandedIds.has(event.id);
 
                 return (
-                  <motion.div key={event.id} variants={itemVariants}>
+                  <motion.div key={event.id} id={`news-card-${event.id}`} className="scroll-mt-28" variants={itemVariants}>
                     <Card className="h-full border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
                       {/* Image or Placeholder */}
                       <div className="relative w-full h-44 overflow-hidden bg-gray-100">

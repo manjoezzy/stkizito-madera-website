@@ -286,7 +286,7 @@ const staggerItem = {
 // ===================== MAIN COMPONENT =====================
 
 export default function AdminDashboard() {
-  const { adminUser, setAdminUser, setCurrentPage, addToast } = useAppStore();
+  const { adminUser, setAdminUser, setCurrentPage, addToast, setPortalVerified } = useAppStore();
 
   // ---- State ----
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
@@ -870,7 +870,7 @@ export default function AdminDashboard() {
     }
     setAdminUser(null);
     // Clear portal verification so re-entry requires the key again
-    sessionStorage.removeItem('sktim_portal_verified');
+    setPortalVerified(false);
     setCurrentPage('home');
     addToast('Logged out successfully', 'info');
   };
